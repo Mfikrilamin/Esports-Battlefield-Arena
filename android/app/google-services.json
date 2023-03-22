@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "72377352569",
+    "project_id": "esports-battlefield-arena",
+    "storage_bucket": "esports-battlefield-arena.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:72377352569:android:fc94cf1fbc8657110bafa8",
+        "android_client_info": {
+          "package_name": "com.example.esports_battlefield_arena"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "72377352569-raclnjcnhhgn0lrrtq0o5id48u9jiae8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAtCfsH9kk73DbX1J3bt_HfqA3b8HUOPRU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "72377352569-raclnjcnhhgn0lrrtq0o5id48u9jiae8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
