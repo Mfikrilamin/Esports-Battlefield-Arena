@@ -3,7 +3,7 @@ import 'package:esports_battlefield_arena/app/failures.dart';
 import 'package:esports_battlefield_arena/services/firebase/authentication/fireauth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class FireAuthService extends FireAuth {
+class FireAuthService extends Auth {
   final _firebaseAuth = FirebaseAuth.instance;
   @override
   resetPassword(String email) async {

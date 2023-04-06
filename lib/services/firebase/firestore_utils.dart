@@ -83,37 +83,80 @@ final Map<FirestoreCollections, Map<FirestoreDeclration, String>>
 //For example, if the collection name is FirestoreCollections.users, it will return an instance of User class
 //However the type return is dynamic, not sure whether flutter will trigger the intellisense
 dynamic checkCollectionNameAndgetModelData(
-    FirestoreCollections collectionName, Map<String, dynamic> data) {
+    FirestoreCollections collection, Map<String, dynamic> data) {
   try {
-    switch (collectionName) {
-      case FirestoreCollections.users:
-        return User.fromJson(data);
-      case FirestoreCollections.player:
-        return Player.fromJson(data);
-      case FirestoreCollections.organizer:
-        return Organizer.fromJson(data);
-      case FirestoreCollections.team:
-        return Team.fromJson(data);
-      case FirestoreCollections.tournament:
-        return Tournament.fromJson(data);
-      case FirestoreCollections.tournamentParticipant:
-        return TournamentParticipant.fromJson(data);
-      case FirestoreCollections.nickname:
-        return Nickname.fromJson(data);
-      case FirestoreCollections.match:
-        return Match.fromJson(data);
-      case FirestoreCollections.apexMatchResult:
-        return ApexMatchResult.fromJson(data);
-      case FirestoreCollections.valorantMatchResult:
-        return ValorantMatchResult.fromJson(data);
-      case FirestoreCollections.playerStats:
-        return PlayerStats.fromJson(data);
-      case FirestoreCollections.invoice:
-        return Invoice.fromJson(data);
-      default:
-        throw ArgumentError('Collection name is not valid');
-    }
+    dynamic modelType = getDataModelType(collection);
+    return modelType.fromJson(data);
+
+    // switch (collectionName) {
+    //   case FirestoreCollections.users:
+    //     return User.fromJson(data);
+    //   case FirestoreCollections.player:
+    //     return Player.fromJson(data);
+    //   case FirestoreCollections.organizer:
+    //     return Organizer.fromJson(data);
+    //   case FirestoreCollections.team:
+    //     return Team.fromJson(data);
+    //   case FirestoreCollections.tournament:
+    //     return Tournament.fromJson(data);
+    //   case FirestoreCollections.tournamentParticipant:
+    //     return TournamentParticipant.fromJson(data);
+    //   case FirestoreCollections.nickname:
+    //     return Nickname.fromJson(data);
+    //   case FirestoreCollections.match:
+    //     return Match.fromJson(data);
+    //   case FirestoreCollections.apexMatchResult:
+    //     return ApexMatchResult.fromJson(data);
+    //   case FirestoreCollections.valorantMatchResult:
+    //     return ValorantMatchResult.fromJson(data);
+    //   case FirestoreCollections.playerStats:
+    //     return PlayerStats.fromJson(data);
+    //   case FirestoreCollections.invoice:
+    //     return Invoice.fromJson(data);
+    //   default:
+    //     throw ArgumentError('Collection name is not valid');
+    // }
   } on Exception {
     rethrow;
+  }
+}
+
+bool checkCollectionNameAndgetFieldName(
+    FirestoreCollections collection, String field) {
+  dynamic modelType = getDataModelType(collection);
+  if (modelType.toJson().containsKey(field)) {
+    return true;
+  }
+  return false;
+}
+
+dynamic getDataModelType(FirestoreCollections collection) {
+  switch (collection) {
+    case FirestoreCollections.users:
+      return User;
+    case FirestoreCollections.player:
+      return Player;
+    case FirestoreCollections.organizer:
+      return Organizer;
+    case FirestoreCollections.team:
+      return Team;
+    case FirestoreCollections.tournament:
+      return Tournament;
+    case FirestoreCollections.tournamentParticipant:
+      return TournamentParticipant;
+    case FirestoreCollections.nickname:
+      return Nickname;
+    case FirestoreCollections.match:
+      return Match;
+    case FirestoreCollections.apexMatchResult:
+      return ApexMatchResult;
+    case FirestoreCollections.valorantMatchResult:
+      return ValorantMatchResult;
+    case FirestoreCollections.playerStats:
+      return PlayerStats;
+    case FirestoreCollections.invoice:
+      return Invoice;
+    default:
+      throw ArgumentError('Collection name is not valid');
   }
 }

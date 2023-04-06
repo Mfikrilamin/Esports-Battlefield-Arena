@@ -4,3 +4,5 @@ export 'firebase/authentication/fireauth.dart';
 export 'firebase/authentication/fireauth_service.dart';
 export 'initializer/service_initializer.dart';
 export 'initializer/service_initializer_firebase.dart';
+export 'counter/counter_service.dart';
+export 'log/log_services.dart';

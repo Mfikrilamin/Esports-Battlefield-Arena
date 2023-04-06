@@ -16,6 +16,8 @@ class Failure {
   static const notFound = Failure('not-found',
       message: 'The requested document was not found',
       location: 'firestore_service.dart');
+  static const invalidField = Failure('invalid-field',
+      message: 'The field is invalid', location: 'firestore_service.dart');
 }
 
 Failure firestoreError(String errorCode) {

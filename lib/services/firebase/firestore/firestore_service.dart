@@ -201,4 +201,52 @@ class FirestoreService extends Firestore {
       throw error;
     }
   }
+
+  //This function is to find the list of document that has the same value in the field
+  @override
+  Future<List> getAllByQuery(
+      FirestoreCollections collection, String field, String value) async {
+    try {
+      List<dynamic> listData = [];
+      //Get the collection name from the firestore configuration
+      String collectionName = firestoreCollectionsName[collection]![
+          FirestoreDeclration.collectionName]!;
+      log('"DEBUG": collection name: $collectionName');
+
+      //do the field checking based on the collection by call util function to verify the field
+      //Throw error if the field is not valid
+      if (checkCollectionNameAndgetFieldName(collection, field)) {
+        QuerySnapshot<Map<String, dynamic>> querySnapshot =
+            await _firebaseFirestore
+                .collection(collectionName)
+                .where(field, isEqualTo: value)
+                .get();
+        for (QueryDocumentSnapshot<Map<String, dynamic>> element
+            in querySnapshot.docs) {
+          listData.add(element.data());
+        }
+        return listData;
+      } else {
+        throw Failure.invalidField;
+      }
+    } on FirebaseException catch (e) {
+      log(firestoreError(e.code).toString());
+      throw firestoreError(e.code);
+    } on ArgumentError catch (e) {
+      Failure error = Failure("ARGUMENT_ERROR",
+          message: "$updateErrorMessage\nERROR MESSAGE: ${e.message}",
+          location: "firestore_utils.dart");
+      log(error.toString());
+      throw error;
+    } on Exception catch (e) {
+      Failure error = Failure("UNKNOWN",
+          message: "$updateErrorMessage\nERROR MESSAGE: $e",
+          location: "firestore_service.dart");
+      log(error.toString());
+      throw error;
+    } on Failure catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
 }
