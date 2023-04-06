@@ -46,3 +46,4 @@ app.*.map.json
 # Firebase
 lib/services/firebase/firebase_options.dart
 bfg-1.14.0.jar
+ios\Runner\GoogleService-Info.plist
