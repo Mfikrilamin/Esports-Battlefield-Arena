@@ -1,6 +1,6 @@
 import 'package:esports_battlefield_arena/screens/home/home_viewmodel.dart';
 import 'package:esports_battlefield_arena/shared/app_colors.dart';
-import 'package:esports_battlefield_arena/shared/styles.dart';
+import 'package:esports_battlefield_arena/shared/box_text.dart';
 import 'package:esports_battlefield_arena/utils/enum.dart';
 import 'package:esports_battlefield_arena/utils/rive_utils.dart';
 import 'package:flutter/material.dart';
@@ -68,11 +68,7 @@ class CustomBottomNavigationBar extends StackedHookView<HomeViewModel> {
                       ),
                       Container(
                         margin: const EdgeInsets.only(top: 2),
-                        child: Text(
-                          bottomNavs[index].state!.name,
-                          style: captionStyle.copyWith(
-                              color: kcVeryDarkGreyTextColor),
-                        ),
+                        child: BoxText.caption(bottomNavs[index].state!.name),
                       )
                     ],
                   ),

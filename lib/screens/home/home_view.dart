@@ -1,10 +1,14 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:esports_battlefield_arena/components/widgets/bottom_nagivation_bar.dart';
+import 'package:esports_battlefield_arena/screens/Example/example.dart';
 import 'package:esports_battlefield_arena/screens/home/home_viewmodel.dart';
+import 'package:esports_battlefield_arena/screens/payment_history/payment_history_view.dart';
 import 'package:esports_battlefield_arena/screens/player_home/player_home_view.dart';
 import 'package:esports_battlefield_arena/screens/profile/profile_view.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 
+@RoutePage()
 class HomeView extends StatelessWidget {
   // static Route route() => MaterialPageRoute(builder: (_) => const HomeView());
   const HomeView({
@@ -29,9 +33,9 @@ Widget buildBodyWidget(int index) {
     case 0:
       return const PlayerHomeView();
     case 1:
-      return const Center(child: Text('2'));
+      return const ExampleView();
     case 2:
-      return const Center(child: Text('3'));
+      return const PaymentHistoryView();
     default:
       return const ProfileView();
   }

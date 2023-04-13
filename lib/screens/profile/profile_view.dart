@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:esports_battlefield_arena/screens/profile/profile_viewmodel.dart';
 import 'package:esports_battlefield_arena/shared/app_colors.dart';
@@ -12,6 +13,13 @@ import 'package:rive/rive.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_hooks/stacked_hooks.dart';
 
+RiveAsset actionNavs = RiveAsset(
+  'assets/RiveAssets/setting_icon.riv',
+  artBoard: 'SETTINGS',
+  stateMachineName: "SETTINGS_interactivity",
+);
+
+@RoutePage()
 class ProfileView extends StatelessWidget {
   const ProfileView({Key? key}) : super(key: key);
 
@@ -20,118 +28,87 @@ class ProfileView extends StatelessWidget {
     return ViewModelBuilder<ProfileViewModel>.reactive(
       viewModelBuilder: () => ProfileViewModel(),
       builder: (context, model, child) => Scaffold(
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(35),
-          child: AppBar(
-            backgroundColor: kcPrimaryColor,
-            // backgroundColor: Colors.transparent,
-            bottomOpacity: 0.0,
-            elevation: 0.0,
-            scrolledUnderElevation: 0,
-            actions: [
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 15, vertical: 0),
-                child: GestureDetector(
-                  onTap: () {
-                    actionNavs.input!.change(true);
-                    Future.delayed(const Duration(seconds: 1), () {
-                      actionNavs.input!.change(false);
-                      // model.navigateBasedOnBottomBar();
-                    });
-                  },
-                  child: SizedBox(
-                    height: 24,
-                    width: 24,
-                    child: RiveAnimation.asset(
-                      actionNavs.src,
-                      fit: BoxFit.contain,
-                      artboard: actionNavs.artBoard,
-                      onInit: (artBoard) {
-                        RiveUtils riveUtils = RiveUtils();
-                        StateMachineController controller =
-                            riveUtils.getRiveController(artBoard,
-                                stateMachineName: actionNavs.stateMachineName);
-                        actionNavs.input =
-                            controller.findSMI("Hover") as SMIBool;
-                      },
-                    ),
-                  ),
-                ),
-              ),
-            ],
-            // title: const Text('Profile'),
-          ),
+        appBar: AppBar(
+          backgroundColor: kcPrimaryColor,
+          elevation: 0,
         ),
-        body: ListView(
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              // mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 25, vertical: 0),
-                  height: 80,
-                  width: double.infinity,
-                  decoration: const BoxDecoration(
-                    color: kcPrimaryColor,
-                  ),
-                  child: Column(
-                    // mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const BoxText.headingThree('Welcome Back,'),
-                      UIHelper.verticalSpaceSmall(),
-                      model.isPlayer
-                          ? BoxText.subheading(
-                              '${model.firstName} ${model.lastName}')
-                          : BoxText.subheading(model.organization),
-                    ],
-                  ),
-                ),
-                UIHelper.verticalSpaceMedium(),
-                const EmailInputField(),
-                UIHelper.verticalSpaceSmall(),
-                const PasswordInputField(),
-                UIHelper.verticalSpaceSmall(),
-                const CountryInputField(),
-                UIHelper.verticalSpaceSmall(),
-                const AddressInputField(),
-              ],
-            ),
-            UIHelper.verticalSpaceMediumLarge(),
-            !model.isBusy
-                ? Container(
+        body: PreferredSize(
+          preferredSize: const Size.fromHeight(35),
+          child: ListView(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                // mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 25, vertical: 0),
-                    child: BoxButton(
-                      title: 'Update',
-                      onTap: () {
-                        // model.navigateToSignInNextPage();
-                      },
+                    height: 80,
+                    width: double.infinity,
+                    decoration: const BoxDecoration(
+                      color: kcPrimaryColor,
                     ),
-                  )
-                : Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 25, vertical: 0),
-                    child: const BoxButton(
-                      title: 'Next',
-                      busy: true,
+                    child: Column(
+                      // mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const BoxText.headingOne('Welcome Back,'),
+                        UIHelper.verticalSpaceSmall(),
+                        model.isPlayer
+                            ? BoxText.body(
+                                '${model.firstName} ${model.lastName}',
+                                color: kcDarkGreyColor,
+                              )
+                            : BoxText.body(model.organization,
+                                color: kcDarkGreyColor),
+                      ],
                     ),
                   ),
-          ],
+                  UIHelper.verticalSpaceMedium(),
+                  const EmailInputField(),
+                  UIHelper.verticalSpaceSmall(),
+                  const PasswordInputField(),
+                  UIHelper.verticalSpaceSmall(),
+                  const CountryInputField(),
+                  UIHelper.verticalSpaceSmall(),
+                  const AddressInputField(),
+                  UIHelper.verticalSpaceSmall(),
+                  model.isPlayer
+                      ? const FirstNameInputField()
+                      : const OrganizerNameInputField(),
+                  UIHelper.verticalSpaceSmall(),
+                  model.isPlayer
+                      ? const LastNameInputField()
+                      : const SizedBox(),
+                ],
+              ),
+              UIHelper.verticalSpaceMediumLarge(),
+              !model.isBusy
+                  ? Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 25, vertical: 0),
+                      child: BoxButton(
+                        title: 'Update',
+                        onTap: () {
+                          // model.navigateToSignInNextPage();
+                        },
+                      ),
+                    )
+                  : Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 25, vertical: 0),
+                      child: const BoxButton(
+                        title: 'Next',
+                        busy: true,
+                      ),
+                    ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
-
-RiveAsset actionNavs = RiveAsset(
-  'assets/RiveAssets/setting_icon.riv',
-  artBoard: 'SETTINGS',
-  stateMachineName: "SETTINGS_interactivity",
-);
 
 class EmailInputField extends StackedHookView<ProfileViewModel> {
   const EmailInputField({Key? key}) : super(key: key, reactive: true);
@@ -151,8 +128,8 @@ class EmailInputField extends StackedHookView<ProfileViewModel> {
             controller: text,
             placeholder: 'Enter Email',
             onChanged: model.updateEmail,
-            readOnly: false,
-            errorText: model.isEmailValid ? null : 'Invalid Email',
+            readOnly: true,
+            // errorText: model.isEmailValid ? null : 'Invalid Email',
           ),
         ],
       ),
@@ -246,6 +223,78 @@ class CountryInputField extends StackedHookView<ProfileViewModel> {
             controller: text,
             placeholder: 'Select Your Country',
             onChanged: model.updateAddress,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class FirstNameInputField extends StackedHookView<ProfileViewModel> {
+  const FirstNameInputField({Key? key}) : super(key: key, reactive: false);
+  @override
+  Widget builder(BuildContext context, ProfileViewModel model) {
+    var text = useTextEditingController(text: model.firstName);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          BoxText.body('First Name'),
+          UIHelper.verticalSpaceSmall(),
+          BoxInputField(
+            controller: text,
+            placeholder: 'Your First Name',
+            readOnly: false,
+            onChanged: model.updateFirstName,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class LastNameInputField extends StackedHookView<ProfileViewModel> {
+  const LastNameInputField({Key? key}) : super(key: key, reactive: false);
+  @override
+  Widget builder(BuildContext context, ProfileViewModel model) {
+    var text = useTextEditingController(text: model.lastName);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          BoxText.body('Last Name'),
+          UIHelper.verticalSpaceSmall(),
+          BoxInputField(
+            controller: text,
+            readOnly: false,
+            placeholder: 'Your Last Name',
+            onChanged: model.updateLastName,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class OrganizerNameInputField extends StackedHookView<ProfileViewModel> {
+  const OrganizerNameInputField({Key? key}) : super(key: key, reactive: false);
+  @override
+  Widget builder(BuildContext context, ProfileViewModel model) {
+    var text = useTextEditingController(text: model.organization);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          BoxText.body('Organization Name'),
+          UIHelper.verticalSpaceSmall(),
+          BoxInputField(
+            controller: text,
+            readOnly: false,
+            placeholder: 'Company/Club Name',
+            onChanged: model.updateLastName,
           ),
         ],
       ),

@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:esports_battlefield_arena/screens/sign_up/signup_viewmodel.dart';
 import 'package:esports_battlefield_arena/shared/app_colors.dart';
@@ -11,6 +12,7 @@ import 'package:rive/rive.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_hooks/stacked_hooks.dart';
 
+@RoutePage()
 class SignUpNextView extends StatelessWidget {
   const SignUpNextView({Key? key}) : super(key: key);
 

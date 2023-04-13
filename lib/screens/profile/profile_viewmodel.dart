@@ -1,4 +1,4 @@
-import 'package:esports_battlefield_arena/app/route.gr.dart';
+import 'package:esports_battlefield_arena/app/router.dart';
 import 'package:esports_battlefield_arena/app/service_locator.dart';
 import 'package:esports_battlefield_arena/services/log/log_services.dart';
 import 'package:esports_battlefield_arena/utils/regex_validation_helper.dart';
@@ -8,7 +8,7 @@ class ProfileViewModel extends BaseViewModel {
   final AppRouter _router = locator<AppRouter>();
   final log = locator<LogService>();
 
-  String _email = 'Initial Email';
+  String _email = 'example@gmail.com';
   String _password = 'Initial Password';
   String _address = 'Initial Address';
   String _country = 'Malaysia';
@@ -16,7 +16,6 @@ class ProfileViewModel extends BaseViewModel {
   String _lastName = 'My Last Name';
   String _organization = 'Esport Club Of UTM';
   bool _isPlayer = true;
-  bool _isEmailValid = false;
 
   //getters
   String get country => _country;
@@ -28,10 +27,7 @@ class ProfileViewModel extends BaseViewModel {
   String get organization => _organization;
   bool get isPlayer => _isPlayer;
 
-  get isEmailValid => _isEmailValid;
-
   void updateEmail(String email) {
-    _isEmailValid = RegexValidation.validateEmail(email);
     _email = email;
     notifyListeners();
   }

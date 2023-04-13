@@ -15,12 +15,25 @@ class BoxText extends StatelessWidget {
   const BoxText.headingThree(this.text, {Key? key})
       : style = headingStyle3,
         super(key: key);
+  const BoxText.headingFour(this.text, {Key? key})
+      : style = headingStyle4,
+        super(key: key);
+
+  const BoxText.headingFive(this.text, {Key? key})
+      : style = headingStyle5,
+        super(key: key);
+
   const BoxText.headline(this.text, {Key? key})
       : style = headlineStyle,
         super(key: key);
   const BoxText.subheading(this.text, {Key? key})
       : style = subHeadingStyle,
         super(key: key);
+
+  BoxText.subheading2(this.text, {Key? key})
+      : style = bodyStyle.copyWith(color: kcDarkTextColor),
+        super(key: key);
+
   const BoxText.caption(this.text, {Key? key})
       : style = captionStyle,
         super(key: key);
@@ -33,11 +46,17 @@ class BoxText extends StatelessWidget {
       : style = bodyStyle.copyWith(color: color),
         super(key: key);
 
+  BoxText.ellipsis(this.text, {Key? key, Color color = kcMediumGreyColor})
+      : style =
+            bodyStyle.copyWith(color: color, overflow: TextOverflow.ellipsis),
+        super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Text(
       text,
       style: style,
+      // softWrap: true,
     );
   }
 }

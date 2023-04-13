@@ -1,39 +1,39 @@
 class Invoice {
   late String _invoiceId;
-  late double _amountPaid;
-  late String _datePaid;
-  late String _timePaid;
+  late double _amount;
+  late String _date;
+  late String _time;
   //User or participant who paid
   late String _paidBy;
 
   String get invoiceId => _invoiceId;
-  double get amountPaid => _amountPaid;
-  String get datePaid => _datePaid;
-  String get timePaid => _timePaid;
+  double get amount => _amount;
+  String get date => _date;
+  String get time => _time;
   String get paidBy => _paidBy;
 
   Invoice({
     String invoiceId = '',
-    double amountPaid = 0.0,
-    String datePaid = '',
-    String timePaid = '',
+    double amount = 0.0,
+    String date = '',
+    String time = '',
     String paidBy = '',
   })  : _invoiceId = invoiceId,
-        _amountPaid = amountPaid,
-        _datePaid = datePaid,
-        _timePaid = timePaid,
+        _amount = amount,
+        _date = date,
+        _time = time,
         _paidBy = paidBy;
 
   Invoice.fromJson(Map<String, dynamic> map) {
     if (map.containsKey('invoiceId') &&
-        map.containsKey('amountPaid') &&
-        map.containsKey('datePaid') &&
-        map.containsKey('timePaid') &&
+        map.containsKey('amount') &&
+        map.containsKey('date') &&
+        map.containsKey('time') &&
         map.containsKey('paidBy')) {
       _invoiceId = map['invoiceId'] ?? '';
-      _amountPaid = map['amountPaid'] ?? 0.0;
-      _datePaid = map['datePaid'] ?? '';
-      _timePaid = map['timePaid'] ?? '';
+      _amount = map['amount'] ?? 0.0;
+      _date = map['date'] ?? '';
+      _time = map['time'] ?? '';
       _paidBy = map['paidBy'] ?? '';
     } else {
       throw ArgumentError('Required keys are missing from the User model');
@@ -43,9 +43,9 @@ class Invoice {
   Map<String, dynamic> toJson() {
     return {
       'invoiceId': _invoiceId,
-      'amountPaid': _amountPaid,
-      'datePaid': _datePaid,
-      'timePaid': _timePaid,
+      'amount': _amount,
+      'date': _date,
+      'time': _time,
       'paidBy': _paidBy,
     };
   }

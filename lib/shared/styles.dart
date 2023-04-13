@@ -16,6 +16,16 @@ const TextStyle headingStyle3 = TextStyle(
   fontWeight: FontWeight.w600,
 );
 
+const TextStyle headingStyle4 = TextStyle(
+  fontSize: 20,
+  fontWeight: FontWeight.w600,
+);
+
+const TextStyle headingStyle5 = TextStyle(
+  fontSize: 16,
+  fontWeight: FontWeight.w600,
+);
+
 const TextStyle headlineStyle = TextStyle(
   fontSize: 42,
   fontWeight: FontWeight.w800,

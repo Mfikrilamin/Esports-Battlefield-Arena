@@ -1,4 +1,4 @@
-import 'package:esports_battlefield_arena/app/route.gr.dart';
+import 'package:esports_battlefield_arena/app/router.dart';
 import 'package:esports_battlefield_arena/app/service_locator.dart';
 import 'package:flutter/material.dart';
 
@@ -18,13 +18,9 @@ class EsportBattleFieldArena extends StatelessWidget {
     //   navigatorKey: StackedService.navigatorKey,
     // );
     return MaterialApp.router(
-      // theme: ThemeData(
-      //   brightness: Brightness.dark,
-      //   primaryColor: Color(0xffB4FC79),
-      //   colorScheme: Colros
-
-      //   Color(0xffD1D1D1),
-      // ),
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
       debugShowCheckedModeBanner: false,
       title: 'Esports Battlefield Arena',
       routerDelegate: locator<AppRouter>().delegate(),

@@ -43,23 +43,23 @@ class BoxButton extends StatelessWidget {
           decoration: !outline
               ? BoxDecoration(
                   color: !disable ? kcPrimaryColor : kcMediumGreyColor,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(50),
                 )
               : selected == true
                   ? BoxDecoration(
                       color: kcPrimaryDarkerColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(50),
                       border: Border.all(color: kcPrimaryDarkerColor, width: 1),
                     )
                   : selected == false
                       ? BoxDecoration(
                           color: Colors.transparent,
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(50),
                           border: Border.all(color: kcLightGreyColor, width: 1),
                         )
                       : BoxDecoration(
                           color: Colors.transparent,
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(50),
                           border:
                               Border.all(color: kcPrimaryDarkerColor, width: 1),
                         ),
@@ -71,8 +71,13 @@ class BoxButton extends StatelessWidget {
                     if (leading != null) const SizedBox(width: 5),
                     Text(title,
                         style: bodyStyle.copyWith(
-                          fontWeight:
-                              !outline ? FontWeight.bold : FontWeight.w400,
+                          fontWeight: !outline
+                              ? FontWeight.bold
+                              : (selected != null)
+                                  ? FontWeight.w600
+                                  : FontWeight.w400,
+                          // ? FontWeight.w600
+                          // : FontWeight.w400,
                           color: !outline
                               ? !disable
                                   ? kcVeryDarkGreyTextColor

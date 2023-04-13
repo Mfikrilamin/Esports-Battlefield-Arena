@@ -1,4 +1,9 @@
-import 'package:esports_battlefield_arena/app/route.gr.dart';
+import 'package:esports_battlefield_arena/app/router.dart';
+import 'package:esports_battlefield_arena/screens/home/home_viewmodel.dart';
+import 'package:esports_battlefield_arena/screens/player_home/player_home_viewmodel.dart';
+import 'package:esports_battlefield_arena/screens/profile/profile_viewmodel.dart';
+import 'package:esports_battlefield_arena/screens/sign_in/signin_viewmodel.dart';
+import 'package:esports_battlefield_arena/screens/sign_up/signup_viewmodel.dart';
 import 'package:esports_battlefield_arena/services/counter/counter_service.dart';
 import 'package:esports_battlefield_arena/services/firebase/authentication/fireauth.dart';
 import 'package:esports_battlefield_arena/services/firebase/authentication/fireauth_service.dart';
@@ -23,7 +28,7 @@ Future<void> initializeServiceLocator() async {
 
   // Register first and then run immediately
   locator.registerLazySingleton<ServiceInitializer>(
-      () => ServiceInitializerFirebase());
+      () => ServiceInitializerImpl());
 
   //inialize firebase
   final serviceInitializer = locator<ServiceInitializer>();
@@ -36,6 +41,13 @@ Future<void> initializeServiceLocator() async {
   locator.registerLazySingleton(() => DialogService());
   locator.registerLazySingleton(() => AppRouter());
   locator.registerLazySingleton(() => LogService());
+
+  //viewmodel
+  locator.registerLazySingleton(() => SignUpViewModel());
+  locator.registerLazySingleton(() => SignInViewModel());
+  locator.registerLazySingleton(() => HomeViewModel());
+  locator.registerLazySingleton(() => PlayerHomeViewModel());
+  locator.registerLazySingleton(() => ProfileViewModel());
 
   //viewmodelservice
   locator.registerLazySingleton(() => CounterService());

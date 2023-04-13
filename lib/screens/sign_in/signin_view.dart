@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:esports_battlefield_arena/screens/sign_in/signin_viewmodel.dart';
 import 'package:esports_battlefield_arena/shared/box_button.dart';
 import 'package:esports_battlefield_arena/shared/box_input_field.dart';
@@ -9,6 +10,7 @@ import 'package:rive/rive.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_hooks/stacked_hooks.dart';
 
+@RoutePage()
 class SignInView extends StatelessWidget {
   const SignInView({
     Key? key,
