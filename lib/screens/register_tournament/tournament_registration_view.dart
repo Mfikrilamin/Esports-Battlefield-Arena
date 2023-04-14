@@ -173,7 +173,9 @@ class TournamentRegistrationView extends StatelessWidget {
                     color: kcWhiteColor,
                     child: BoxButton(
                       title: 'Pay',
-                      onTap: () => {},
+                      onTap: () => {
+                        model.registerTournament(),
+                      },
                       busy: model.isBusy,
                     ),
                   ),

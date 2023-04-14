@@ -12,6 +12,8 @@ import 'package:esports_battlefield_arena/services/firebase/firestore/firestore_
 import 'package:esports_battlefield_arena/services/initializer/service_initializer.dart';
 import 'package:esports_battlefield_arena/services/initializer/service_initializer_firebase.dart';
 import 'package:esports_battlefield_arena/services/log/log_services.dart';
+import 'package:esports_battlefield_arena/services/payment/stripe.dart';
+import 'package:esports_battlefield_arena/services/payment/stripe_service.dart';
 import 'package:esports_battlefield_arena/services/signup/signup_service.dart';
 import 'package:map_mvvm/service_locator.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -37,6 +39,7 @@ Future<void> initializeServiceLocator() async {
   // Services
   locator.registerLazySingleton<Firestore>(() => FirestoreService());
   locator.registerLazySingleton<Auth>(() => FireAuthService());
+  locator.registerLazySingleton<StripePayment>(() => StripePaymentService());
   locator.registerLazySingleton(() => NavigationService());
   locator.registerLazySingleton(() => DialogService());
   locator.registerLazySingleton(() => AppRouter());

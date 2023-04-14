@@ -1,3 +1,3 @@
 abstract class StripePayment {
-  Future<void> makePayment();
+  Future<void> makePayment(Map<String, dynamic>? paymentIntent);
 }

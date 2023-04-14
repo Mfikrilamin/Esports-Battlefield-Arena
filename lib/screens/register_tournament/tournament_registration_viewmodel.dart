@@ -2,6 +2,7 @@ import 'package:country_picker/country_picker.dart';
 import 'package:esports_battlefield_arena/app/router.dart';
 import 'package:esports_battlefield_arena/app/service_locator.dart';
 import 'package:esports_battlefield_arena/services/log/log_services.dart';
+import 'package:esports_battlefield_arena/services/payment/stripe.dart';
 import 'package:esports_battlefield_arena/utils/regex_validation_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
@@ -9,6 +10,7 @@ import 'package:stacked/stacked.dart';
 class TournamentRegistrationViewModel extends BaseViewModel {
   final AppRouter _router = locator<AppRouter>();
   final log = locator<LogService>();
+  final paymentService = locator<StripePayment>();
 
   //Email Controller
   List<String> _emailController = [];
@@ -64,5 +66,14 @@ class TournamentRegistrationViewModel extends BaseViewModel {
         break;
       default:
     }
+  }
+
+  registerTournament() {
+    var paymentIntent = {
+      'amount': 1000,
+      'currency': 'usd',
+      'payment_method_types[]': 'card',
+    };
+    paymentService.makePayment(paymentIntent);
   }
 }
