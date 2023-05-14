@@ -39,6 +39,7 @@ class PaymentHistoryViewModel extends FutureViewModel<void> {
 
   Future<void> refreshInvoiceList() async {
     await getInvoiceList();
+    notifyListeners();
     return Future.value();
   }
 
@@ -76,6 +77,7 @@ class PaymentHistoryViewModel extends FutureViewModel<void> {
           tournamentId: invoice.tournamentId,
           invoiceId: invoice.invoiceId,
           amount: invoice.amount,
+          paymentReferenceId: paymentIntent['paymentIntentId'],
           paidBy: paymentSucess ? _auth.currentUser()! : '',
           belongsTo: invoice.belongsTo,
           paidCompleted: paymentSucess,

@@ -1,4 +1,5 @@
 import 'package:esports_battlefield_arena/app/router.dart';
+import 'package:esports_battlefield_arena/app/router.gr.dart';
 import 'package:esports_battlefield_arena/app/service_locator.dart';
 import 'package:esports_battlefield_arena/models/organizer.dart';
 import 'package:esports_battlefield_arena/models/player.dart';
@@ -7,11 +8,14 @@ import 'package:esports_battlefield_arena/services/firebase/authentication/auth.
 import 'package:esports_battlefield_arena/services/firebase/database/database.dart';
 import 'package:esports_battlefield_arena/services/firebase/firestore_config.dart';
 import 'package:esports_battlefield_arena/services/log/log_services.dart';
+import 'package:esports_battlefield_arena/services/payment/stripe.dart';
 import 'package:esports_battlefield_arena/utils/enum.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:stacked/stacked.dart';
 
 class ProfileViewModel extends FutureViewModel<void> {
   final AppRouter _router = locator<AppRouter>();
+  Payment _StripeService = locator<Payment>();
   final _log = locator<LogService>();
   final Database _database = locator<Database>();
   final Auth _auth = locator<Auth>();
@@ -149,5 +153,13 @@ class ProfileViewModel extends FutureViewModel<void> {
       _log.debug(e.toString());
     }
     return Future.value();
+  }
+
+  void logout() async {
+    //Sign out user
+    await _StripeService.clearAllPaymentSheet();
+    await _auth.signOut();
+    //pop all the screens and navigate to sign in screen
+    _router.popUntil((route) => route.settings.name == SignInRoute.name);
   }
 }

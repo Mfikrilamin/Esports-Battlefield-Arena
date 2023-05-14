@@ -81,4 +81,40 @@ class StripePaymentService extends Payment {
           location: 'StripePaymentService.displayPaymentSheet');
     }
   }
+
+  @override
+  Future<Map<String, dynamic>> cancelPayment(String id) async {
+    try {
+      //Request body
+      Map<String, dynamic> body = {
+        'paymentIntentId': id,
+      };
+
+      //Make post request to our cloud function
+      var response = await http.post(
+        Uri.parse(
+            'https://us-central1-esports-battlefield-arena.cloudfunctions.net/cancelPaymentIntent'),
+        body: body,
+      );
+
+      if (response.statusCode != 200) {
+        throw Failure('Failed to cancel payment intent on the server',
+            message: response.body.toString(),
+            location: 'StripePaymentService.createPaymentIntent');
+      }
+      print('Response is:---> ${response.body}');
+      return json.decode(response.body);
+    } on Failure {
+      rethrow;
+    } catch (err) {
+      throw Failure('Something wrong when cancelling the payment intent',
+          message: err.toString(),
+          location: 'StripePaymentService.createPaymentIntent');
+    }
+  }
+
+  @override
+  Future<void> clearAllPaymentSheet() {
+    return Stripe.instance.resetPaymentSheetCustomer();
+  }
 }

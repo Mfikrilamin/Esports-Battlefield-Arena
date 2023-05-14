@@ -8,7 +8,7 @@ import 'package:esports_battlefield_arena/screens/profile/profile_view.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 
-import '../registered_tournament/registered_tournament_view.dart';
+import '../player_registered_tournament/player_registered_tournament_view.dart';
 
 @RoutePage()
 class HomeView extends StatelessWidget {
@@ -23,19 +23,21 @@ class HomeView extends StatelessWidget {
       viewModelBuilder: () => HomeViewModel(),
       builder: (context, model, child) => Scaffold(
         // appBar: ,
-        body: buildBodyWidget(model.selectedIndex),
+        body: model.isBusy
+            ? const CircularProgressIndicator()
+            : buildBodyWidget(model.selectedIndex, model.isPlayer),
         bottomNavigationBar: const CustomBottomNavigationBar(),
       ),
     );
   }
 }
 
-Widget buildBodyWidget(int index) {
+Widget buildBodyWidget(int index, bool isPlayer) {
   switch (index) {
     case 0:
       return const PlayerHomeView();
     case 1:
-      return const RegisteredTournamentView();
+      return const PlayerRegisteredTournamentView();
     case 2:
       return const PaymentHistoryView();
     default:

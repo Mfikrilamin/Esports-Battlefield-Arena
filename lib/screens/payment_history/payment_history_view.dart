@@ -31,6 +31,7 @@ class PaymentHistoryView extends StatelessWidget {
           backgroundColor: kcPrimaryColor,
           title: BoxText.appBar('BILLS', color: kcDarkTextColor),
           centerTitle: true,
+          automaticallyImplyLeading: false,
         ),
         body: LiquidPullToRefresh(
           onRefresh: model.refreshInvoiceList,

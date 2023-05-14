@@ -29,8 +29,47 @@ class ProfileView extends StatelessWidget {
       viewModelBuilder: () => ProfileViewModel(),
       builder: (context, model, child) => Scaffold(
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           backgroundColor: kcPrimaryColor,
           elevation: 0,
+          actions: [
+            IconButton(
+              onPressed: () {
+                model.logout();
+              },
+              icon: const Icon(
+                Icons.logout,
+                color: kcDarkGreyColor,
+              ),
+            ),
+            UIHelper.horizontalSpaceSmall(),
+          ],
+          bottom: PreferredSize(
+            preferredSize: Size.fromHeight(60), // Set the height of the AppBar
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 0),
+              height: 80,
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                color: kcPrimaryColor,
+              ),
+              child: Column(
+                // mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const BoxText.headingOne('Welcome Back,'),
+                  UIHelper.verticalSpaceSmall(),
+                  model.isPlayer
+                      ? BoxText.body(
+                          '${model.player.firstName} ${model.player.lastName}',
+                          color: kcDarkGreyColor,
+                        )
+                      : BoxText.body(model.organizer.organizerName,
+                          color: kcDarkGreyColor),
+                ],
+              ),
+            ),
+          ),
         ),
         body: PreferredSize(
           preferredSize: const Size.fromHeight(35),
@@ -42,30 +81,6 @@ class ProfileView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     // mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 25, vertical: 0),
-                        height: 80,
-                        width: double.infinity,
-                        decoration: const BoxDecoration(
-                          color: kcPrimaryColor,
-                        ),
-                        child: Column(
-                          // mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const BoxText.headingOne('Welcome Back,'),
-                            UIHelper.verticalSpaceSmall(),
-                            model.isPlayer
-                                ? BoxText.body(
-                                    '${model.player.firstName} ${model.player.lastName}',
-                                    color: kcDarkGreyColor,
-                                  )
-                                : BoxText.body(model.organizer.organizerName,
-                                    color: kcDarkGreyColor),
-                          ],
-                        ),
-                      ),
                       UIHelper.verticalSpaceMedium(),
                       const EmailInputField(),
                       UIHelper.verticalSpaceSmall(),

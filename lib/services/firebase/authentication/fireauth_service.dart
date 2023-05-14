@@ -38,7 +38,7 @@ class FireAuthService extends Auth {
   }
 
   @override
-  signOut(String email, String password) async {
+  Future<void> signOut() async {
     try {
       await _firebaseAuth.signOut();
     } on FirebaseAuthException catch (e) {

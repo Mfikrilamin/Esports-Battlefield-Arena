@@ -266,6 +266,7 @@ class TournamentRegistrationViewModel extends FutureViewModel<void> {
         amount: tournamentFee,
         paidBy: '',
         belongsTo: participant.participantId,
+        paymentReferenceId: '',
         paidCompleted: false,
         date: '',
         time: '',
@@ -293,6 +294,7 @@ class TournamentRegistrationViewModel extends FutureViewModel<void> {
               'paidBy': _auth.currentUser(),
               'date': DateHelper.formatDate(DateTime.now()),
               'time': DateHelper.formatTime(DateTime.now()),
+              'paymentReferenceId': paymentIntent['paymentIntentId']
             },
             FirestoreCollections.invoice);
 
@@ -326,6 +328,10 @@ class TournamentRegistrationViewModel extends FutureViewModel<void> {
           ),
         );
       } else {
+        //cancel the payment Intent
+        await _stripePaymentService
+            .cancelPayment(paymentIntent['paymentIntentId']);
+
         showDialog(
           context: context,
           builder: (_) => AlertDialog(

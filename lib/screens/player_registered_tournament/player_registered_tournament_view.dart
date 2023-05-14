@@ -1,33 +1,31 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:esports_battlefield_arena/components/widgets/box_game_logo.dart';
-import 'package:esports_battlefield_arena/screens/registered_tournament/registered_tournament_viewmodel.dart';
+import 'package:esports_battlefield_arena/screens/player_registered_tournament/player_registered_tournament_viewmodel.dart';
 import 'package:esports_battlefield_arena/shared/app_colors.dart';
-import 'package:esports_battlefield_arena/shared/box_button.dart';
 import 'package:esports_battlefield_arena/shared/box_text.dart';
-import 'package:esports_battlefield_arena/shared/ui_helper.dart';
 import 'package:esports_battlefield_arena/utils/enum.dart';
 import 'package:flutter/material.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:stacked/stacked.dart';
 
 @RoutePage()
-class RegisteredTournamentView extends StatelessWidget {
-  const RegisteredTournamentView({super.key});
+class PlayerRegisteredTournamentView extends StatelessWidget {
+  const PlayerRegisteredTournamentView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ViewModelBuilder<RegisterTournamentViewModel>.nonReactive(
-      viewModelBuilder: () => RegisterTournamentViewModel(),
+    return ViewModelBuilder<PlayerRegisterTournamentViewModel>.reactive(
+      viewModelBuilder: () => PlayerRegisterTournamentViewModel(),
       builder: (context, model, child) {
         return Scaffold(
           appBar: AppBar(
             backgroundColor: kcPrimaryColor,
             title: BoxText.appBar('ARENA', color: kcDarkTextColor),
             centerTitle: true,
+            automaticallyImplyLeading: false,
           ),
           body: LiquidPullToRefresh(
             onRefresh: model.refreshRegisteredTournament,
-            // onRefresh: model.refreshInvoiceList,
             // showChildOpacityTransition: false,
             color: kcPrimaryColor,
             animSpeedFactor: 2,
@@ -128,9 +126,20 @@ class RegisteredTournamentView extends StatelessWidget {
                           },
                         ),
                       )
-                    : const Center(
-                        child: BoxText.headingThree('No tournaments available'),
-                      ),
+                    : SizedBox(
+                        height: 200,
+                        child: ListView(
+                          children: const [
+                            SizedBox(
+                              height: 200,
+                              child: Center(
+                                child: BoxText.headingThree(
+                                    'No tournaments available'),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
               ],
             ),
           ),

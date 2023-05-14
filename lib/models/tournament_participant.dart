@@ -5,7 +5,7 @@ class TournamentParticipant {
   // late String _participatedBy;
   late String _teamName;
   late String _country;
-  late List<String> _memberList;
+  late List<dynamic> _memberList;
   late int _seeding;
   //Check whether the team participant register as a solo or team
   late bool _isSolo;
@@ -18,7 +18,7 @@ class TournamentParticipant {
   // String get participatedBy => _participatedBy;
   String get teamName => _teamName;
   String get country => _country;
-  List<String> get memberList => _memberList;
+  List<dynamic> get memberList => _memberList;
   int get seeding => _seeding;
   bool get isSolo => _isSolo;
   bool get hasPay => _hasPay;

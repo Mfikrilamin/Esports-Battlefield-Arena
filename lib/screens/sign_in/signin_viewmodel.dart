@@ -54,6 +54,7 @@ class SignInViewModel extends FutureViewModel<void> {
         if (_router.current.path == currentPath && isBusy == false) {
           _isSignIn = false;
           notifyListeners();
+          _router.popUntilRoot();
           _router.push(const HomeRoute());
         }
       }

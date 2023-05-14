@@ -24,6 +24,7 @@ class PlayerHomeView extends StatelessWidget {
         model.setContext(context);
         return Scaffold(
           appBar: AppBar(
+            automaticallyImplyLeading: false,
             backgroundColor: kcPrimaryColor,
             title: BoxText.appBar('ARENA', color: kcDarkTextColor),
             centerTitle: true,
