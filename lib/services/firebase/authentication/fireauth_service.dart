@@ -1,6 +1,6 @@
 import 'dart:developer';
 import 'package:esports_battlefield_arena/app/failures.dart';
-import 'package:esports_battlefield_arena/services/firebase/authentication/fireauth.dart';
+import 'package:esports_battlefield_arena/services/firebase/authentication/auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class FireAuthService extends Auth {
@@ -19,11 +19,15 @@ class FireAuthService extends Auth {
   }
 
   @override
-  signIn(String email, String password) async {
+  Future<String?> signIn(String email, String password) async {
     try {
       var userCredential = await _firebaseAuth.signInWithEmailAndPassword(
           email: email, password: password);
-      return userCredential.user!.uid;
+      if (userCredential.user != null) {
+        return userCredential.user!.uid;
+      } else {
+        return null;
+      }
     } on FirebaseAuthException catch (e) {
       Failure errorMsg;
       errorMsg = fireauthError(e.code);
@@ -47,15 +51,19 @@ class FireAuthService extends Auth {
   }
 
   @override
-  Future<String> createAccount(String email, String password) async {
+  Future<String?> createAccount(String email, String password) async {
     try {
       //create user first
       var userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
           email: email, password: password);
-      //send email verification
-      await userCredential.user!.sendEmailVerification();
 
-      return userCredential.user!.uid;
+      //send email verification
+      if (userCredential.user != null) {
+        await userCredential.user!.sendEmailVerification();
+        return userCredential.user!.uid;
+      } else {
+        return null;
+      }
     } on FirebaseAuthException catch (e) {
       Failure errorMsg;
       errorMsg = fireauthError(e.code);
@@ -112,6 +120,24 @@ class FireAuthService extends Auth {
       log(errorMsg.toString());
       log(e.message.toString());
       throw errorMsg;
+    }
+  }
+
+  @override
+  String? currentUser() {
+    if (_firebaseAuth.currentUser != null) {
+      return _firebaseAuth.currentUser!.uid;
+    } else {
+      return null;
+    }
+  }
+
+  @override
+  String? getCurrentUserEmail() {
+    if (_firebaseAuth.currentUser != null) {
+      return _firebaseAuth.currentUser!.email;
+    } else {
+      return null;
     }
   }
 }

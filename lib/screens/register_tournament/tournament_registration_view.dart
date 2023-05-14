@@ -59,12 +59,6 @@ class TournamentRegistrationView extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         UIHelper.verticalSpaceMedium(),
-                        FadeInRight(
-                          from: 70,
-                          delay: const Duration(milliseconds: 200),
-                          child: BoxText.headingThree('Tournament Details'),
-                        ),
-                        UIHelper.verticalSpaceMedium(),
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -76,8 +70,7 @@ class TournamentRegistrationView extends StatelessWidget {
                                 children: [
                                   FadeInRight(
                                     from: 60,
-                                    child:
-                                        BoxText.headingFour(tournament.title),
+                                    child: BoxText.headingTwo(tournament.title),
                                   ),
                                   UIHelper.verticalSpaceSmall(),
                                   FadeInRight(
@@ -92,16 +85,17 @@ class TournamentRegistrationView extends StatelessWidget {
                             Flexible(
                               flex: 3,
                               child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
                                   FadeInRight(
                                     from: 60,
-                                    child: const BoxText.headingFour(
+                                    child: const BoxText.headingThree(
                                       'MYR',
                                     ),
                                   ),
                                   FadeInRight(
                                     from: 60,
-                                    child: BoxText.headingFour(
+                                    child: BoxText.headingThree(
                                       '${tournament.prizePool}000',
                                     ),
                                   ),
@@ -150,13 +144,10 @@ class TournamentRegistrationView extends StatelessWidget {
                                         ? 1
                                         : 3,
                             itemBuilder: (context, index) {
-                              model.setPlayerEmailController(
-                                  tournament.game, tournament.isSolo);
-                              return EmailInputFieldPlayer(
-                                index: index,
-                                onChanged: (email) {
-                                  model.updatePlayerEmail(email, index);
-                                },
+                              return EmailInputField1(
+                                index,
+                                model.getEmailController[index],
+                                key: UniqueKey(),
                               );
                             },
                           ),
@@ -174,7 +165,15 @@ class TournamentRegistrationView extends StatelessWidget {
                     child: BoxButton(
                       title: 'Pay',
                       onTap: () => {
-                        model.registerTournament(),
+                        model.registerTournament(
+                            tournament.tournamentId,
+                            context,
+                            isSolo: tournament.isSolo,
+                            (tournament.game == GameType.Valorant.name)
+                                ? 5
+                                : tournament.isSolo
+                                    ? 1
+                                    : 3),
                       },
                       busy: model.isBusy,
                     ),
@@ -221,40 +220,52 @@ class TeamInformation extends StatelessWidget {
   }
 }
 
-// class EmailInputFieldPlayer
-//     extends StackedHookView<TournamentRegistrationViewModel> {
-//   final int index;
-//   const EmailInputFieldPlayer(this.index, {Key? key})
-//       : super(key: key, reactive: true);
+class EmailInputField1
+    extends StackedHookView<TournamentRegistrationViewModel> {
+  final int index;
+  final String? initialText;
+  const EmailInputField1(this.index, this.initialText, {Key? key})
+      : super(key: key, reactive: true);
 
-//   @override
-//   Widget builder(BuildContext context, TournamentRegistrationViewModel model) {
-//     print('EmailInputFieldPlayer${index + 1} is being built');
-//     var text = useTextEditingController();
-//     return Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         BoxText.body('Player ${index + 1}'),
-//         UIHelper.verticalSpaceSmall(),
-//         BoxInputField(
-//           controller: text,
-//           placeholder: 'Player1 Email',
-//           onChanged: (value) => model.updatePlayerEmail(value, index),
-//           readOnly: false,
-//           // errorText: model.emailIsValid(index) ? null : 'Invalid Email',
-//         ),
-//       ],
-//     );
-//   }
-// }
+  @override
+  Widget builder(BuildContext context, TournamentRegistrationViewModel model) {
+    var text = useTextEditingController(text: initialText);
+    print('EmailInputField $index is being built');
+    print(initialText);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        BoxText.body('Email'),
+        UIHelper.verticalSpaceSmall(),
+        BoxInputField(
+          readOnly: index == 0,
+          controller: text,
+          placeholder: 'Enter Email',
+          errorText: model.getIsEmailValid[index]
+              ? model.getIsEmailAlreadyRegisted[index]
+                  ? null
+                  : 'No user is registered to the email'
+              : 'Invalid Email',
+          onChanged: (value) {
+            model.updatePlayerEmail(value, index);
+          },
+        ),
+      ],
+    );
+  }
+}
 
 class EmailInputFieldPlayer extends StatefulWidget {
   final int index;
   final void Function(String) onChanged;
+  final String initialText;
+  final Future<bool> Function(String) onCheckEmailUser;
   const EmailInputFieldPlayer({
     super.key,
     required this.index,
     required this.onChanged,
+    required this.onCheckEmailUser,
+    this.initialText = '',
   });
 
   @override
@@ -262,43 +273,51 @@ class EmailInputFieldPlayer extends StatefulWidget {
 }
 
 class _EmailInputFieldPlayerSTState extends State<EmailInputFieldPlayer> {
-  bool isValid = true;
-  var text = TextEditingController();
+  bool isValid = false;
+  bool isValidUser = false;
+
   @override
   Widget build(BuildContext context) {
-    print('EmailInputFieldPlayer${widget.index + 1} is being built');
-    // var text = useTextEditingController();
-    return ValueListenableBuilder(
-      valueListenable: text,
-      builder: (context, value, child) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            UIHelper.verticalSpaceSmall(),
-            BoxText.body('Player ${widget.index + 1}'),
-            UIHelper.verticalSpaceSmall(),
-            BoxInputField(
-              controller: text,
-              placeholder: 'Player${widget.index + 1} Email',
-              onChanged: (value) {
-                widget.onChanged(value);
-                setState(() {
-                  isValid = RegexValidation.validateEmail(value);
+    print('EmailInputFieldPlayer${widget.index} is being built');
+    var text = useTextEditingController();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        UIHelper.verticalSpaceSmall(),
+        BoxText.body('Player ${widget.index + 1}'),
+        UIHelper.verticalSpaceSmall(),
+        BoxInputField(
+          controller: text,
+          placeholder: 'Player${widget.index + 1} Email',
+          onChanged: (value) {
+            widget.onChanged(value);
+            setState(() {
+              isValid = RegexValidation.validateEmail(value);
+              if (isValid) {
+                //check if email is already registered in the apps or not
+                //If no user exist with the email, then prompt error
+                widget.onCheckEmailUser(value).then((value) {
+                  setState(() {
+                    isValidUser = value;
+                  });
                 });
-              },
-              readOnly: false,
-              errorText: isValid ? null : 'Invalid Email',
-            ),
-          ],
-        );
-      },
+              }
+            });
+          },
+          readOnly: widget.index == 0,
+          errorText: isValid
+              ? isValidUser
+                  ? null
+                  : 'User is not exist/registered in the apps'
+              : 'Invalid Email',
+        ),
+      ],
     );
   }
 
   @override
   void dispose() {
     super.dispose();
-    text.dispose();
   }
 }
 

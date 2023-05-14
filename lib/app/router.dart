@@ -12,10 +12,10 @@ class AppRouter extends $AppRouter {
   final List<AutoRoute> routes = [
     //HomeScreen is generated as HomeRoute because
     //of the replaceInRouteName property
-    AutoRoute(page: HomeRoute.page, path: '/'),
+    AutoRoute(page: HomeRoute.page),
     AutoRoute(page: PlayerHomeRoute.page),
     AutoRoute(page: ProfileRoute.page),
-    AutoRoute(page: SignInRoute.page),
+    AutoRoute(page: SignInRoute.page, path: '/'),
     AutoRoute(page: SignUpRoute.page),
     AutoRoute(page: SignUpNextRoute.page),
     AutoRoute(page: TestingRoute.page),
@@ -56,5 +56,6 @@ class AppRouter extends $AppRouter {
       }),
     ),
     AutoRoute(page: PaymentHistoryRoute.page),
+    // AutoRoute(page: RegisteredTournament.page),
   ];
 }

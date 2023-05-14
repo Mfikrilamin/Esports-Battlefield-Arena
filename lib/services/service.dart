@@ -1,6 +1,6 @@
-export 'firebase/firestore/firestore.dart';
-export 'firebase/firestore/firestore_service.dart';
-export 'firebase/authentication/fireauth.dart';
+export 'firebase/database/database.dart';
+export 'firebase/database/firestore_service.dart';
+export 'firebase/authentication/auth.dart';
 export 'firebase/authentication/fireauth_service.dart';
 export 'initializer/service_initializer.dart';
 export 'initializer/service_initializer_firebase.dart';

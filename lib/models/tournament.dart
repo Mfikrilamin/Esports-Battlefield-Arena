@@ -11,6 +11,7 @@ class Tournament {
   late int _maxMemberPerTeam;
   late String _organizerId;
   late String _game;
+  late String _status;
   //Store all the matchId in the tournament
   late List<String> _matchList;
   //Store teamId that has register in the tournament
@@ -28,6 +29,7 @@ class Tournament {
   String get endDate => _endDate;
   String get organizerId => _organizerId;
   String get game => _game;
+  String get status => _status;
   int get maxParticipants => _maxParticipants;
   int get maxMemberPerTeam => _maxMemberPerTeam;
   List<String> get matchList => _matchList;
@@ -47,6 +49,7 @@ class Tournament {
     int maxMemberPerTeam = 0,
     String organizerId = '',
     String game = '',
+    String status = '',
     List<String> matchList = const [],
     List<String> currentParticipant = const [],
     bool isSolo = false,
@@ -62,6 +65,7 @@ class Tournament {
         _maxMemberPerTeam = maxMemberPerTeam,
         _organizerId = organizerId,
         _game = game,
+        _status = status,
         _matchList = matchList,
         _currentParticipant = currentParticipant,
         _isSolo = isSolo;
@@ -72,33 +76,37 @@ class Tournament {
         map.containsKey('rules') &&
         map.containsKey('description') &&
         map.containsKey('prizePool') &&
-        map.containsKey('entreeFee') &&
+        map.containsKey('entryFee') &&
         map.containsKey('startDate') &&
         map.containsKey('endDate') &&
         map.containsKey('maxParticipants') &&
         map.containsKey('maxMemberPerTeam') &&
         map.containsKey('organizerId') &&
         map.containsKey('game') &&
+        map.containsKey('status') &&
         map.containsKey('matchList') &&
         map.containsKey('currentParticipant') &&
         map.containsKey('isSolo')) {
       _tournamentId = map['tournamentId'] ?? '';
       _title = map['title'] ?? '';
-      _rules = map['rules'] ?? '';
+      _rules = map['rules'].cast<String>().toList() ?? '';
       _description = map['description'] ?? '';
-      _prizePool = map['prizePool'] ?? 0.0;
-      _entryFee = map['entryFee'] ?? 0.0;
+      _prizePool = double.parse(map['prizePool'].toStringAsFixed(2));
+      _entryFee = double.parse(map['entryFee'].toStringAsFixed(2));
       _startDate = map['startDate'] ?? '';
       _endDate = map['endDate'] ?? '';
-      _maxParticipants = map['maxParticipants'] ?? 0;
+      _maxParticipants = map['maxParticipants'];
       _maxMemberPerTeam = map['maxMemberPerTeam'] ?? '';
       _organizerId = map['organizerId'] ?? '';
       _game = map['game'] ?? '';
-      _matchList = map['matchList'] ?? [];
-      _currentParticipant = map['currentParticipant'] ?? [];
+      _status = map['status'] ?? '';
+      _matchList = map['matchList'].cast<String>().toList() ?? [];
+      _currentParticipant =
+          map['currentParticipant'].cast<String>().toList() ?? [];
       _isSolo = map['isSolo'] ?? false;
     } else {
-      throw ArgumentError('Required keys are missing from the User model');
+      throw ArgumentError(
+          'Required keys are missing from the Tournament model for ${map['tournamentId']}');
     }
   }
 
@@ -116,6 +124,7 @@ class Tournament {
       'maxMemberPerTeam': _maxMemberPerTeam,
       'organizerId': _organizerId,
       'game': _game,
+      'status': _status,
       'matchList': _matchList,
       'currentParticipant': _currentParticipant,
       'isSolo': _isSolo,

@@ -2,7 +2,10 @@ class TournamentParticipant {
   late String _participantId;
   late String _dateRegister;
   late String _tournamentId;
-  late String _participatedBy;
+  // late String _participatedBy;
+  late String _teamName;
+  late String _country;
+  late List<String> _memberList;
   late int _seeding;
   //Check whether the team participant register as a solo or team
   late bool _isSolo;
@@ -12,7 +15,10 @@ class TournamentParticipant {
   String get participantId => _participantId;
   String get dateRegister => _dateRegister;
   String get tournamentId => _tournamentId;
-  String get participatedBy => _participatedBy;
+  // String get participatedBy => _participatedBy;
+  String get teamName => _teamName;
+  String get country => _country;
+  List<String> get memberList => _memberList;
   int get seeding => _seeding;
   bool get isSolo => _isSolo;
   bool get hasPay => _hasPay;
@@ -21,30 +27,42 @@ class TournamentParticipant {
     String participantId = '',
     String dateRegister = '',
     String tournamentId = '',
-    String participatedBy = '',
+    // String participatedBy = '',
+    String teamName = '',
+    String country = '',
+    List<String> memberList = const [],
     int seeding = 0,
     bool isSolo = false,
     bool hasPay = false,
   })  : _participantId = participantId,
         _dateRegister = dateRegister,
         _tournamentId = tournamentId,
-        _participatedBy = participatedBy,
+        // _participatedBy = participatedBy,
+        _teamName = teamName,
+        _country = country,
+        _memberList = memberList,
         _seeding = seeding,
         _isSolo = isSolo,
         _hasPay = hasPay;
 
-  TournamentParticipant.fromJson(Map<String, dynamic> map){
+  TournamentParticipant.fromJson(Map<String, dynamic> map) {
     if (map.containsKey('participantId') &&
         map.containsKey('dateRegister') &&
         map.containsKey('tournamentId') &&
-        map.containsKey('participatedBy') &&
+        // map.containsKey('participatedBy') &&
+        map.containsKey('teamName') &&
+        map.containsKey('country') &&
+        map.containsKey('memberList') &&
         map.containsKey('seeding') &&
         map.containsKey('isSolo') &&
         map.containsKey('hasPay')) {
       _participantId = map['participantId'];
       _dateRegister = map['dateRegister'];
       _tournamentId = map['tournamentId'];
-      _participatedBy = map['participatedBy'];
+      // _participatedBy = map['participatedBy'];
+      _teamName = map['teamName'];
+      _country = map['country'];
+      _memberList = map['memberList'];
       _seeding = map['seeding'];
       _isSolo = map['isSolo'];
       _hasPay = map['hasPay'];
@@ -58,7 +76,10 @@ class TournamentParticipant {
       'participantId': _participantId,
       'dateRegister': _dateRegister,
       'tournamentId': _tournamentId,
-      'participatedBy': _participatedBy,
+      // 'participatedBy': _participatedBy,
+      'teamName': _teamName,
+      'country': _country,
+      'memberList': _memberList,
       'seeding': _seeding,
       'isSolo': _isSolo,
       'hasPay': _hasPay,

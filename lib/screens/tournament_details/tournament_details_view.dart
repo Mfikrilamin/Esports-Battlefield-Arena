@@ -98,7 +98,7 @@ class TournamentDetailView extends StatelessWidget {
                               children: [
                                 FadeInUp(
                                   from: 60,
-                                  child: BoxText.headingFour(tournament.title),
+                                  child: BoxText.headingTwo(tournament.title),
                                 ),
                                 UIHelper.verticalSpaceSmall(),
                                 FadeInUp(
@@ -113,16 +113,17 @@ class TournamentDetailView extends StatelessWidget {
                           Flexible(
                             flex: 3,
                             child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 FadeInUp(
                                   from: 60,
-                                  child: const BoxText.headingFour(
+                                  child: const BoxText.headingThree(
                                     'MYR',
                                   ),
                                 ),
                                 FadeInUp(
                                   from: 60,
-                                  child: BoxText.headingFour(
+                                  child: BoxText.headingThree(
                                     '${tournament.prizePool}000',
                                   ),
                                 ),

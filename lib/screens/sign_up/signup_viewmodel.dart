@@ -1,13 +1,23 @@
+import 'package:esports_battlefield_arena/app/app.dart';
 import 'package:esports_battlefield_arena/app/router.dart';
 import 'package:esports_battlefield_arena/app/router.gr.dart';
 import 'package:esports_battlefield_arena/app/service_locator.dart';
+import 'package:esports_battlefield_arena/models/User.dart';
+import 'package:esports_battlefield_arena/models/organizer.dart';
+import 'package:esports_battlefield_arena/models/player.dart';
+import 'package:esports_battlefield_arena/services/firebase/authentication/auth.dart';
+import 'package:esports_battlefield_arena/services/firebase/database/database.dart';
+import 'package:esports_battlefield_arena/services/firebase/firestore_config.dart';
 import 'package:esports_battlefield_arena/services/log/log_services.dart';
 import 'package:esports_battlefield_arena/services/signup/signup_service.dart';
+import 'package:esports_battlefield_arena/utils/enum.dart';
 import 'package:esports_battlefield_arena/utils/regex_validation_helper.dart';
 import 'package:stacked/stacked.dart';
 
 class SignUpViewModel extends ReactiveViewModel {
   final AppRouter _router = locator<AppRouter>();
+  final Database _database = locator<Database>();
+  final Auth _auth = locator<Auth>();
   final log = locator<LogService>();
 
   //State of the viewmodel
@@ -79,30 +89,73 @@ class SignUpViewModel extends ReactiveViewModel {
   }
 
   Future processSignUp() async {
-    final currentPath = _router.current.path;
-    log.debug(
-        // ignore: prefer_interpolation_to_compose_strings, prefer_adjacent_string_concatenation
-        'Email: ${_signUpViewModelService.email} \n' +
-            'Password: ${_signUpViewModelService.password} \n' +
-            'Country: ${_signUpViewModelService.country} \n' +
-            'adress: ${_signUpViewModelService.address} \n' +
-            'firstName: ${_signUpViewModelService.firstName} \n' +
-            'lastName: ${_signUpViewModelService.lastName} \n' +
-            'organization: ${_signUpViewModelService.organization} \n' +
-            'isPlayer: ${_signUpViewModelService.isPlayer}}');
-    setBusy(true);
-    await Future.delayed(const Duration(seconds: 3));
-    setBusy(false);
-    _isSignUp = true;
-    await Future.delayed(const Duration(seconds: 2));
-    _isSignUp = false;
-    notifyListeners();
-    //check if the current path is the same as the path before the delay
-    //if it is the same, then navigate to the next page
-    //Otherwise, do nothing since the user navigated to another page
-    //This is prevent confuse to the user
-    if (!isBusy && _router.current.path == currentPath) {
-      _router.push(const TestingRoute());
+    try {
+      final currentPath = _router.current.path;
+      log.debug(
+          // ignore: prefer_interpolation_to_compose_strings, prefer_adjacent_string_concatenation
+          'Email: ${_signUpViewModelService.email} \n' +
+              'Password: ${_signUpViewModelService.password} \n' +
+              'Country: ${_signUpViewModelService.country} \n' +
+              'adress: ${_signUpViewModelService.address} \n' +
+              'firstName: ${_signUpViewModelService.firstName} \n' +
+              'lastName: ${_signUpViewModelService.lastName} \n' +
+              'organization: ${_signUpViewModelService.organization} \n' +
+              'isPlayer: ${_signUpViewModelService.isPlayer}}');
+      setBusy(true);
+      //register player or organization
+      String? currentUserId = await _auth.createAccount(
+          _signUpViewModelService.email, _signUpViewModelService.password);
+
+      //if the user is created, then create the player or organization
+      //save in the database
+      if (currentUserId != null) {
+        log.debug('User created with id: $currentUserId');
+        // Create a new user
+        User newUser = User(
+          userId: currentUserId,
+          email: _signUpViewModelService.email,
+          country: _signUpViewModelService.country,
+          address: _signUpViewModelService.address,
+          password: _signUpViewModelService.password,
+          role: isPlayer ? UserRole.player.name : UserRole.organizer.name,
+        );
+        _database.add(newUser.toJson(), FirestoreCollections.users);
+        if (isPlayer) {
+          //createPlayer
+          Player newPlayer = Player(
+              userId: currentUserId,
+              firstName: _signUpViewModelService.firstName,
+              lastName: _signUpViewModelService.lastName);
+
+          _database.add(newPlayer.toJson(), FirestoreCollections.player);
+        } else {
+          //createOrganization
+          Organizer newOrganizer = Organizer(
+              userId: currentUserId,
+              organizerName: _signUpViewModelService.organization);
+          _database.add(newOrganizer.toJson(), FirestoreCollections.organizer);
+        }
+      }
+      setBusy(false);
+      _isSignUp = true;
+      await Future.delayed(const Duration(seconds: 2));
+      _isSignUp = false;
+      notifyListeners();
+      //check if the current path is the same as the path before the delay
+      //if it is the same, then navigate to the next page
+      //Otherwise, do nothing since the user navigated to another page
+      //This is prevent confuse to the user
+      if (!isBusy && _router.current.path == currentPath) {
+        //reset the state of viewmodel
+        _signUpViewModelService.reset();
+        _router.popUntilRoot();
+        _router.push(const SignInRoute());
+      }
+    } on Failure catch (e) {
+      setBusy(false);
+      _isSignUp = false;
+      setError(e.message);
+      notifyListeners();
     }
   }
 

@@ -9,7 +9,7 @@ class TournamentDetailViewModel extends BaseViewModel {
 
   Future<void> registerTournament(Tournament tournament) async {
     setBusy(true);
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 1));
     setBusy(false);
     _router.push(TournamentRegistrationRoute(tournament: tournament));
   }

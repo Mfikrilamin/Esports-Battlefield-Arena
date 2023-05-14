@@ -34,74 +34,93 @@ class ProfileView extends StatelessWidget {
         ),
         body: PreferredSize(
           preferredSize: const Size.fromHeight(35),
-          child: ListView(
+          child: Stack(
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                // mainAxisAlignment: MainAxisAlignment.center,
+              ListView(
                 children: [
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 25, vertical: 0),
-                    height: 80,
-                    width: double.infinity,
-                    decoration: const BoxDecoration(
-                      color: kcPrimaryColor,
-                    ),
-                    child: Column(
-                      // mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const BoxText.headingOne('Welcome Back,'),
-                        UIHelper.verticalSpaceSmall(),
-                        model.isPlayer
-                            ? BoxText.body(
-                                '${model.firstName} ${model.lastName}',
-                                color: kcDarkGreyColor,
-                              )
-                            : BoxText.body(model.organization,
-                                color: kcDarkGreyColor),
-                      ],
-                    ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    // mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 25, vertical: 0),
+                        height: 80,
+                        width: double.infinity,
+                        decoration: const BoxDecoration(
+                          color: kcPrimaryColor,
+                        ),
+                        child: Column(
+                          // mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const BoxText.headingOne('Welcome Back,'),
+                            UIHelper.verticalSpaceSmall(),
+                            model.isPlayer
+                                ? BoxText.body(
+                                    '${model.player.firstName} ${model.player.lastName}',
+                                    color: kcDarkGreyColor,
+                                  )
+                                : BoxText.body(model.organizer.organizerName,
+                                    color: kcDarkGreyColor),
+                          ],
+                        ),
+                      ),
+                      UIHelper.verticalSpaceMedium(),
+                      const EmailInputField(),
+                      UIHelper.verticalSpaceSmall(),
+                      const PasswordInputField(),
+                      UIHelper.verticalSpaceSmall(),
+                      const CountryInputField(),
+                      UIHelper.verticalSpaceSmall(),
+                      const AddressInputField(),
+                      UIHelper.verticalSpaceSmall(),
+                      model.isPlayer
+                          ? const FirstNameInputField()
+                          : const OrganizerNameInputField(),
+                      UIHelper.verticalSpaceSmall(),
+                      model.isPlayer
+                          ? const LastNameInputField()
+                          : const SizedBox(),
+                    ],
                   ),
-                  UIHelper.verticalSpaceMedium(),
-                  const EmailInputField(),
-                  UIHelper.verticalSpaceSmall(),
-                  const PasswordInputField(),
-                  UIHelper.verticalSpaceSmall(),
-                  const CountryInputField(),
-                  UIHelper.verticalSpaceSmall(),
-                  const AddressInputField(),
-                  UIHelper.verticalSpaceSmall(),
-                  model.isPlayer
-                      ? const FirstNameInputField()
-                      : const OrganizerNameInputField(),
-                  UIHelper.verticalSpaceSmall(),
-                  model.isPlayer
-                      ? const LastNameInputField()
-                      : const SizedBox(),
+                  UIHelper.verticalSpaceMediumLarge(),
+                  !model.isBusy
+                      ? Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 25, vertical: 0),
+                          child: BoxButton(
+                            title: 'Update',
+                            onTap: () {
+                              model.updateProfileInformation();
+                            },
+                          ),
+                        )
+                      : Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 25, vertical: 0),
+                          child: const BoxButton(
+                            title: 'Next',
+                            busy: true,
+                          ),
+                        ),
                 ],
               ),
-              UIHelper.verticalSpaceMediumLarge(),
-              !model.isBusy
-                  ? Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 25, vertical: 0),
-                      child: BoxButton(
-                        title: 'Update',
-                        onTap: () {
-                          // model.navigateToSignInNextPage();
-                        },
+              model.isUpdateSuccess
+                  ? Positioned.fill(
+                      child: Column(
+                        children: const [
+                          Spacer(),
+                          SizedBox(
+                              height: 180,
+                              width: 180,
+                              child: RiveAnimation.asset(
+                                  "assets/RiveAssets/sucess_check2.riv")),
+                          Spacer(),
+                        ],
                       ),
                     )
-                  : Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 25, vertical: 0),
-                      child: const BoxButton(
-                        title: 'Next',
-                        busy: true,
-                      ),
-                    ),
+                  : Container(),
             ],
           ),
         ),
@@ -116,7 +135,8 @@ class EmailInputField extends StackedHookView<ProfileViewModel> {
   @override
   Widget builder(BuildContext context, ProfileViewModel model) {
     print('EmailInputField is being built');
-    var text = useTextEditingController(text: model.email);
+    var controller = useTextEditingController(text: model.user.email);
+    controller.text = model.user.email;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 0),
       child: Column(
@@ -125,8 +145,8 @@ class EmailInputField extends StackedHookView<ProfileViewModel> {
           BoxText.body('Email'),
           UIHelper.verticalSpaceSmall(),
           BoxInputField(
-            controller: text,
-            placeholder: 'Enter Email',
+            controller: controller,
+            placeholder: 'Enter your email',
             onChanged: model.updateEmail,
             readOnly: true,
             // errorText: model.isEmailValid ? null : 'Invalid Email',
@@ -138,12 +158,13 @@ class EmailInputField extends StackedHookView<ProfileViewModel> {
 }
 
 class PasswordInputField extends StackedHookView<ProfileViewModel> {
-  const PasswordInputField({Key? key}) : super(key: key, reactive: false);
+  const PasswordInputField({Key? key}) : super(key: key, reactive: true);
 
   @override
   Widget builder(BuildContext context, ProfileViewModel model) {
     print('PasswordInputField is being built');
-    var text = useTextEditingController(text: model.password);
+    var controller = useTextEditingController(text: model.user.password);
+    controller.text = model.user.password;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 0),
       child: Column(
@@ -152,7 +173,7 @@ class PasswordInputField extends StackedHookView<ProfileViewModel> {
           BoxText.body('Password'),
           UIHelper.verticalSpaceSmall(),
           BoxInputField(
-            controller: text,
+            controller: controller,
             password: true,
             placeholder: 'Enter Password',
             onChanged: model.updatePassword,
@@ -165,11 +186,12 @@ class PasswordInputField extends StackedHookView<ProfileViewModel> {
 }
 
 class AddressInputField extends StackedHookView<ProfileViewModel> {
-  const AddressInputField({Key? key}) : super(key: key, reactive: false);
+  const AddressInputField({Key? key}) : super(key: key, reactive: true);
   @override
   Widget builder(BuildContext context, ProfileViewModel model) {
     print('AddressInputField is being built');
-    var text = useTextEditingController(text: model.address);
+    var controller = useTextEditingController(text: model.user.address);
+    controller.text = model.user.address;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 0),
       child: Column(
@@ -178,7 +200,7 @@ class AddressInputField extends StackedHookView<ProfileViewModel> {
           BoxText.body('Address'),
           UIHelper.verticalSpaceSmall(),
           BoxInputField(
-            controller: text,
+            controller: controller,
             placeholder: 'Enter Your Address',
             onChanged: model.updateAddress,
             readOnly: false,
@@ -190,11 +212,12 @@ class AddressInputField extends StackedHookView<ProfileViewModel> {
 }
 
 class CountryInputField extends StackedHookView<ProfileViewModel> {
-  const CountryInputField({Key? key}) : super(key: key, reactive: false);
+  const CountryInputField({Key? key}) : super(key: key, reactive: true);
   @override
   Widget builder(BuildContext context, ProfileViewModel model) {
     print('CountryInputField is being built');
-    var text = useTextEditingController(text: model.country);
+    var controller = useTextEditingController(text: model.user.country);
+    controller.text = model.user.country;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 0),
       child: Column(
@@ -210,7 +233,7 @@ class CountryInputField extends StackedHookView<ProfileViewModel> {
                   onSelect: (Country country) {
                     // text.text = value.name;
                     model.updateCountry(country.name, country.countryCode);
-                    text.text = model.country;
+                    controller.text = model.country;
                   });
             },
             // traillingTapped: () {
@@ -220,7 +243,7 @@ class CountryInputField extends StackedHookView<ProfileViewModel> {
               Icons.location_on,
               color: kcMediumGreyColor,
             ),
-            controller: text,
+            controller: controller,
             placeholder: 'Select Your Country',
             onChanged: model.updateAddress,
           ),
@@ -231,10 +254,11 @@ class CountryInputField extends StackedHookView<ProfileViewModel> {
 }
 
 class FirstNameInputField extends StackedHookView<ProfileViewModel> {
-  const FirstNameInputField({Key? key}) : super(key: key, reactive: false);
+  const FirstNameInputField({Key? key}) : super(key: key, reactive: true);
   @override
   Widget builder(BuildContext context, ProfileViewModel model) {
-    var text = useTextEditingController(text: model.firstName);
+    var controller = useTextEditingController(text: model.player.firstName);
+    controller.text = model.player.firstName;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 0),
       child: Column(
@@ -243,7 +267,7 @@ class FirstNameInputField extends StackedHookView<ProfileViewModel> {
           BoxText.body('First Name'),
           UIHelper.verticalSpaceSmall(),
           BoxInputField(
-            controller: text,
+            controller: controller,
             placeholder: 'Your First Name',
             readOnly: false,
             onChanged: model.updateFirstName,
@@ -255,10 +279,11 @@ class FirstNameInputField extends StackedHookView<ProfileViewModel> {
 }
 
 class LastNameInputField extends StackedHookView<ProfileViewModel> {
-  const LastNameInputField({Key? key}) : super(key: key, reactive: false);
+  const LastNameInputField({Key? key}) : super(key: key, reactive: true);
   @override
   Widget builder(BuildContext context, ProfileViewModel model) {
-    var text = useTextEditingController(text: model.lastName);
+    var controller = useTextEditingController(text: model.player.lastName);
+    controller.text = model.player.lastName;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 0),
       child: Column(
@@ -267,7 +292,7 @@ class LastNameInputField extends StackedHookView<ProfileViewModel> {
           BoxText.body('Last Name'),
           UIHelper.verticalSpaceSmall(),
           BoxInputField(
-            controller: text,
+            controller: controller,
             readOnly: false,
             placeholder: 'Your Last Name',
             onChanged: model.updateLastName,
@@ -279,10 +304,12 @@ class LastNameInputField extends StackedHookView<ProfileViewModel> {
 }
 
 class OrganizerNameInputField extends StackedHookView<ProfileViewModel> {
-  const OrganizerNameInputField({Key? key}) : super(key: key, reactive: false);
+  const OrganizerNameInputField({Key? key}) : super(key: key, reactive: true);
   @override
   Widget builder(BuildContext context, ProfileViewModel model) {
-    var text = useTextEditingController(text: model.organization);
+    var controller =
+        useTextEditingController(text: model.organizer.organizerName);
+    controller.text = model.organizer.organizerName;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 0),
       child: Column(
@@ -291,7 +318,7 @@ class OrganizerNameInputField extends StackedHookView<ProfileViewModel> {
           BoxText.body('Organization Name'),
           UIHelper.verticalSpaceSmall(),
           BoxInputField(
-            controller: text,
+            controller: controller,
             readOnly: false,
             placeholder: 'Company/Club Name',
             onChanged: model.updateLastName,

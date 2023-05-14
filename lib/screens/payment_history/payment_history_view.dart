@@ -5,12 +5,14 @@ import 'package:auto_route/auto_route.dart';
 import 'package:esports_battlefield_arena/models/invoice.dart';
 import 'package:esports_battlefield_arena/models/tournament.dart';
 import 'package:esports_battlefield_arena/screens/payment_history/payment_history_viewmodel.dart';
+import 'package:esports_battlefield_arena/services/payment/stripe_service.dart';
 import 'package:esports_battlefield_arena/shared/app_colors.dart';
 import 'package:esports_battlefield_arena/shared/box_button.dart';
 import 'package:esports_battlefield_arena/shared/box_text.dart';
 import 'package:esports_battlefield_arena/shared/ui_helper.dart';
 import 'package:esports_battlefield_arena/utils/enum.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_hooks/stacked_hooks.dart';
@@ -22,7 +24,7 @@ class PaymentHistoryView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     print("PaymentHistoryView page is being built");
-    return ViewModelBuilder<PaymentHistoryViewModel>.nonReactive(
+    return ViewModelBuilder<PaymentHistoryViewModel>.reactive(
       viewModelBuilder: () => PaymentHistoryViewModel(),
       builder: (context, model, child) => Scaffold(
         appBar: AppBar(
@@ -46,7 +48,7 @@ class PaymentHistoryView extends StatelessWidget {
               const Divider(
                 color: kcVeryLightGreyColor,
                 thickness: 1,
-                height: 1,
+                height: 0,
               ),
               model.invoiceList.isNotEmpty
                   ? const Expanded(
@@ -68,33 +70,48 @@ class BillNavigationButton extends StackedHookView<PaymentHistoryViewModel> {
   @override
   Widget builder(BuildContext context, PaymentHistoryViewModel model) {
     log('BillNavigationButton is being built', name: 'BillNavigationButton');
-    final double _BUTTONHEIGHT = 35;
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Container(
-          width: 100,
-          height: _BUTTONHEIGHT,
-          alignment: Alignment.center,
-          child: BoxButton(
-            title: 'Upcoming',
-            outline: true,
-            selected: model.isSelectedUpcoming ? true : false,
-            onTap: model.onButtonUpcomingTap,
-          ),
-        ),
-        UIHelper.horizontalSpaceSmall(),
-        Container(
-          width: 50,
-          height: _BUTTONHEIGHT,
-          alignment: Alignment.center,
-          child: BoxButton(
-            title: 'All',
-            outline: true,
-            selected: model.isSelectedUpcoming ? false : true,
-            onTap: model.onButtonAllTap,
-          ),
-        ),
+        Wrap(
+          spacing: 8.0,
+          children:
+              // [
+              model.OPTIONS
+                  .map(
+                    (label) => ChoiceChip(
+                      label: Text(label),
+                      selected: model.selectedLabel == label,
+                      selectedColor: kcPrimaryColor,
+                      backgroundColor: Colors.transparent,
+                      side: const BorderSide(
+                        color: kcVeryLightGreyColor,
+                        width: 1,
+                      ),
+                      labelStyle: model.selectedLabel == label
+                          ? const TextStyle(
+                              color: kcDarkTextColor,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            )
+                          : const TextStyle(
+                              color: kcDarkGreyColor,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                      onSelected: (value) {
+                        // print(value);
+                        // if (label == OPTIONS[0]) {
+                        //   model.onButtonUpcomingTap();
+                        // } else {
+                        //   model.onButtonAllTap();
+                        // }
+                        model.onChoiceChipTap(label);
+                      },
+                    ),
+                  )
+                  .toList(),
+        )
       ],
     );
   }
@@ -105,13 +122,15 @@ class InvoiceCard extends StackedHookView<PaymentHistoryViewModel> {
 
   @override
   Widget builder(BuildContext context, PaymentHistoryViewModel model) {
-    return ListView.builder(
+    return ListView.separated(
       itemCount: model.invoiceList.length,
       shrinkWrap: true,
       itemBuilder: (context, index) {
         log('Building Invoice Card ${index + 1}', name: 'InvoiceCard');
         return GestureDetector(
-          onTap: () {},
+          onTap: () {
+            model.makeUnresolvePayment(model.invoiceList[index], context);
+          },
           child: Container(
             // height: isExpanded ? _ACTIVEHEIGHT : _INACTIVEHEIGHT,
             margin: const EdgeInsets.symmetric(
@@ -119,48 +138,45 @@ class InvoiceCard extends StackedHookView<PaymentHistoryViewModel> {
               vertical: 2.0,
             ),
             padding: const EdgeInsets.all(10.0),
-            decoration: const BoxDecoration(
-              border: BorderDirectional(
-                bottom: BorderSide(
-                  color: kcVeryLightGreyColor,
-                  width: 1,
-                ),
-              ),
-            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const BoxText.subheading('Invoice Title'),
-                    BoxText.body(model.invoiceList[index].date),
-                    BoxText.body(model.invoiceList[index].time),
-                    UIHelper.verticalSpaceSmall(),
-                    BoxText.caption(
-                        'Invoice Id: ${model.invoiceList[index].invoiceId}'),
-                  ],
+                SizedBox(
+                  width: 300,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      BoxText.subheading(model.getTournamentName(
+                          model.invoiceList[index].tournamentId)),
+                      BoxText.body(model.invoiceList[index].date.isEmpty
+                          ? 'No date'
+                          : model.invoiceList[index].date),
+                      BoxText.body(model.invoiceList[index].time.isEmpty
+                          ? 'No time'
+                          : model.invoiceList[index].time),
+                      UIHelper.verticalSpaceSmall(),
+                      BoxText.caption(
+                          'Invoice Id: ${model.invoiceList[index].invoiceId}'),
+                    ],
+                  ),
                 ),
                 Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  // mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Container(
                       width: 50,
                       height: 20,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(5),
-                        color: model.invoiceList[index].paidBy.isNotEmpty &&
-                                model.invoiceList[index].paidBy != 'null'
+                        color: model.invoiceList[index].isPaid
                             ? kcPrimaryColor
                             : kcTertiaryColor,
                       ),
                       child: Center(
                         child: BoxText.caption(
-                          model.invoiceList[index].paidBy.isNotEmpty &&
-                                  model.invoiceList[index].paidBy != 'null'
-                              ? 'Paid'
-                              : 'Unpaid',
+                          model.invoiceList[index].isPaid ? 'Paid' : 'Unpaid',
                         ),
                       ),
                     ),
@@ -171,6 +187,14 @@ class InvoiceCard extends StackedHookView<PaymentHistoryViewModel> {
               ],
             ),
           ),
+        );
+      },
+      separatorBuilder: (context, index) {
+        // <-- SEE HERE
+        return const Divider(
+          // thickness: 1,
+          height: 1,
+          color: kcLightGreyColor,
         );
       },
     );

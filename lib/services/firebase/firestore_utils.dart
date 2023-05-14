@@ -1,4 +1,4 @@
-import 'package:esports_battlefield_arena/models/User.dart';
+import 'package:esports_battlefield_arena/models/user.dart';
 import 'package:esports_battlefield_arena/models/apex_match_result.dart';
 import 'package:esports_battlefield_arena/models/invoice.dart';
 import 'package:esports_battlefield_arena/models/nickname.dart';
@@ -85,37 +85,37 @@ final Map<FirestoreCollections, Map<FirestoreDeclration, String>>
 dynamic checkCollectionNameAndgetModelData(
     FirestoreCollections collection, Map<String, dynamic> data) {
   try {
-    dynamic modelType = getDataModelType(collection);
-    return modelType.fromJson(data);
+    // dynamic modelType = getDataModelType(collection);
+    // return modelType.fromJson(data);
 
-    // switch (collectionName) {
-    //   case FirestoreCollections.users:
-    //     return User.fromJson(data);
-    //   case FirestoreCollections.player:
-    //     return Player.fromJson(data);
-    //   case FirestoreCollections.organizer:
-    //     return Organizer.fromJson(data);
-    //   case FirestoreCollections.team:
-    //     return Team.fromJson(data);
-    //   case FirestoreCollections.tournament:
-    //     return Tournament.fromJson(data);
-    //   case FirestoreCollections.tournamentParticipant:
-    //     return TournamentParticipant.fromJson(data);
-    //   case FirestoreCollections.nickname:
-    //     return Nickname.fromJson(data);
-    //   case FirestoreCollections.match:
-    //     return Match.fromJson(data);
-    //   case FirestoreCollections.apexMatchResult:
-    //     return ApexMatchResult.fromJson(data);
-    //   case FirestoreCollections.valorantMatchResult:
-    //     return ValorantMatchResult.fromJson(data);
-    //   case FirestoreCollections.playerStats:
-    //     return PlayerStats.fromJson(data);
-    //   case FirestoreCollections.invoice:
-    //     return Invoice.fromJson(data);
-    //   default:
-    //     throw ArgumentError('Collection name is not valid');
-    // }
+    switch (collection) {
+      case FirestoreCollections.users:
+        return User.fromJson(data);
+      case FirestoreCollections.player:
+        return Player.fromJson(data);
+      case FirestoreCollections.organizer:
+        return Organizer.fromJson(data);
+      case FirestoreCollections.team:
+        return Team.fromJson(data);
+      case FirestoreCollections.tournament:
+        return Tournament.fromJson(data);
+      case FirestoreCollections.tournamentParticipant:
+        return TournamentParticipant.fromJson(data);
+      case FirestoreCollections.nickname:
+        return Nickname.fromJson(data);
+      case FirestoreCollections.match:
+        return Match.fromJson(data);
+      case FirestoreCollections.apexMatchResult:
+        return ApexMatchResult.fromJson(data);
+      case FirestoreCollections.valorantMatchResult:
+        return ValorantMatchResult.fromJson(data);
+      case FirestoreCollections.playerStats:
+        return PlayerStats.fromJson(data);
+      case FirestoreCollections.invoice:
+        return Invoice.fromJson(data);
+      default:
+        throw ArgumentError('Collection name is not valid');
+    }
   } on Exception {
     rethrow;
   }
@@ -123,11 +123,39 @@ dynamic checkCollectionNameAndgetModelData(
 
 bool checkCollectionNameAndgetFieldName(
     FirestoreCollections collection, String field) {
-  dynamic modelType = getDataModelType(collection);
-  if (modelType.toJson().containsKey(field)) {
-    return true;
+  switch (collection) {
+    case FirestoreCollections.users:
+      return User().toJson().containsKey(field);
+    case FirestoreCollections.player:
+      return Player().toJson().containsKey(field);
+    case FirestoreCollections.organizer:
+      return Organizer().toJson().containsKey(field);
+    case FirestoreCollections.team:
+      return Team().toJson().containsKey(field);
+    case FirestoreCollections.tournament:
+      return Tournament().toJson().containsKey(field);
+    case FirestoreCollections.tournamentParticipant:
+      return TournamentParticipant().toJson().containsKey(field);
+    case FirestoreCollections.nickname:
+      return Nickname().toJson().containsKey(field);
+    case FirestoreCollections.match:
+      return Match().toJson().containsKey(field);
+    case FirestoreCollections.apexMatchResult:
+      return ApexMatchResult().toJson().containsKey(field);
+    case FirestoreCollections.valorantMatchResult:
+      return ValorantMatchResult().toJson().containsKey(field);
+    case FirestoreCollections.playerStats:
+      return PlayerStats().toJson().containsKey(field);
+    case FirestoreCollections.invoice:
+      return Invoice().toJson().containsKey(field);
+    default:
+      throw ArgumentError('Collection name is not valid');
   }
-  return false;
+  // dynamic modelType = getDataModelType(collection);
+  // if (modelType.toJson().containsKey(field)) {
+  //   return true;
+  // }
+  // return false;
 }
 
 dynamic getDataModelType(FirestoreCollections collection) {

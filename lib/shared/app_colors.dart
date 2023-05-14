@@ -23,11 +23,17 @@ const Color kcTertiaryColor = Color(0xFFFF4D4D);
 const Color kcTertiaryMediumColor = Color(0xffff8f8f);
 const Color kcTertiaryLightColor = Color(0xffffe9e9);
 
+//Complete, pending and ongoing colors
+const Color kcCompleteColor = Color(0xffB4FC79);
+const Color kcPendingColor = Color(0xffF9FFDE);
+const Color kcOngoingColor = Color(0xffff8c42);
+
 //Text Colors
 const Color kcDarkTextColor = Color.fromARGB(255, 0, 0, 0);
 const Color kcVeryDarkGreyTextColor = Color(0xff191919);
 const Color kcDarkGreyColor = Color(0xff4a4a4a);
 const Color kcMediumGreyColor = Color(0xff868686);
+const Color kcGreyColor = Color(0xffb2b2b2);
 const Color kcLightGreyColor = Color(0xffe5e5e5);
 const Color kcVeryLightGreyColor = Color(0xfff2f2f2);
 const Color kcWhiteColor = Color(0xffffffff);

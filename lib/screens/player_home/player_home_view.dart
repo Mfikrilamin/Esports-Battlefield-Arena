@@ -18,7 +18,7 @@ class PlayerHomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ViewModelBuilder<PlayerHomeViewModel>.nonReactive(
+    return ViewModelBuilder<PlayerHomeViewModel>.reactive(
       viewModelBuilder: () => PlayerHomeViewModel(),
       builder: (context, model, child) {
         model.setContext(context);
@@ -71,95 +71,6 @@ class PlayerHomeView extends StatelessWidget {
                       ),
                     ],
                   ),
-
-                  //    model.tournamentList.isNotEmpty
-                  //       ? ListView.builder(
-                  //           itemCount: model.tournamentList.length,
-                  //           itemBuilder: (context, index) {
-                  //             return TournamentCard(
-                  //               key: UniqueKey(),
-                  //               index: index,
-                  //             );
-                  //           },
-                  //         )
-                  //       : const Center(
-                  //           child: BoxText.headingThree('No tournaments available'),
-                  //         ),
-                  // LiquidPullToRefresh(
-                  //   onRefresh: model.refreshTournaments,
-                  //   // showChildOpacityTransition: false,
-                  //   color: kcPrimaryColor,
-                  //   animSpeedFactor: 2,
-                  //   backgroundColor: kcPrimaryLightColor,
-                  //   height: 150,
-                  //   child:
-                  //    model.tournamentList.isNotEmpty
-                  //       ? ListView.builder(
-                  //           itemCount: model.tournamentList.length,
-                  //           itemBuilder: (context, index) {
-                  //             return TournamentCard(
-                  //               key: UniqueKey(),
-                  //               index: index,
-                  //             );
-                  //           },
-                  //         )
-                  //       : const Center(
-                  //           child: BoxText.headingThree('No tournaments available'),
-                  //         ),
-
-                  // CustomScrollView(
-                  //   slivers: [
-                  //     SliverAppBar(
-                  //       pinned: true,
-                  //       backgroundColor: kcPrimaryColor,
-                  //       expandedHeight: 200,
-                  //       flexibleSpace: LayoutBuilder(builder:
-                  //           (BuildContext context, BoxConstraints constraints) {
-                  //         model.updateTop(constraints.biggest.height);
-                  //         print("Building sliver app bar");
-                  //         return FlexibleSpaceBar(
-                  //           title: AnimatedOpacity(
-                  //             curve: accelerateEasing,
-                  //             duration: const Duration(milliseconds: 300),
-                  //             opacity: 1.0,
-                  //             child: (model.top ==
-                  //                     MediaQuery.of(context).padding.top +
-                  //                         kToolbarHeight)
-                  //                 ? BoxText.appBar('ARENA', color: kcDarkTextColor)
-                  //                 : BoxText.appBar('ARENA', color: kcPrimaryLightColor),
-                  //           ),
-                  //           centerTitle: true,
-                  //           background: const Image(
-                  //             image: AssetImage('assets/images/player_home_small.jpg'),
-                  //             fit: BoxFit.cover,
-                  //           ),
-                  //         );
-                  //       }),
-                  //     ),
-                  //     SliverPersistentHeader(
-                  //       delegate: TournamentHeaderDelegate(),
-                  //       pinned: true,
-                  //     ),
-                  //     model.tournamentList.isNotEmpty
-                  //         ? SliverList(
-                  //             delegate: SliverChildBuilderDelegate((context, index) {
-                  //               return TournamentCard(
-                  //                 key: UniqueKey(),
-                  //                 index: index,
-                  //               );
-                  //             }, childCount: model.tournamentList.length),
-                  //           )
-                  //         : const SliverToBoxAdapter(
-                  //             child: SizedBox(
-                  //               height: 250,
-                  //               child: Center(
-                  //                 child:
-                  //                     BoxText.headingThree('No tournaments available'),
-                  //               ),
-                  //             ),
-                  //           ),
-                  //   ],
-                  // ),
                 ),
                 model.tournamentList.isNotEmpty
                     ? Expanded(

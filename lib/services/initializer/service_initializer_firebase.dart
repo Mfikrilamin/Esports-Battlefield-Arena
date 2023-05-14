@@ -10,9 +10,9 @@ class ServiceInitializerImpl extends ServiceInitializer {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    Stripe.publishableKey = "pk_test_24PsRoB2O46Bxxxxxxxxxxxxxxxxxxxxxxxx";
-
     //Load our .env file that contains our Stripe Secret key
     await dotenv.load(fileName: "assets/.env");
+    Stripe.publishableKey = dotenv.env['STRIPE_PUBLISHABLE_KEY']!;
+    await Stripe.instance.applySettings();
   }
 }

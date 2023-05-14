@@ -97,7 +97,38 @@ class SignUpNextView extends StatelessWidget {
                                 ],
                               ),
                             )
-                          : Container()
+                          : Container(),
+                      model.hasError
+                          ? Positioned.fill(
+                              child: Column(
+                                children: [
+                                  const Spacer(),
+                                  GestureDetector(
+                                    onTap: () {
+                                      model.clearErrors();
+                                    },
+                                    child: AlertDialog(
+                                      content: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Row(
+                                            children: const [
+                                              Icon(
+                                                Icons.check_circle,
+                                                color: kcTertiaryColor,
+                                              ),
+                                              Text("Register unsuccessful"),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                ],
+                              ),
+                            )
+                          : Container(),
                     ],
                   ),
                 ),

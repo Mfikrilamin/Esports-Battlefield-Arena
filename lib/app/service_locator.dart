@@ -5,10 +5,10 @@ import 'package:esports_battlefield_arena/screens/profile/profile_viewmodel.dart
 import 'package:esports_battlefield_arena/screens/sign_in/signin_viewmodel.dart';
 import 'package:esports_battlefield_arena/screens/sign_up/signup_viewmodel.dart';
 import 'package:esports_battlefield_arena/services/counter/counter_service.dart';
-import 'package:esports_battlefield_arena/services/firebase/authentication/fireauth.dart';
+import 'package:esports_battlefield_arena/services/firebase/authentication/auth.dart';
 import 'package:esports_battlefield_arena/services/firebase/authentication/fireauth_service.dart';
-import 'package:esports_battlefield_arena/services/firebase/firestore/firestore.dart';
-import 'package:esports_battlefield_arena/services/firebase/firestore/firestore_service.dart';
+import 'package:esports_battlefield_arena/services/firebase/database/database.dart';
+import 'package:esports_battlefield_arena/services/firebase/database/firestore_service.dart';
 import 'package:esports_battlefield_arena/services/initializer/service_initializer.dart';
 import 'package:esports_battlefield_arena/services/initializer/service_initializer_firebase.dart';
 import 'package:esports_battlefield_arena/services/log/log_services.dart';
@@ -37,13 +37,13 @@ Future<void> initializeServiceLocator() async {
   await serviceInitializer.init();
 
   // Services
-  locator.registerLazySingleton<Firestore>(() => FirestoreService());
+  locator.registerLazySingleton<Database>(() => FirestoreService());
   locator.registerLazySingleton<Auth>(() => FireAuthService());
-  locator.registerLazySingleton<StripePayment>(() => StripePaymentService());
   locator.registerLazySingleton(() => NavigationService());
   locator.registerLazySingleton(() => DialogService());
   locator.registerLazySingleton(() => AppRouter());
   locator.registerLazySingleton(() => LogService());
+  locator.registerLazySingleton<Payment>(() => StripePaymentService());
 
   //viewmodel
   locator.registerLazySingleton(() => SignUpViewModel());

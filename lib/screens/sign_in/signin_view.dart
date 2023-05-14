@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:esports_battlefield_arena/screens/sign_in/signin_viewmodel.dart';
+import 'package:esports_battlefield_arena/shared/app_colors.dart';
 import 'package:esports_battlefield_arena/shared/box_button.dart';
 import 'package:esports_battlefield_arena/shared/box_input_field.dart';
 import 'package:esports_battlefield_arena/shared/box_text.dart';
@@ -81,7 +82,38 @@ class SignInView extends StatelessWidget {
                           ],
                         ),
                       )
-                    : Container()
+                    : Container(),
+                model.hasError
+                    ? Positioned.fill(
+                        child: Column(
+                          children: [
+                            const Spacer(),
+                            GestureDetector(
+                              onTap: () {
+                                model.clearErrorMessage();
+                              },
+                              child: AlertDialog(
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Row(
+                                      children: const [
+                                        Icon(
+                                          Icons.check_circle,
+                                          color: kcTertiaryColor,
+                                        ),
+                                        Text("Invalid email or password"),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const Spacer(),
+                          ],
+                        ),
+                      )
+                    : Container(),
               ],
             ),
           ],
