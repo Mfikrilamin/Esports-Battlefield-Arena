@@ -8,7 +8,9 @@ import 'package:rive/rive.dart';
 import 'package:stacked_hooks/stacked_hooks.dart';
 
 class CustomBottomNavigationBar extends StackedHookView<HomeViewModel> {
-  const CustomBottomNavigationBar({Key? key}) : super(key: key, reactive: true);
+  final bool isPlayer;
+  const CustomBottomNavigationBar(this.isPlayer, {Key? key})
+      : super(key: key, reactive: true);
 
   @override
   Widget builder(BuildContext context, HomeViewModel model) {
@@ -28,15 +30,19 @@ class CustomBottomNavigationBar extends StackedHookView<HomeViewModel> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               ...List.generate(
-                bottomNavs.length,
+                isPlayer ? bottomNavs.length : organizerbottomNavs.length,
                 (index) => GestureDetector(
                   onTap: () {
-                    bottomNavs[index].input!.change(true);
+                    isPlayer
+                        ? bottomNavs[index].input!.change(true)
+                        : organizerbottomNavs[index].input!.change(true);
                     if (index != model.selectedIndex) {
                       model.onNavigateBarTapped(index);
                     }
                     Future.delayed(const Duration(seconds: 1), () {
-                      bottomNavs[index].input!.change(false);
+                      isPlayer
+                          ? bottomNavs[index].input!.change(false)
+                          : organizerbottomNavs[index].input!.change(false);
                       // model.navigateBasedOnBottomBar();
                     });
                   },
@@ -51,24 +57,41 @@ class CustomBottomNavigationBar extends StackedHookView<HomeViewModel> {
                         width: 36,
                         child: Opacity(
                           opacity: model.selectedIndex == index ? 1 : 0.5,
-                          child: RiveAnimation.asset(
-                            bottomNavs.first.src,
-                            artboard: bottomNavs[index].artBoard,
-                            onInit: (artboard) {
-                              RiveUtils riveUtils = RiveUtils();
-                              StateMachineController controller =
-                                  riveUtils.getRiveController(artboard,
-                                      stateMachineName:
-                                          bottomNavs[index].stateMachineName);
-                              bottomNavs[index].input =
-                                  controller.findSMI("active") as SMIBool;
-                            },
-                          ),
+                          child: !model.isBusy
+                              ? RiveAnimation.asset(
+                                  isPlayer
+                                      ? bottomNavs.first.src
+                                      : organizerbottomNavs.first.src,
+                                  artboard: isPlayer
+                                      ? bottomNavs[index].artBoard
+                                      : organizerbottomNavs[index].artBoard,
+                                  onInit: (artboard) {
+                                    RiveUtils riveUtils = RiveUtils();
+                                    StateMachineController controller =
+                                        riveUtils.getRiveController(artboard,
+                                            stateMachineName: isPlayer
+                                                ? bottomNavs[index]
+                                                    .stateMachineName
+                                                : organizerbottomNavs[index]
+                                                    .stateMachineName);
+                                    if (isPlayer == true) {
+                                      bottomNavs[index].input = controller
+                                          .findSMI("active") as SMIBool;
+                                    } else {
+                                      organizerbottomNavs[index].input =
+                                          controller.findSMI("active")
+                                              as SMIBool;
+                                    }
+                                  },
+                                )
+                              : const CircularProgressIndicator(),
                         ),
                       ),
                       Container(
                         margin: const EdgeInsets.only(top: 2),
-                        child: BoxText.caption(bottomNavs[index].state!.name),
+                        child: BoxText.caption(isPlayer
+                            ? bottomNavs[index].state!.name
+                            : organizerbottomNavs[index].state!.name),
                       )
                     ],
                   ),
@@ -117,6 +140,25 @@ List<RiveAsset> bottomNavs = [
       artBoard: 'TIMER',
       stateMachineName: "TIMER_Interactivity",
       state: MenuState.History),
+  RiveAsset('assets/RiveAssets/animated-icon-set.riv',
+      artBoard: 'USER',
+      stateMachineName: "USER_Interactivity",
+      state: MenuState.Profile),
+];
+
+List<RiveAsset> organizerbottomNavs = [
+  RiveAsset('assets/RiveAssets/animated-icon-set.riv',
+      artBoard: 'SETTINGS',
+      stateMachineName: "SETTINGS_Interactivity",
+      state: MenuState.Create),
+  RiveAsset('assets/RiveAssets/animated-icon-set.riv',
+      artBoard: 'REFRESH/RELOAD',
+      stateMachineName: "RELOAD_Interactivity",
+      state: MenuState.Manage),
+  RiveAsset('assets/RiveAssets/animated-icon-set.riv',
+      artBoard: 'LIKE/STAR',
+      stateMachineName: "STAR_Interactivity",
+      state: MenuState.Leaderboard),
   RiveAsset('assets/RiveAssets/animated-icon-set.riv',
       artBoard: 'USER',
       stateMachineName: "USER_Interactivity",

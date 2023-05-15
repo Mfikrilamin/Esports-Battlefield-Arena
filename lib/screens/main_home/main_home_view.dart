@@ -2,7 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:esports_battlefield_arena/components/widgets/box_game_logo.dart';
 import 'package:esports_battlefield_arena/components/widgets/hero_widget.dart';
 import 'package:esports_battlefield_arena/models/tournament.dart';
-import 'package:esports_battlefield_arena/screens/player_home/player_home_viewmodel.dart';
+import 'package:esports_battlefield_arena/screens/main_home/main_home_viewmodel.dart';
 import 'package:esports_battlefield_arena/shared/app_colors.dart';
 import 'package:esports_battlefield_arena/shared/box_text.dart';
 import 'package:esports_battlefield_arena/shared/ui_helper.dart';
@@ -13,13 +13,13 @@ import 'package:stacked/stacked.dart';
 import 'package:stacked_hooks/stacked_hooks.dart';
 
 @RoutePage()
-class PlayerHomeView extends StatelessWidget {
-  const PlayerHomeView({Key? key}) : super(key: key);
+class MainHomeView extends StatelessWidget {
+  const MainHomeView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return ViewModelBuilder<PlayerHomeViewModel>.reactive(
-      viewModelBuilder: () => PlayerHomeViewModel(),
+    return ViewModelBuilder<MainHomeViewModel>.reactive(
+      viewModelBuilder: () => MainHomeViewModel(),
       builder: (context, model, child) {
         model.setContext(context);
         return Scaffold(
@@ -98,7 +98,7 @@ class PlayerHomeView extends StatelessWidget {
 }
 
 //Solution to fix the whole list getting rebuild try #!1
-class TournamentCard extends StackedHookView<PlayerHomeViewModel> {
+class TournamentCard extends StackedHookView<MainHomeViewModel> {
   final int index;
   final double _ACTIVEHEIGHT = 250;
   final double _INACTIVEHEIGHT = 80;
@@ -109,7 +109,7 @@ class TournamentCard extends StackedHookView<PlayerHomeViewModel> {
   }) : super(key: key, reactive: true);
 
   @override
-  Widget builder(BuildContext context, PlayerHomeViewModel model) {
+  Widget builder(BuildContext context, MainHomeViewModel model) {
     print('Building tournament card ${index + 1}');
     return GestureDetector(
       onTap: () {

@@ -16,6 +16,7 @@ class HomeViewModel extends FutureViewModel<void> {
   AppRouter _appRouter = locator<AppRouter>();
   Auth _auth = locator<Auth>();
   Database _database = locator<Database>();
+  LogService _log = locator<LogService>();
   bool isPlayer = false;
 
   int get selectedIndex => _selectedIndex;
@@ -35,8 +36,12 @@ class HomeViewModel extends FutureViewModel<void> {
         User.fromJson(await _database.get(userId, FirestoreCollections.users));
     if (user.role == UserRole.player.name) {
       isPlayer = true;
+    } else {
+      isPlayer = false;
     }
-    isPlayer = false;
+    _log.debug(UserRole.player.name);
+    _log.debug('isPlayer : $isPlayer');
+    notifyListeners();
   }
 
   @override

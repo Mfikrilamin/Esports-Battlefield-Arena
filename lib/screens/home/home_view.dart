@@ -1,9 +1,9 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:esports_battlefield_arena/app/router.gr.dart';
 import 'package:esports_battlefield_arena/components/widgets/bottom_nagivation_bar.dart';
 import 'package:esports_battlefield_arena/screens/home/home_viewmodel.dart';
+import 'package:esports_battlefield_arena/screens/organizer_home/organizer_home_view.dart';
 import 'package:esports_battlefield_arena/screens/payment_history/payment_history_view.dart';
-import 'package:esports_battlefield_arena/screens/player_home/player_home_view.dart';
+import 'package:esports_battlefield_arena/screens/main_home/main_home_view.dart';
 import 'package:esports_battlefield_arena/screens/profile/profile_view.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
@@ -26,7 +26,7 @@ class HomeView extends StatelessWidget {
         body: model.isBusy
             ? const CircularProgressIndicator()
             : buildBodyWidget(model.selectedIndex, model.isPlayer),
-        bottomNavigationBar: const CustomBottomNavigationBar(),
+        bottomNavigationBar: CustomBottomNavigationBar(model.isPlayer),
       ),
     );
   }
@@ -35,7 +35,7 @@ class HomeView extends StatelessWidget {
 Widget buildBodyWidget(int index, bool isPlayer) {
   switch (index) {
     case 0:
-      return const PlayerHomeView();
+      return isPlayer ? const MainHomeView() : const OrganizerHomeView();
     case 1:
       return const PlayerRegisteredTournamentView();
     case 2:

@@ -1,5 +1,6 @@
 import 'package:esports_battlefield_arena/shared/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class BoxInputField extends StatelessWidget {
   final controller;
@@ -13,6 +14,8 @@ class BoxInputField extends StatelessWidget {
   final bool password;
   final bool enable;
   final bool readOnly;
+  final List<TextInputFormatter>? inputFormatters;
+  final TextInputType? keyboardType;
 
   final circularBorder = OutlineInputBorder(
     borderRadius: BorderRadius.circular(8),
@@ -30,7 +33,9 @@ class BoxInputField extends StatelessWidget {
       this.enable = false,
       this.onTap,
       required this.readOnly,
-      this.errorText})
+      this.errorText,
+      this.inputFormatters,
+      this.keyboardType})
       : super(key: key);
 
   @override
@@ -41,6 +46,10 @@ class BoxInputField extends StatelessWidget {
       controller: controller,
       onChanged: onChanged,
       style: const TextStyle(height: 1),
+      inputFormatters: [
+        ...inputFormatters ?? [],
+      ],
+      keyboardType: keyboardType,
       obscureText: password,
       decoration: InputDecoration(
         hintText: placeholder,

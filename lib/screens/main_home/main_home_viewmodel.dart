@@ -3,6 +3,7 @@ import 'package:esports_battlefield_arena/app/router.dart';
 import 'package:esports_battlefield_arena/app/router.gr.dart';
 import 'package:esports_battlefield_arena/app/service_locator.dart';
 import 'package:esports_battlefield_arena/components/widgets/custom_page_route_builder.dart';
+import 'package:esports_battlefield_arena/models/User.dart';
 import 'package:esports_battlefield_arena/models/tournament.dart';
 import 'package:esports_battlefield_arena/screens/tournament_details/tournament_details_view.dart';
 import 'package:esports_battlefield_arena/services/firebase/authentication/auth.dart';
@@ -13,7 +14,7 @@ import 'package:esports_battlefield_arena/utils/enum.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:stacked/stacked.dart';
 
-class PlayerHomeViewModel extends FutureViewModel<void> {
+class MainHomeViewModel extends FutureViewModel<void> {
   final AppRouter _router = locator<AppRouter>();
   final Database _database = locator<Database>();
   final log = locator<LogService>();
@@ -29,7 +30,6 @@ class PlayerHomeViewModel extends FutureViewModel<void> {
   //Tournament card
   int _selectedIndex = 0;
   bool _isExpanded = false;
-
   List<Tournament> _tournamentListState = [];
 
   //getters
@@ -44,8 +44,9 @@ class PlayerHomeViewModel extends FutureViewModel<void> {
   }
 
   void navigateToTournamentDetail(int index) {
-    _router
-        .push(TournamentDetailRoute(tournament: _tournamentListState[index]));
+    _router.push(TournamentDetailRoute(
+      tournament: _tournamentListState[index],
+    ));
   }
 
   Future<void> refreshTournaments() async {

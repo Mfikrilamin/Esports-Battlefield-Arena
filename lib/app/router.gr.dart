@@ -1,4 +1,3 @@
-
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 // **************************************************************************
@@ -12,26 +11,26 @@
 import 'package:auto_route/auto_route.dart' as _i12;
 import 'package:esports_battlefield_arena/models/tournament.dart' as _i14;
 import 'package:esports_battlefield_arena/screens/home/home_view.dart' as _i1;
+import 'package:esports_battlefield_arena/screens/main_home/main_home_view.dart'
+    as _i11;
 import 'package:esports_battlefield_arena/screens/payment_history/payment_history_view.dart'
     as _i2;
-import 'package:esports_battlefield_arena/screens/player_home/player_home_view.dart'
-    as _i3;
 import 'package:esports_battlefield_arena/screens/player_registered_tournament/player_registered_tournament_view.dart'
-    as _i4;
+    as _i3;
 import 'package:esports_battlefield_arena/screens/profile/profile_view.dart'
-    as _i5;
+    as _i4;
 import 'package:esports_battlefield_arena/screens/register_tournament/tournament_registration_view.dart'
-    as _i6;
+    as _i5;
 import 'package:esports_battlefield_arena/screens/sign_in/signin_view.dart'
-    as _i7;
+    as _i6;
 import 'package:esports_battlefield_arena/screens/sign_up/sign_up_next_screen.dart'
-    as _i9;
-import 'package:esports_battlefield_arena/screens/sign_up/signup_screen.dart'
     as _i8;
+import 'package:esports_battlefield_arena/screens/sign_up/signup_screen.dart'
+    as _i7;
 import 'package:esports_battlefield_arena/screens/testing/testing_view.dart'
-    as _i10;
+    as _i9;
 import 'package:esports_battlefield_arena/screens/tournament_details/tournament_details_view.dart'
-    as _i11;
+    as _i10;
 import 'package:flutter/material.dart' as _i13;
 
 abstract class $AppRouter extends _i12.RootStackRouter {
@@ -51,29 +50,23 @@ abstract class $AppRouter extends _i12.RootStackRouter {
         child: const _i2.PaymentHistoryView(),
       );
     },
-    PlayerHomeRoute.name: (routeData) {
-      return _i12.AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: const _i3.PlayerHomeView(),
-      );
-    },
     PlayerRegisteredTournamentRoute.name: (routeData) {
       return _i12.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i4.PlayerRegisteredTournamentView(),
+        child: const _i3.PlayerRegisteredTournamentView(),
       );
     },
     ProfileRoute.name: (routeData) {
       return _i12.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i5.ProfileView(),
+        child: const _i4.ProfileView(),
       );
     },
     TournamentRegistrationRoute.name: (routeData) {
       final args = routeData.argsAs<TournamentRegistrationRouteArgs>();
       return _i12.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: _i6.TournamentRegistrationView(
+        child: _i5.TournamentRegistrationView(
           key: args.key,
           tournament: args.tournament,
         ),
@@ -82,35 +75,41 @@ abstract class $AppRouter extends _i12.RootStackRouter {
     SignInRoute.name: (routeData) {
       return _i12.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i7.SignInView(),
+        child: const _i6.SignInView(),
       );
     },
     SignUpRoute.name: (routeData) {
       return _i12.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i8.SignUpView(),
+        child: const _i7.SignUpView(),
       );
     },
     SignUpNextRoute.name: (routeData) {
       return _i12.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i9.SignUpNextView(),
+        child: const _i8.SignUpNextView(),
       );
     },
     TestingRoute.name: (routeData) {
       return _i12.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i10.TestingView(),
+        child: const _i9.TestingView(),
       );
     },
     TournamentDetailRoute.name: (routeData) {
       final args = routeData.argsAs<TournamentDetailRouteArgs>();
       return _i12.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: _i11.TournamentDetailView(
+        child: _i10.TournamentDetailView(
           key: args.key,
           tournament: args.tournament,
         ),
+      );
+    },
+    MainHomeRoute.name: (routeData) {
+      return _i12.AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const _i11.MainHomeView(),
       );
     },
   };
@@ -145,21 +144,7 @@ class PaymentHistoryRoute extends _i12.PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [_i3.PlayerHomeView]
-class PlayerHomeRoute extends _i12.PageRouteInfo<void> {
-  const PlayerHomeRoute({List<_i12.PageRouteInfo>? children})
-      : super(
-          PlayerHomeRoute.name,
-          initialChildren: children,
-        );
-
-  static const String name = 'PlayerHomeRoute';
-
-  static const _i12.PageInfo<void> page = _i12.PageInfo<void>(name);
-}
-
-/// generated route for
-/// [_i4.PlayerRegisteredTournamentView]
+/// [_i3.PlayerRegisteredTournamentView]
 class PlayerRegisteredTournamentRoute extends _i12.PageRouteInfo<void> {
   const PlayerRegisteredTournamentRoute({List<_i12.PageRouteInfo>? children})
       : super(
@@ -173,7 +158,7 @@ class PlayerRegisteredTournamentRoute extends _i12.PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [_i5.ProfileView]
+/// [_i4.ProfileView]
 class ProfileRoute extends _i12.PageRouteInfo<void> {
   const ProfileRoute({List<_i12.PageRouteInfo>? children})
       : super(
@@ -187,7 +172,7 @@ class ProfileRoute extends _i12.PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [_i6.TournamentRegistrationView]
+/// [_i5.TournamentRegistrationView]
 class TournamentRegistrationRoute
     extends _i12.PageRouteInfo<TournamentRegistrationRouteArgs> {
   TournamentRegistrationRoute({
@@ -226,7 +211,7 @@ class TournamentRegistrationRouteArgs {
 }
 
 /// generated route for
-/// [_i7.SignInView]
+/// [_i6.SignInView]
 class SignInRoute extends _i12.PageRouteInfo<void> {
   const SignInRoute({List<_i12.PageRouteInfo>? children})
       : super(
@@ -240,7 +225,7 @@ class SignInRoute extends _i12.PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [_i8.SignUpView]
+/// [_i7.SignUpView]
 class SignUpRoute extends _i12.PageRouteInfo<void> {
   const SignUpRoute({List<_i12.PageRouteInfo>? children})
       : super(
@@ -254,7 +239,7 @@ class SignUpRoute extends _i12.PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [_i9.SignUpNextView]
+/// [_i8.SignUpNextView]
 class SignUpNextRoute extends _i12.PageRouteInfo<void> {
   const SignUpNextRoute({List<_i12.PageRouteInfo>? children})
       : super(
@@ -268,7 +253,7 @@ class SignUpNextRoute extends _i12.PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [_i10.TestingView]
+/// [_i9.TestingView]
 class TestingRoute extends _i12.PageRouteInfo<void> {
   const TestingRoute({List<_i12.PageRouteInfo>? children})
       : super(
@@ -282,7 +267,7 @@ class TestingRoute extends _i12.PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [_i11.TournamentDetailView]
+/// [_i10.TournamentDetailView]
 class TournamentDetailRoute
     extends _i12.PageRouteInfo<TournamentDetailRouteArgs> {
   TournamentDetailRoute({
@@ -318,4 +303,18 @@ class TournamentDetailRouteArgs {
   String toString() {
     return 'TournamentDetailRouteArgs{key: $key, tournament: $tournament}';
   }
+}
+
+/// generated route for
+/// [_i11.MainHomeView]
+class MainHomeRoute extends _i12.PageRouteInfo<void> {
+  const MainHomeRoute({List<_i12.PageRouteInfo>? children})
+      : super(
+          MainHomeRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'MainHomeRoute';
+
+  static const _i12.PageInfo<void> page = _i12.PageInfo<void>(name);
 }

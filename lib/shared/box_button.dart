@@ -12,21 +12,31 @@ class BoxButton extends StatelessWidget {
   final bool outline;
   final void Function()? onTap;
   final bool? selected;
+  final double height;
+  final double width;
 
-  const BoxButton(
-      {Key? key,
-      required this.title,
-      this.disable = false,
-      this.busy = false,
-      this.leading,
-      this.outline = false,
-      this.onTap,
-      this.selected})
-      : super(key: key);
+  const BoxButton({
+    Key? key,
+    required this.title,
+    this.disable = false,
+    this.busy = false,
+    this.leading,
+    this.outline = false,
+    this.onTap,
+    this.selected,
+    this.height = 48,
+    this.width = double.infinity,
+  }) : super(key: key);
 
-  const BoxButton.outline(
-      {Key? key, required this.title, this.onTap, this.leading, this.selected})
-      : disable = false,
+  const BoxButton.outline({
+    Key? key,
+    required this.title,
+    this.onTap,
+    this.leading,
+    this.selected,
+    this.height = 48,
+    this.width = double.infinity,
+  })  : disable = false,
         busy = false,
         outline = true,
         super(key: key);
@@ -37,8 +47,8 @@ class BoxButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
           // duration: const Duration(milliseconds: 350),
-          width: double.infinity,
-          height: 48,
+          width: width,
+          height: height,
           alignment: Alignment.center,
           decoration: !outline
               ? BoxDecoration(

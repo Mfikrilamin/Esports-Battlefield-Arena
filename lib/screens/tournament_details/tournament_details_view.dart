@@ -11,7 +11,6 @@ import 'package:esports_battlefield_arena/shared/box_text.dart';
 import 'package:esports_battlefield_arena/shared/ui_helper.dart';
 import 'package:esports_battlefield_arena/utils/enum.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:stacked/stacked.dart';
 
 @RoutePage()
@@ -207,10 +206,8 @@ class TournamentDetailView extends StatelessWidget {
                         horizontal: 25, vertical: 25),
                     color: kcWhiteColor,
                     child: BoxButton(
-                      title: 'Register',
-                      onTap: () => model.registerTournament(tournament),
-                      busy: model.isBusy,
-                    ),
+                        title: 'Register',
+                        onTap: () => model.registerTournament(tournament)),
                   ),
                 ),
               ),

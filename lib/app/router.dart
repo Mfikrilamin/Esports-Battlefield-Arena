@@ -13,7 +13,7 @@ class AppRouter extends $AppRouter {
     //HomeScreen is generated as HomeRoute because
     //of the replaceInRouteName property
     AutoRoute(page: HomeRoute.page),
-    AutoRoute(page: PlayerHomeRoute.page),
+    AutoRoute(page: MainHomeRoute.page),
     AutoRoute(page: ProfileRoute.page),
     AutoRoute(page: SignInRoute.page, path: '/'),
     AutoRoute(page: SignUpRoute.page),
