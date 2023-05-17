@@ -1,7 +1,8 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:esports_battlefield_arena/components/widgets/bottom_nagivation_bar.dart';
 import 'package:esports_battlefield_arena/screens/home/home_viewmodel.dart';
-import 'package:esports_battlefield_arena/screens/organizer_home/organizer_home_view.dart';
+import 'package:esports_battlefield_arena/screens/my_organized_tournament.dart/my_organized_tournament_view.dart';
+import 'package:esports_battlefield_arena/screens/create_tournament/create_tournament_view.dart';
 import 'package:esports_battlefield_arena/screens/payment_history/payment_history_view.dart';
 import 'package:esports_battlefield_arena/screens/main_home/main_home_view.dart';
 import 'package:esports_battlefield_arena/screens/profile/profile_view.dart';
@@ -35,11 +36,13 @@ class HomeView extends StatelessWidget {
 Widget buildBodyWidget(int index, bool isPlayer) {
   switch (index) {
     case 0:
-      return isPlayer ? const MainHomeView() : const OrganizerHomeView();
+      return isPlayer
+          ? const MainHomeView()
+          : const MyOrganizedTournamentView();
     case 1:
-      return const PlayerRegisteredTournamentView();
+      return isPlayer ? const PlayerRegisteredTournamentView() : Container();
     case 2:
-      return const PaymentHistoryView();
+      return isPlayer ? const PaymentHistoryView() : const ProfileView();
     default:
       return const ProfileView();
   }

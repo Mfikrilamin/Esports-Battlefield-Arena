@@ -298,8 +298,9 @@ class TournamentCardSt extends StatelessWidget {
                               borderRadius: BorderRadius.circular(10.0),
                             ),
                             child: HeroWidget(
-                                tag: tournament.tournamentId,
-                                child: buildGameLogo(tournament.game, 80)),
+                              tag: tournament.tournamentId,
+                              child: buildGameLogo(tournament.game, 80),
+                            ),
                           ),
                         ],
                       ),

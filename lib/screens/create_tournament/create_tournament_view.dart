@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:direct_select/direct_select.dart';
-import 'package:esports_battlefield_arena/screens/organizer_home/organizer_home_viewmodel.dart';
+import 'package:esports_battlefield_arena/models/tournament.dart';
+import 'package:esports_battlefield_arena/screens/create_tournament/create_tournament_viewmodel.dart';
 import 'package:esports_battlefield_arena/shared/app_colors.dart';
 import 'package:esports_battlefield_arena/shared/box_button.dart';
 import 'package:esports_battlefield_arena/shared/box_input_field.dart';
@@ -14,33 +15,45 @@ import 'package:stacked/stacked.dart';
 import 'package:stacked_hooks/stacked_hooks.dart';
 
 @RoutePage()
-class OrganizerHomeView extends StatelessWidget {
-  const OrganizerHomeView({super.key});
+class CreateTournamentView extends StatelessWidget {
+  const CreateTournamentView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ViewModelBuilder<OrganizerHomeViewModel>.reactive(
-      viewModelBuilder: () => OrganizerHomeViewModel(),
+    return ViewModelBuilder<CreateTournamentViewModel>.reactive(
+      viewModelBuilder: () => CreateTournamentViewModel(),
       builder: (context, model, child) => Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
           backgroundColor: kcPrimaryColor,
           title: BoxText.appBar('ARENA', color: kcDarkTextColor),
           centerTitle: true,
+          leading: IconButton(
+            color: kcDarkTextColor,
+            onPressed: () {
+              model.navigateToPreviousPage();
+            },
+            icon: const Icon(Icons.arrow_back),
+          ),
         ),
         body: ListView(
           children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-              child: BoxText.headingThree('New Tournament'),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+              child: BoxText.headingThree(
+                  model.editFlag ? 'Edit Tournament' : 'Create Tournament'),
             ),
-            const TournanemntTitleInputField(),
+            const TournamentTitleInputField(),
             UIHelper.verticalSpaceSmall(),
             const TournamentDescriptionInputField(),
             UIHelper.verticalSpaceSmall(),
             const DoubleInputField(true, 'Prize pool', '900.00'),
             UIHelper.verticalSpaceSmall(),
-            const DoubleInputField(false, 'Entry Fee', '5.00'),
+            const DoubleInputField(
+              false,
+              'Entry Fee',
+              '5.00',
+            ),
             UIHelper.verticalSpaceSmall(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -74,9 +87,10 @@ class OrganizerHomeView extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 0),
               child: BoxButton(
-                title: 'Create Tournament',
+                title:
+                    model.editFlag ? 'Update Tournament' : 'Create Tournament',
                 onTap: () {
-                  model.createTournament(context);
+                  model.processTournamentData(context);
                 },
                 busy: model.isBusy,
               ),
@@ -89,12 +103,11 @@ class OrganizerHomeView extends StatelessWidget {
   }
 }
 
-class TournanemntTitleInputField
-    extends StackedHookView<OrganizerHomeViewModel> {
-  const TournanemntTitleInputField({Key? key})
-      : super(key: key, reactive: true);
+class TournamentTitleInputField
+    extends StackedHookView<CreateTournamentViewModel> {
+  const TournamentTitleInputField({Key? key}) : super(key: key, reactive: true);
   @override
-  Widget builder(BuildContext context, OrganizerHomeViewModel model) {
+  Widget builder(BuildContext context, CreateTournamentViewModel model) {
     var controller = useTextEditingController(text: model.title);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 0),
@@ -116,11 +129,11 @@ class TournanemntTitleInputField
 }
 
 class TournamentDescriptionInputField
-    extends StackedHookView<OrganizerHomeViewModel> {
+    extends StackedHookView<CreateTournamentViewModel> {
   const TournamentDescriptionInputField({Key? key})
       : super(key: key, reactive: true);
   @override
-  Widget builder(BuildContext context, OrganizerHomeViewModel model) {
+  Widget builder(BuildContext context, CreateTournamentViewModel model) {
     var controller = useTextEditingController(text: model.description);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 0),
@@ -141,7 +154,7 @@ class TournamentDescriptionInputField
   }
 }
 
-class DoubleInputField extends StackedHookView<OrganizerHomeViewModel> {
+class DoubleInputField extends StackedHookView<CreateTournamentViewModel> {
   final bool isPrizePool;
   final String title;
   final String placeholder;
@@ -149,7 +162,7 @@ class DoubleInputField extends StackedHookView<OrganizerHomeViewModel> {
       {Key? key})
       : super(key: key, reactive: true);
   @override
-  Widget builder(BuildContext context, OrganizerHomeViewModel model) {
+  Widget builder(BuildContext context, CreateTournamentViewModel model) {
     var controller = useTextEditingController(
         text: isPrizePool
             ? model.prizePool.toString()
@@ -186,7 +199,7 @@ class DoubleInputField extends StackedHookView<OrganizerHomeViewModel> {
   }
 }
 
-class DateInputField extends StackedHookView<OrganizerHomeViewModel> {
+class DateInputField extends StackedHookView<CreateTournamentViewModel> {
   final String title;
   final String placeholder;
   final bool isStartDate;
@@ -194,8 +207,15 @@ class DateInputField extends StackedHookView<OrganizerHomeViewModel> {
       {Key? key, this.isStartDate = false})
       : super(key: key, reactive: true);
   @override
-  Widget builder(BuildContext context, OrganizerHomeViewModel model) {
-    var controller = useTextEditingController();
+  Widget builder(BuildContext context, CreateTournamentViewModel model) {
+    var controller = useTextEditingController(
+        text: isStartDate
+            ? model.startDate == null
+                ? placeholder
+                : DateHelper.formatDate(model.startDate!)
+            : model.endDate == null
+                ? placeholder
+                : DateHelper.formatDate(model.endDate!));
     return Expanded(
       child: Container(
         width: double.infinity,
@@ -268,10 +288,10 @@ class DateInputField extends StackedHookView<OrganizerHomeViewModel> {
   }
 }
 
-class GameInputField extends StackedHookView<OrganizerHomeViewModel> {
+class GameInputField extends StackedHookView<CreateTournamentViewModel> {
   const GameInputField({Key? key}) : super(key: key, reactive: true);
   @override
-  Widget builder(BuildContext context, OrganizerHomeViewModel model) {
+  Widget builder(BuildContext context, CreateTournamentViewModel model) {
     List<Widget> buildGameItem() {
       return model.gameList
           .map((e) => MySelectionItem(
@@ -307,11 +327,11 @@ class GameInputField extends StackedHookView<OrganizerHomeViewModel> {
 }
 
 class ParticipationTypeInputField
-    extends StackedHookView<OrganizerHomeViewModel> {
+    extends StackedHookView<CreateTournamentViewModel> {
   const ParticipationTypeInputField({Key? key})
       : super(key: key, reactive: true);
   @override
-  Widget builder(BuildContext context, OrganizerHomeViewModel model) {
+  Widget builder(BuildContext context, CreateTournamentViewModel model) {
     List<Widget> buildModeItem() {
       return model.participationTypeList
           .map((e) => MySelectionItem(
@@ -394,7 +414,7 @@ class MySelectionItem extends StatelessWidget {
   }
 }
 
-class DigitInputField extends StackedHookView<OrganizerHomeViewModel> {
+class DigitInputField extends StackedHookView<CreateTournamentViewModel> {
   final String title;
   final String placeholder;
   final bool isMaxParticipantField;
@@ -403,7 +423,7 @@ class DigitInputField extends StackedHookView<OrganizerHomeViewModel> {
       {Key? key})
       : super(key: key, reactive: true);
   @override
-  Widget builder(BuildContext context, OrganizerHomeViewModel model) {
+  Widget builder(BuildContext context, CreateTournamentViewModel model) {
     var controller = useTextEditingController(
         text: isMaxParticipantField
             ? model.maxParticipant.toString()
@@ -442,10 +462,10 @@ class DigitInputField extends StackedHookView<OrganizerHomeViewModel> {
   }
 }
 
-class RuleListInputField extends StackedHookView<OrganizerHomeViewModel> {
+class RuleListInputField extends StackedHookView<CreateTournamentViewModel> {
   const RuleListInputField({Key? key}) : super(key: key, reactive: true);
   @override
-  Widget builder(BuildContext context, OrganizerHomeViewModel model) {
+  Widget builder(BuildContext context, CreateTournamentViewModel model) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 0),
       child: SingleChildScrollView(
@@ -495,7 +515,7 @@ class RuleListInputField extends StackedHookView<OrganizerHomeViewModel> {
   }
 }
 
-class RuleInputField extends StackedHookView<OrganizerHomeViewModel> {
+class RuleInputField extends StackedHookView<CreateTournamentViewModel> {
   final int index;
   const RuleInputField(
     this.index, {
@@ -503,7 +523,7 @@ class RuleInputField extends StackedHookView<OrganizerHomeViewModel> {
   });
 
   @override
-  Widget builder(BuildContext context, OrganizerHomeViewModel model) {
+  Widget builder(BuildContext context, CreateTournamentViewModel model) {
     var controller = useTextEditingController(text: model.ruleList[index]);
     return BoxInputField(
       readOnly: false,
@@ -511,6 +531,13 @@ class RuleInputField extends StackedHookView<OrganizerHomeViewModel> {
       placeholder: 'Rules number ${index + 1}',
       onChanged: (rule) {
         model.updateTournamentRule(rule, index);
+      },
+      trailing: const Icon(
+        Icons.delete,
+        color: kcMediumGreyColor,
+      ),
+      traillingTapped: () {
+        model.removeRule(index);
       },
     );
   }

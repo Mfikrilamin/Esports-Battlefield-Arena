@@ -1,5 +1,5 @@
 import 'package:esports_battlefield_arena/app/service_locator.dart';
-import 'package:esports_battlefield_arena/services/counter/counter_service.dart';
+import 'package:esports_battlefield_arena/services/viewmodel_shared_data/counter_service.dart';
 import 'package:stacked/stacked.dart';
 
 class DoubleIncreaseCounterViewModel extends ReactiveViewModel {

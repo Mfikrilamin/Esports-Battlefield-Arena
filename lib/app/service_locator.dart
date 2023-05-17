@@ -15,6 +15,7 @@ import 'package:esports_battlefield_arena/services/log/log_services.dart';
 import 'package:esports_battlefield_arena/services/payment/stripe.dart';
 import 'package:esports_battlefield_arena/services/payment/stripe_service.dart';
 import 'package:esports_battlefield_arena/services/signup/signup_service.dart';
+import 'package:esports_battlefield_arena/services/viewmodel_shared_data/tournament_service.dart';
 import 'package:map_mvvm/service_locator.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -54,5 +55,6 @@ Future<void> initializeServiceLocator() async {
 
   //viewmodelservice
   locator.registerLazySingleton(() => CounterService());
+  locator.registerLazySingleton(() => TournamentService());
   locator.registerLazySingleton(() => SignUpViewModelService());
 }

@@ -1,11 +1,7 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:esports_battlefield_arena/app/router.dart';
 import 'package:esports_battlefield_arena/app/router.gr.dart';
 import 'package:esports_battlefield_arena/app/service_locator.dart';
-import 'package:esports_battlefield_arena/components/widgets/custom_page_route_builder.dart';
-import 'package:esports_battlefield_arena/models/User.dart';
 import 'package:esports_battlefield_arena/models/tournament.dart';
-import 'package:esports_battlefield_arena/screens/tournament_details/tournament_details_view.dart';
 import 'package:esports_battlefield_arena/services/firebase/authentication/auth.dart';
 import 'package:esports_battlefield_arena/services/firebase/database/database.dart';
 import 'package:esports_battlefield_arena/services/firebase/firestore_config.dart';

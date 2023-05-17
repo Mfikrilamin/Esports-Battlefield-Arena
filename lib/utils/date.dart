@@ -12,4 +12,14 @@ class DateHelper {
     String second = date.second.toString().padLeft(2, '0');
     return '$hour:$minute:$second';
   }
+
+  static DateTime formatString(String date) {
+    List<String> dateComponents = date.split("-");
+
+    int year = int.parse(dateComponents[0]);
+    int month = int.parse(dateComponents[1]);
+    int day = int.parse(dateComponents[2]);
+
+    return DateTime(year, month, day);
+  }
 }

@@ -147,10 +147,10 @@ List<RiveAsset> bottomNavs = [
 ];
 
 List<RiveAsset> organizerbottomNavs = [
-  RiveAsset('assets/RiveAssets/animated-icon-set.riv',
-      artBoard: 'SETTINGS',
-      stateMachineName: "SETTINGS_Interactivity",
-      state: MenuState.Create),
+  // RiveAsset('assets/RiveAssets/animated-icon-set.riv',
+  //     artBoard: 'SETTINGS',
+  //     stateMachineName: "SETTINGS_Interactivity",
+  //     state: MenuState.Create),
   RiveAsset('assets/RiveAssets/animated-icon-set.riv',
       artBoard: 'REFRESH/RELOAD',
       stateMachineName: "RELOAD_Interactivity",

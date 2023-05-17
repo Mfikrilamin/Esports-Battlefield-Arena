@@ -139,7 +139,7 @@ class PlayerRegisteredTournamentView extends StatelessWidget {
                             ),
                           ],
                         ),
-                      )
+                      ),
               ],
             ),
           ),

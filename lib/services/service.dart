@@ -4,6 +4,6 @@ export 'firebase/authentication/auth.dart';
 export 'firebase/authentication/fireauth_service.dart';
 export 'initializer/service_initializer.dart';
 export 'initializer/service_initializer_firebase.dart';
-export 'counter/counter_service.dart';
+export 'viewmodel_shared_data/counter_service.dart';
 export 'log/log_services.dart';
 export 'payment/stripe_service.dart';

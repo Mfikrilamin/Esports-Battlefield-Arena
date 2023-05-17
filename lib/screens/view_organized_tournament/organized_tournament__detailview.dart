@@ -3,7 +3,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:esports_battlefield_arena/components/widgets/box_game_logo.dart';
 import 'package:esports_battlefield_arena/components/widgets/hero_widget.dart';
 import 'package:esports_battlefield_arena/models/tournament.dart';
-import 'package:esports_battlefield_arena/screens/tournament_details/tournament_details_viewmodel.dart';
+import 'package:esports_battlefield_arena/screens/view_organized_tournament/organized_tournament_detail_viewmodel.dart';
 import 'package:esports_battlefield_arena/shared/app_colors.dart';
 import 'package:esports_battlefield_arena/shared/box_button.dart';
 import 'package:esports_battlefield_arena/shared/box_text.dart';
@@ -13,15 +13,14 @@ import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 
 @RoutePage()
-class TournamentDetailView extends StatelessWidget {
+class OrganizedTournamentDetailView extends StatelessWidget {
   final Tournament tournament;
-  const TournamentDetailView({Key? key, required this.tournament})
-      : super(key: key);
+  const OrganizedTournamentDetailView({super.key, required this.tournament});
 
   @override
   Widget build(BuildContext context) {
-    return ViewModelBuilder<TournamentDetailViewModel>.reactive(
-      viewModelBuilder: () => TournamentDetailViewModel(),
+    return ViewModelBuilder<OrganizedTournamentDetailViewModel>.reactive(
+      viewModelBuilder: () => OrganizedTournamentDetailViewModel(),
       builder: (context, model, child) => Scaffold(
         body: CustomScrollView(
           slivers: [
@@ -31,19 +30,17 @@ class TournamentDetailView extends StatelessWidget {
               snap: true,
               floating: true,
               stretch: true,
-              // actions: [
-              //   isOrganizer
-              //       ? IconButton(
-              //           onPressed: () {
-              //             model.navigateToEditTournament(tournament, context);
-              //           },
-              //           icon: const Icon(
-              //             Icons.edit,
-              //             size: 20,
-              //           ),
-              //         )
-              //       : Container(),
-              // ],
+              actions: [
+                IconButton(
+                  onPressed: () {
+                    model.navigateToEditTournament(tournament);
+                  },
+                  icon: const Icon(
+                    Icons.edit,
+                    size: 20,
+                  ),
+                )
+              ],
               backgroundColor: (tournament.game == GameType.ApexLegend.name)
                   ? kcTertiaryColor
                   : kcDarkBackgroundColor,

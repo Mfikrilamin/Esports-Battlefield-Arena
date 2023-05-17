@@ -1,6 +1,7 @@
 import 'package:animations/animations.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:esports_battlefield_arena/app/router.gr.dart';
+import 'package:esports_battlefield_arena/screens/view_organized_tournament/organized_tournament__detailview.dart';
 import 'package:flutter/material.dart';
 
 @AutoRouterConfig(replaceInRouteName: 'View,Route')
@@ -56,6 +57,24 @@ class AppRouter extends $AppRouter {
       }),
     ),
     AutoRoute(page: PaymentHistoryRoute.page),
+    AutoRoute(page: CreateTournamentRoute.page),
+    CustomRoute(
+      durationInMilliseconds: 500,
+      reverseDurationInMilliseconds: 500,
+      page: OrganizedTournamentDetailRoute.page,
+      transitionsBuilder: ((BuildContext context, Animation<double> animation,
+          Animation<double> secondaryAnimation, Widget child) {
+        final curvedAnimation =
+            CurvedAnimation(parent: animation, curve: const Interval(0, 0.5));
+        return FadeTransition(
+          opacity: curvedAnimation,
+          child: child,
+        );
+        // you get an animation object and a widget
+        // make your own transition
+      }),
+    ),
+    AutoRoute(page: MyOrganizedTournamentRoute.page),
     // AutoRoute(page: RegisteredTournament.page),
   ];
 }
