@@ -1,4 +1,3 @@
-import 'package:esports_battlefield_arena/components/animation/loading/loading_boxtext_animation.dart';
 import 'package:esports_battlefield_arena/components/animation/third_party_module/loading_animation.dart';
 import 'package:esports_battlefield_arena/shared/app_colors.dart';
 import 'package:esports_battlefield_arena/shared/styles.dart';
@@ -14,6 +13,7 @@ class BoxButton extends StatelessWidget {
   final bool? selected;
   final double height;
   final double width;
+  final double? textSize;
 
   const BoxButton({
     Key? key,
@@ -26,6 +26,7 @@ class BoxButton extends StatelessWidget {
     this.selected,
     this.height = 48,
     this.width = double.infinity,
+    this.textSize,
   }) : super(key: key);
 
   const BoxButton.outline({
@@ -36,6 +37,7 @@ class BoxButton extends StatelessWidget {
     this.selected,
     this.height = 48,
     this.width = double.infinity,
+    this.textSize,
   })  : disable = false,
         busy = false,
         outline = true,
@@ -93,6 +95,7 @@ class BoxButton extends StatelessWidget {
                                   ? kcVeryDarkGreyTextColor
                                   : kcLightGreyColor
                               : kcDarkGreyColor,
+                          fontSize: textSize ?? 16,
                         )),
                   ],
                 )

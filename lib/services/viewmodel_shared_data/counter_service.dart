@@ -1,6 +1,4 @@
-
 import 'package:stacked/stacked.dart';
-// import 'package:observable_ish/observable_ish.dart';
 
 class CounterService with ReactiveServiceMixin {
   CounterService() {

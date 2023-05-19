@@ -22,6 +22,8 @@ class FirestoreService extends Database {
       'ERROR: There is an error occurred during getAllByQuery process';
   final String getAllByQueryListErrorMessage =
       'ERROR: There is an error occurred during getAllByQueryList process';
+  final String getAllByQueryListMapErrorMessage =
+      'ERROR: There is an error occurred during getAllByQueryListMap process';
   final _firebaseFirestore = FirebaseFirestore.instance;
 
   @override

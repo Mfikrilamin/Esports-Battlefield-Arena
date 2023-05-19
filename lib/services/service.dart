@@ -7,3 +7,5 @@ export 'initializer/service_initializer_firebase.dart';
 export 'viewmodel_shared_data/counter_service.dart';
 export 'log/log_services.dart';
 export 'payment/stripe_service.dart';
+export 'game_database/valorant/valorant_henrikdev.dart';
+export 'game_database/apex_legend/apex_legend.dart';

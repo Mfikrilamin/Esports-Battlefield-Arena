@@ -1,6 +1,7 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:country_picker/country_picker.dart';
+import 'package:direct_select/direct_select.dart';
 import 'package:esports_battlefield_arena/components/widgets/hero_widget.dart';
 import 'package:esports_battlefield_arena/models/tournament.dart';
 import 'package:esports_battlefield_arena/screens/register_tournament/tournament_registration_viewmodel.dart';
@@ -12,6 +13,7 @@ import 'package:esports_battlefield_arena/shared/ui_helper.dart';
 import 'package:esports_battlefield_arena/utils/enum.dart';
 import 'package:esports_battlefield_arena/utils/regex_validation_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_hooks/stacked_hooks.dart';
@@ -19,9 +21,7 @@ import 'package:stacked_hooks/stacked_hooks.dart';
 @RoutePage()
 class TournamentRegistrationView extends StatelessWidget {
   final Tournament tournament;
-  final List _controllers = [];
-
-  TournamentRegistrationView({super.key, required this.tournament});
+  const TournamentRegistrationView({super.key, required this.tournament});
 
   @override
   Widget build(BuildContext context) {
@@ -134,23 +134,80 @@ class TournamentRegistrationView extends StatelessWidget {
                         FadeInRight(
                           delay: const Duration(milliseconds: 500),
                           from: 60,
-                          child: ListView.builder(
-                            physics: const NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            itemCount:
-                                (tournament.game == GameType.Valorant.name)
-                                    ? 5
-                                    : tournament.isSolo
-                                        ? 1
-                                        : 3,
-                            itemBuilder: (context, index) {
-                              return EmailInputField1(
-                                index,
-                                model.getEmailController[index],
-                                key: UniqueKey(),
-                              );
-                            },
-                          ),
+                          child: !model.isBusy
+                              ? ListView.builder(
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  itemCount: (tournament.game ==
+                                          GameType.Valorant.name)
+                                      ? 5
+                                      : tournament.isSolo
+                                          ? 1
+                                          : 3,
+                                  itemBuilder: (context, index) {
+                                    return Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        UIHelper.verticalSpaceMedium(),
+                                        FadeInRight(
+                                          from: 60,
+                                          delay:
+                                              const Duration(milliseconds: 500),
+                                          child: BoxText.subheading(
+                                              'Participant ${index + 1}'),
+                                        ),
+                                        UIHelper.verticalSpaceSmall(),
+                                        EmailInputField(
+                                          index,
+                                          model.getEmailController[index],
+                                          key: UniqueKey(),
+                                        ),
+                                        UIHelper.verticalSpaceSmall(),
+                                        UsernameInputField(
+                                          index,
+                                          key: UniqueKey(),
+                                        ),
+                                        UIHelper.verticalSpaceSmall(),
+                                        tournament.game ==
+                                                GameType.Valorant.name
+                                            ? ValorantTaglineInputField(
+                                                index,
+                                                key: UniqueKey(),
+                                              )
+                                            : tournament.game ==
+                                                    GameType.ApexLegend.name
+                                                ? ApexPlatformTypeInputField(
+                                                    index,
+                                                    key: UniqueKey(),
+                                                  )
+                                                : Container(),
+                                        UIHelper.verticalSpaceSmall(),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.end,
+                                          children: [
+                                            BoxButton(
+                                              textSize: 12,
+                                              height: 30,
+                                              width: 60,
+                                              title: 'Verify',
+                                              onTap: () {
+                                                model.verifyPlayerUsername(
+                                                    tournament.game,
+                                                    index,
+                                                    context);
+                                              },
+                                            )
+                                          ],
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                )
+                              : const Center(
+                                  child: CircularProgressIndicator(),
+                                ),
                         ),
                       ],
                     ),
@@ -163,7 +220,7 @@ class TournamentRegistrationView extends StatelessWidget {
                         horizontal: 25, vertical: 25),
                     color: kcWhiteColor,
                     child: BoxButton(
-                      title: 'Pay',
+                      title: 'Pay Now',
                       onTap: () => {
                         model.registerTournament(
                             tournament.tournamentId,
@@ -220,18 +277,15 @@ class TeamInformation extends StatelessWidget {
   }
 }
 
-class EmailInputField1
-    extends StackedHookView<TournamentRegistrationViewModel> {
+class EmailInputField extends StackedHookView<TournamentRegistrationViewModel> {
   final int index;
   final String? initialText;
-  const EmailInputField1(this.index, this.initialText, {Key? key})
+  const EmailInputField(this.index, this.initialText, {Key? key})
       : super(key: key, reactive: true);
 
   @override
   Widget builder(BuildContext context, TournamentRegistrationViewModel model) {
     var text = useTextEditingController(text: initialText);
-    print('EmailInputField $index is being built');
-    print(initialText);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -252,72 +306,6 @@ class EmailInputField1
         ),
       ],
     );
-  }
-}
-
-class EmailInputFieldPlayer extends StatefulWidget {
-  final int index;
-  final void Function(String) onChanged;
-  final String initialText;
-  final Future<bool> Function(String) onCheckEmailUser;
-  const EmailInputFieldPlayer({
-    super.key,
-    required this.index,
-    required this.onChanged,
-    required this.onCheckEmailUser,
-    this.initialText = '',
-  });
-
-  @override
-  State<EmailInputFieldPlayer> createState() => _EmailInputFieldPlayerSTState();
-}
-
-class _EmailInputFieldPlayerSTState extends State<EmailInputFieldPlayer> {
-  bool isValid = false;
-  bool isValidUser = false;
-
-  @override
-  Widget build(BuildContext context) {
-    print('EmailInputFieldPlayer${widget.index} is being built');
-    var text = useTextEditingController();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        UIHelper.verticalSpaceSmall(),
-        BoxText.body('Player ${widget.index + 1}'),
-        UIHelper.verticalSpaceSmall(),
-        BoxInputField(
-          controller: text,
-          placeholder: 'Player${widget.index + 1} Email',
-          onChanged: (value) {
-            widget.onChanged(value);
-            setState(() {
-              isValid = RegexValidation.validateEmail(value);
-              if (isValid) {
-                //check if email is already registered in the apps or not
-                //If no user exist with the email, then prompt error
-                widget.onCheckEmailUser(value).then((value) {
-                  setState(() {
-                    isValidUser = value;
-                  });
-                });
-              }
-            });
-          },
-          readOnly: widget.index == 0,
-          errorText: isValid
-              ? isValidUser
-                  ? null
-                  : 'User is not exist/registered in the apps'
-              : 'Invalid Email',
-        ),
-      ],
-    );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 }
 
@@ -375,6 +363,156 @@ class CountryInputField
           // onChanged: model.updateAddress,
         ),
       ],
+    );
+  }
+}
+
+class UsernameInputField
+    extends StackedHookView<TournamentRegistrationViewModel> {
+  final int index;
+  const UsernameInputField(this.index, {Key? key})
+      : super(key: key, reactive: true);
+  @override
+  Widget builder(BuildContext context, TournamentRegistrationViewModel model) {
+    var text = useTextEditingController();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        BoxText.body('Username'),
+        UIHelper.verticalSpaceSmall(),
+        BoxInputField(
+          controller: text,
+          placeholder: 'Enter your game username',
+          trailing: model.getIsUsernameValid[index]
+              ? const Icon(
+                  Icons.done,
+                  color: Colors.green,
+                )
+              : null,
+          onChanged: (username) {
+            model.updateUsername(username, index);
+          },
+          readOnly: false,
+        ),
+      ],
+    );
+  }
+}
+
+class ValorantTaglineInputField
+    extends StackedHookView<TournamentRegistrationViewModel> {
+  final int index;
+  const ValorantTaglineInputField(this.index, {Key? key})
+      : super(key: key, reactive: true);
+  @override
+  Widget builder(BuildContext context, TournamentRegistrationViewModel model) {
+    var text = useTextEditingController();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        BoxText.body('Tagline'),
+        UIHelper.verticalSpaceSmall(),
+        BoxInputField(
+          controller: text,
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp(r'^\d{0,4}$')),
+            LengthLimitingTextInputFormatter(4),
+          ],
+          placeholder: '9999',
+          onChanged: (tagline) {
+            model.updateTaglineOrPlatform(tagline, index);
+          },
+          readOnly: false,
+        ),
+      ],
+    );
+  }
+}
+
+class ApexPlatformTypeInputField
+    extends StackedHookView<TournamentRegistrationViewModel> {
+  final int index;
+  const ApexPlatformTypeInputField(this.index, {Key? key})
+      : super(key: key, reactive: true);
+  @override
+  Widget builder(BuildContext context, TournamentRegistrationViewModel model) {
+    List<Widget> buildModeItem() {
+      return model.platformList
+          .map((e) => MySelectionItem(
+                isForList: true,
+                title: e,
+              ))
+          .toList();
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        BoxText.body('Platform type'),
+        UIHelper.verticalSpaceSmall(),
+        DirectSelect(
+          mode: DirectSelectMode.tap,
+          itemExtent: 45.0,
+          selectedIndex: model.getSelectedPlatformIndex[index],
+          // backgroundColor: Colors.red,
+          onSelectedItemChanged: (value) {
+            model.updateSelectedPlatformIndex(value, index);
+          },
+          items: buildModeItem(),
+          child: MySelectionItem(
+            isForList: false,
+            title: model.platformList[model.getSelectedPlatformIndex[index]],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+//You can use any Widget
+class MySelectionItem extends StatelessWidget {
+  final String title;
+  final bool isForList;
+
+  const MySelectionItem({Key? key, required this.title, this.isForList = true})
+      : super(key: key);
+
+  Widget _buildItem(BuildContext context) {
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      alignment: Alignment.center,
+      child: Text(title),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 50.0,
+      child: isForList
+          ? Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: _buildItem(context),
+            )
+          : Card(
+              // margin: const EdgeInsets.symmetric(horizontal: 0.0),
+              child: Stack(
+                children: <Widget>[
+                  Container(
+                    decoration: BoxDecoration(
+                      // border: Border.all(color: kcLightGreyColor),
+                      borderRadius: BorderRadius.circular(8.0),
+                      color: kcVeryLightGreyColor,
+                    ),
+                    child: _buildItem(context),
+                  ),
+                  const Align(
+                    alignment: Alignment.centerRight,
+                    child: Icon(Icons.unfold_more),
+                  )
+                ],
+              ),
+            ),
     );
   }
 }

@@ -6,10 +6,11 @@
  *
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
-
+const https = require('https');
 const { onRequest } = require("firebase-functions/v2/https");
 const functions = require("firebase-functions");
 const logger = require("firebase-functions/logger");
+const axios = require('axios');
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 // Create and deploy your first functions
 // https://firebase.google.com/docs/functions/get-started
@@ -80,4 +81,58 @@ exports.cancelPaymentIntent = functions.https.onRequest(async (req, res) => {
         console.error(error);
         res.status(404).send({ success: false, error: error.message })
     }
+});
+
+
+exports.verifyApexPlayer = functions.https.onCall(async (data, context) => {
+    try {
+        if (!context.auth) {
+            return {
+                status: false,
+                message: 'User is not authenticated',
+                data: [],
+            }
+        }
+        if (data == null) {
+            return {
+                status: false,
+                message: 'No data sent',
+                data: [],
+            }
+        }
+        var auth = process.env.ALS_API_KEY;
+        var player = data.username;
+        var platform = data.platform;
+
+        const apiUrl = 'https://api.mozambiquehe.re/nametouid?auth=' + auth + '&player=' + player + '&platform=' + platform;
+
+        const response = await axios.get(apiUrl, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        const responseData = response.data;
+        if (responseData.error != null) {
+            return {
+                status: false,
+                message: response.data.error,
+                data: [],
+            }
+        }
+
+        const playerInformation = {
+            uid: responseData.uid,
+            pid: responseData.pid,
+            username: responseData.name,
+        }
+
+        return {
+            status: true,
+            message: 'Retrieved player information successfully',
+            data: playerInformation,
+        };
+    } catch (error) {
+        throw new functions.https.HttpsError('internal', 'An error occurred', error.message);
+    }
+
 });

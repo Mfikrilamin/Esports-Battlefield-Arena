@@ -5,7 +5,6 @@ enum FirestoreCollections {
   team,
   tournament,
   tournamentParticipant,
-  nickname,
   match,
   apexMatchResult,
   valorantMatchResult,
@@ -14,8 +13,4 @@ enum FirestoreCollections {
 }
 
 //enum to store the configuration option in firebase
-enum FirestoreDeclration {
-  collectionName,
-  id
-}
-
+enum FirestoreDeclration { collectionName, id }

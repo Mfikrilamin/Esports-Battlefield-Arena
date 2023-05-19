@@ -3,9 +3,11 @@ import 'package:esports_battlefield_arena/app/router.dart';
 import 'package:esports_battlefield_arena/app/router.gr.dart';
 import 'package:esports_battlefield_arena/app/service_locator.dart';
 import 'package:esports_battlefield_arena/models/invoice.dart';
+import 'package:esports_battlefield_arena/models/player.dart';
 import 'package:esports_battlefield_arena/models/team.dart';
 import 'package:esports_battlefield_arena/models/tournament.dart';
 import 'package:esports_battlefield_arena/models/tournament_participant.dart';
+import 'package:esports_battlefield_arena/models/user.dart';
 import 'package:esports_battlefield_arena/services/firebase/authentication/auth.dart';
 import 'package:esports_battlefield_arena/services/firebase/database/database.dart';
 import 'package:esports_battlefield_arena/services/firebase/firestore_config.dart';
@@ -33,6 +35,7 @@ class PaymentHistoryViewModel extends FutureViewModel<void> {
   List<Invoice> _invoiceList = [];
   List<Invoice> _paidInvoiceList = [];
   Map<String, String> _tournamentName = {};
+  Map<String, String> _paidName = {};
 
   String get selectedLabel => _selectedLabel;
   List<Invoice> get invoiceList => _invoiceList;
@@ -161,16 +164,14 @@ class PaymentHistoryViewModel extends FutureViewModel<void> {
     try {
       List<dynamic> dataInvoices = [];
 
-      List<Map<String, dynamic>> tournamentParticipantsDataBelongToCurrentUser =
+      List<Map<String, dynamic>> participantMemberList =
           await _database.getAllByQueryList('memberList', _auth.currentUser()!,
               FirestoreCollections.tournamentParticipant);
 
-      for (int i = 0;
-          i < tournamentParticipantsDataBelongToCurrentUser.length;
-          i++) {
+      for (int i = 0; i < participantMemberList.length; i++) {
         Map<String, dynamic>? dataInvoice = await _database.getByQuery(
             ['belongsTo'],
-            [tournamentParticipantsDataBelongToCurrentUser[i]['participantId']],
+            [participantMemberList[i]['participantId']],
             FirestoreCollections.invoice);
         dataInvoices.add(dataInvoice);
       }
@@ -216,6 +217,14 @@ class PaymentHistoryViewModel extends FutureViewModel<void> {
             newInvoice.tournamentId, FirestoreCollections.tournament));
         _tournamentName.putIfAbsent(
             tournament.tournamentId, () => tournament.title);
+        if (newInvoice.paidBy.isNotEmpty) {
+          Player player = Player.fromJson(await _database.get(
+              newInvoice.paidBy, FirestoreCollections.player));
+          _paidName.putIfAbsent(newInvoice.invoiceId,
+              () => '${player.firstName} ${player.lastName}');
+        } else {
+          _paidName.putIfAbsent(newInvoice.invoiceId, () => '');
+        }
         _log.debug('Invoice: ${newInvoice.toJson()}');
         if (newInvoice.isPaid == false) {
           tempUnpaidInvoiceList.add(newInvoice);
@@ -246,6 +255,10 @@ class PaymentHistoryViewModel extends FutureViewModel<void> {
 
   String getTournamentName(String tournamentId) {
     return _tournamentName[tournamentId]!;
+  }
+
+  String getPaidBy(String invoiceId) {
+    return _paidName[invoiceId]!;
   }
 
   @override

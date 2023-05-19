@@ -1,10 +1,16 @@
+import 'package:esports_battlefield_arena/app/service_locator.dart';
+import 'package:esports_battlefield_arena/models/player.dart';
 import 'package:esports_battlefield_arena/models/tournament.dart';
+import 'package:esports_battlefield_arena/models/tournament_participant.dart';
+import 'package:esports_battlefield_arena/services/firebase/database/database.dart';
+import 'package:esports_battlefield_arena/services/firebase/firestore_config.dart';
 import 'package:esports_battlefield_arena/utils/date.dart';
 import 'package:esports_battlefield_arena/utils/enum.dart';
 import 'package:stacked/stacked.dart';
 // import 'package:observable_ish/observable_ish.dart';
 
 class TournamentService with ReactiveServiceMixin {
+  final Database _database = locator<Database>();
   TournamentService() {
     listenToReactiveValues([
       _editFlag,
@@ -17,8 +23,11 @@ class TournamentService with ReactiveServiceMixin {
       _gameSelectedIndex,
       _modeSelectedIndex,
       _maxParticipant,
+      _participantsId,
       _memberPerTeam,
       _ruleList,
+      _participantsInformation,
+      _players
     ]);
   }
   ReactiveValue<bool> _editFlag = ReactiveValue<bool>(false);
@@ -33,8 +42,15 @@ class TournamentService with ReactiveServiceMixin {
   ReactiveValue<int> _gameSelectedIndex = ReactiveValue<int>(0);
   ReactiveValue<int> _modeSelectedIndex = ReactiveValue<int>(0);
   ReactiveValue<int> _maxParticipant = ReactiveValue<int>(0);
+  ReactiveValue<List<dynamic>> _participantsId =
+      ReactiveValue<List<dynamic>>([]);
   ReactiveValue<int> _memberPerTeam = ReactiveValue<int>(0);
   ReactiveValue<List<String>> _ruleList = ReactiveValue<List<String>>(['']);
+
+  //Participant information screen
+  ReactiveValue<List<TournamentParticipant>> _participantsInformation =
+      ReactiveValue<List<TournamentParticipant>>([]);
+  ReactiveValue<List<Player>> _players = ReactiveValue<List<Player>>([]);
 
   //setter
   void updateTournamentTitle(String title) {
@@ -106,6 +122,9 @@ class TournamentService with ReactiveServiceMixin {
   int get gameSelectedIndex => _gameSelectedIndex.value;
   int get modeSelectedIndex => _modeSelectedIndex.value;
   int get maxParticipant => _maxParticipant.value;
+  List<TournamentParticipant> get participantsInformation =>
+      _participantsInformation.value;
+  List<Player> get players => _players.value;
   int get memberPerTeam => _memberPerTeam.value;
   List<String> get ruleList => _ruleList.value;
 
@@ -155,6 +174,27 @@ class TournamentService with ReactiveServiceMixin {
     _maxParticipant.value = 0;
     _memberPerTeam.value = 0;
     _ruleList.value = [''];
+    _participantsId.value = [];
+    _participantsInformation.value = [];
+    _players.value = [];
+    notifyListeners();
+  }
+
+  void getAllParticipantInformation() async {
+    List<TournamentParticipant> participantList = [];
+    List<String> playerIdList = [];
+    for (String id in _participantsId.value) {
+      TournamentParticipant participant = TournamentParticipant.fromJson(
+          await _database.get(id, FirestoreCollections.tournamentParticipant));
+      participantList.add(participant);
+      playerIdList.addAll(participant.memberList.cast<String>());
+    }
+
+    for (String id in playerIdList) {
+      Player player =
+          Player.fromJson(await _database.get(id, FirestoreCollections.player));
+      _players.value.add(player);
+    }
     notifyListeners();
   }
 }

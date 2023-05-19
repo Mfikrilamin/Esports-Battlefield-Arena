@@ -1,8 +1,11 @@
 import 'package:country_picker/country_picker.dart';
 import 'package:esports_battlefield_arena/app/app.dart';
 import 'package:esports_battlefield_arena/app/router.dart';
+import 'package:esports_battlefield_arena/app/router.gr.dart';
 import 'package:esports_battlefield_arena/app/service_locator.dart';
 import 'package:esports_battlefield_arena/models/invoice.dart';
+import 'package:esports_battlefield_arena/models/username.dart';
+import 'package:esports_battlefield_arena/models/nickname.dart';
 import 'package:esports_battlefield_arena/models/player.dart';
 import 'package:esports_battlefield_arena/models/team.dart';
 import 'package:esports_battlefield_arena/models/tournament.dart';
@@ -11,6 +14,8 @@ import 'package:esports_battlefield_arena/models/user.dart';
 import 'package:esports_battlefield_arena/services/firebase/authentication/auth.dart';
 import 'package:esports_battlefield_arena/services/firebase/database/database.dart';
 import 'package:esports_battlefield_arena/services/firebase/firestore_config.dart';
+import 'package:esports_battlefield_arena/services/game_database/apex_legend/apex_legend.dart';
+import 'package:esports_battlefield_arena/services/game_database/valorant/valorant.dart';
 import 'package:esports_battlefield_arena/services/log/log_services.dart';
 import 'package:esports_battlefield_arena/services/payment/stripe.dart';
 import 'package:esports_battlefield_arena/utils/date.dart';
@@ -26,12 +31,25 @@ class TournamentRegistrationViewModel extends FutureViewModel<void> {
   final Database _database = locator<Database>();
   final Auth _auth = locator<Auth>();
   final Payment _stripePaymentService = locator<Payment>();
+  final ValorantDatabase _valorantDatabase = locator<ValorantDatabase>();
+  final ApexLegendDatabase _apexlegendDatabase = locator<ApexLegendDatabase>();
+
+  //permanent variable
+  final List<String> platformList =
+      ApexLegendPlatform.values.map((e) => e.name).toList();
 
   //Email Controller
   List<String> _emailController = [];
   List<bool> _isEmailValid = [];
   List<bool> _isEmailAlreadyRegisted = [];
+  List<bool> _isUsernameValid = [];
   List<User> _userListState = [];
+
+  //Verification purposes
+  List<String> _usernameList = [];
+  List<String> _usernameId = [];
+  List<String> _tagline = [];
+  List<int> _selectedPlatformIndex = [];
 
   //state
   String _teamName = '';
@@ -44,6 +62,8 @@ class TournamentRegistrationViewModel extends FutureViewModel<void> {
   List<String> get getEmailController => _emailController;
   List<bool> get getIsEmailValid => _isEmailValid;
   List<bool> get getIsEmailAlreadyRegisted => _isEmailAlreadyRegisted;
+  List<bool> get getIsUsernameValid => _isUsernameValid;
+  List<int> get getSelectedPlatformIndex => _selectedPlatformIndex;
 
   void updateTeamName(String teamName) {
     _teamName = teamName;
@@ -51,6 +71,14 @@ class TournamentRegistrationViewModel extends FutureViewModel<void> {
 
   void updateTeamCountry(String countryName, String countryCode) {
     _teamCountry = countryName;
+  }
+
+  void updateSelectedPlatformIndex(int? value, int index) {
+    if (value == null) return;
+    _selectedPlatformIndex[index] = value;
+    _log.debug(
+        'selected platform:${platformList[_selectedPlatformIndex[index]]}');
+    notifyListeners();
   }
 
   Future<void> updatePlayerEmail(String email, int index) async {
@@ -61,23 +89,6 @@ class TournamentRegistrationViewModel extends FutureViewModel<void> {
     }
     notifyListeners();
     _log.debug('index $index: ${_emailController[index]}');
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _emailController.clear();
-  }
-
-  bool validateIfAllInputHasBeenFilled(int emailCount) {
-    _log.debug(
-        'Valid user count: ${_userListState.length} ----  email count: $emailCount');
-    if (_userListState.length != emailCount) {
-      notifyListeners();
-      return false;
-    }
-    notifyListeners();
-    return true;
   }
 
   Future<bool> checkPlayerExistByEmail(String email) async {
@@ -98,6 +109,15 @@ class TournamentRegistrationViewModel extends FutureViewModel<void> {
       _log.debug(e.toString());
       return false;
     }
+  }
+
+  bool checkIfAllUsernameIsVerified() {
+    for (int i = 0; i < _userListState.length; i++) {
+      if (_isUsernameValid[i] == false) {
+        return false;
+      }
+    }
+    return true;
   }
 
   registerTournament(String tournamentId, context, int totalEmailCount,
@@ -126,6 +146,27 @@ class TournamentRegistrationViewModel extends FutureViewModel<void> {
           ),
         );
         return;
+      } else if (!checkIfAllUsernameIsVerified()) {
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: const [
+                    Icon(
+                      Icons.check_circle,
+                      color: Colors.red,
+                    ),
+                    Text("Please verify username"),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+        return;
       }
       setBusy(true);
       Tournament tournament = Tournament.fromJson(
@@ -136,13 +177,23 @@ class TournamentRegistrationViewModel extends FutureViewModel<void> {
 
       if (tournament.currentParticipant.length <= tournament.maxParticipants &&
           !userIsAlreadyRegister) {
-        _log.debug('This is excuted');
+        //create a memberList object that contains this format
+        List<Username> userNameListObject = [];
+        for (int i = 0; i < _userListState.length; i++) {
+          userNameListObject.add(Username(
+            userId: _userListState[i].userId,
+            username: _usernameList[i],
+            usernameId: _usernameId[i],
+          ));
+        }
+
         TournamentParticipant participant = TournamentParticipant(
             participantId: '',
             dateRegister: DateHelper.formatDate(DateTime.now()),
             country: _teamCountry,
             teamName: _teamName,
-            memberList: _userListState.map((user) => user.userId).toList(),
+            memberList: _userListState.map((e) => e.userId).toList(),
+            usernameList: userNameListObject.map((e) => e.toJson()).toList(),
             tournamentId: tournament.tournamentId,
             seeding: 0,
             isSolo: isSolo,
@@ -157,7 +208,8 @@ class TournamentRegistrationViewModel extends FutureViewModel<void> {
             dateRegister: DateHelper.formatDate(DateTime.now()),
             country: _teamCountry,
             teamName: _teamName,
-            memberList: _userListState.map((user) => user.userId).toList(),
+            memberList: _userListState.map((e) => e.userId).toList(),
+            usernameList: userNameListObject.map((e) => e.toJson()).toList(),
             tournamentId: tournament.tournamentId,
             seeding: 0,
             isSolo: isSolo,
@@ -188,6 +240,8 @@ class TournamentRegistrationViewModel extends FutureViewModel<void> {
             ),
           );
         }
+        // _router.pop
+        _router.popUntilRouteWithName(HomeRoute.name);
       } else if (tournament.currentParticipant.length >=
           tournament.maxParticipants) {
         showDialog(
@@ -271,7 +325,8 @@ class TournamentRegistrationViewModel extends FutureViewModel<void> {
         date: '',
         time: '',
       );
-      await _database.add(invoice.toJson(), FirestoreCollections.invoice);
+      String? invoiceId =
+          await _database.add(invoice.toJson(), FirestoreCollections.invoice);
 
       //create payment Intent by requesting a new payment intent from the package services
       Map<String, dynamic> paymentIntent =
@@ -288,7 +343,7 @@ class TournamentRegistrationViewModel extends FutureViewModel<void> {
       if (paymentComplete) {
         //updateInvoice
         await _database.update(
-            invoice.invoiceId,
+            invoiceId!,
             {
               'paidCompleted': true,
               'paidBy': _auth.currentUser(),
@@ -388,43 +443,15 @@ class TournamentRegistrationViewModel extends FutureViewModel<void> {
     }
   }
 
-  Future<TournamentParticipant> registerParticipant(
-      Tournament tournament, bool isSolo) async {
-    //if game mode is team, the register team and assign team id to tournamentParticipant
-    //else, create tournamentParticipant for every player
-    // String? newTeamId;
-    // if (!isSolo) {
-    //   //create team
-    //   //assign team id to tournamentParticipant
-    //   Team newTeam = Team(
-    //     teamName: _teamName,
-    //     teamCountry: _teamCountry,
-    //     memberList: _userListState.map((user) => user.userId).toList(),
-    //   );
-    //   newTeamId =
-    //       await _database.add(newTeam.toJson(), FirestoreCollections.team);
-    // }
-    //register participant to the tournament
-    TournamentParticipant participant = TournamentParticipant(
-        participantId: '',
-        dateRegister: DateHelper.formatDate(DateTime.now()),
-        country: _teamCountry,
-        teamName: _teamName,
-        memberList: _userListState.map((user) => user.userId).toList(),
-        tournamentId: tournament.tournamentId,
-        seeding: 0,
-        isSolo: isSolo,
-        hasPay: false);
-
-    await _database.add(
-        participant.toJson(), FirestoreCollections.tournamentParticipant);
-    return participant;
-  }
-
   @override
   Future<void> futureToRun() async {
     _isEmailValid = [true, false, false, false, false];
     _isEmailAlreadyRegisted = [true, false, false, false, false];
+    _isUsernameValid = [false, false, false, false, false];
+    _usernameList = ['', '', '', '', ''];
+    _usernameId = ['', '', '', '', ''];
+    _tagline = ['', '', '', '', ''];
+    _selectedPlatformIndex = [0, 0, 0];
     //add current user to the state
     _userListState = [
       User.fromJson(
@@ -433,5 +460,99 @@ class TournamentRegistrationViewModel extends FutureViewModel<void> {
     // _userListState.add();
     _emailController = [_auth.getCurrentUserEmail()!, '', '', '', ''];
     return Future.value();
+  }
+
+  void updateUsername(String username, int index) {
+    _usernameList[index] = username;
+  }
+
+  void updateTaglineOrPlatform(String tagline, int index) {
+    _tagline[index] = tagline;
+  }
+
+  verifyPlayerUsername(String game, int index, context) async {
+    try {
+      _log.debug('game: $game');
+      if (_usernameList[index].isEmpty) {
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: const [
+                    Icon(
+                      Icons.error_outline,
+                      color: Colors.red,
+                    ),
+                    Text("Please fill username"),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+
+        return;
+      }
+      if (game == GameType.ApexLegend.name) {
+        // apex game
+        _log.debug(
+            'username: ${_usernameList[index]} platform: ${platformList[_selectedPlatformIndex[index]]}');
+        Map<String, dynamic> response = await _apexlegendDatabase.verifyPlayer(
+            _usernameList[index], platformList[_selectedPlatformIndex[index]]);
+        if (response['status'] == true) {
+          _isUsernameValid[index] = true;
+          _usernameId[index] = response['data']['uid'];
+          notifyListeners();
+        } else {
+          _isUsernameValid[index] = false;
+          _usernameId[index] = '';
+          notifyListeners();
+        }
+      } else {
+        //valorant game
+        _log.debug(
+            'username: ${_usernameList[index]} tagline: ${_tagline[index]}');
+        if (_tagline[index].isEmpty || _tagline[index].length < 4) {
+          showDialog(
+            context: context,
+            builder: (_) => AlertDialog(
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: const [
+                      Icon(
+                        Icons.error_outline,
+                        color: Colors.red,
+                      ),
+                      Text("Please fill in tagline"),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+          return;
+        }
+        Map<String, dynamic> data = await _valorantDatabase.verifyPlayer(
+            _usernameList[index], _tagline[index]);
+        if (data['status'] == true) {
+          _usernameId[index] = data['data']['puuid'];
+          _isUsernameValid[index] = true;
+          notifyListeners();
+        } else {
+          _isUsernameValid[index] = false;
+          _usernameId[index] = '';
+          notifyListeners();
+        }
+      }
+    } on Failure catch (e) {
+      _log.debug(e.toString());
+    } catch (e) {
+      _log.debug(e.toString());
+    }
   }
 }

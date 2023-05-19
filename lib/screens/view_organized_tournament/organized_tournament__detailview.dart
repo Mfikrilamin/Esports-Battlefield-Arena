@@ -3,6 +3,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:esports_battlefield_arena/components/widgets/box_game_logo.dart';
 import 'package:esports_battlefield_arena/components/widgets/hero_widget.dart';
 import 'package:esports_battlefield_arena/models/tournament.dart';
+import 'package:esports_battlefield_arena/models/tournament_participant.dart';
 import 'package:esports_battlefield_arena/screens/view_organized_tournament/organized_tournament_detail_viewmodel.dart';
 import 'package:esports_battlefield_arena/shared/app_colors.dart';
 import 'package:esports_battlefield_arena/shared/box_button.dart';
@@ -11,6 +12,7 @@ import 'package:esports_battlefield_arena/shared/ui_helper.dart';
 import 'package:esports_battlefield_arena/utils/enum.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
+import 'package:stacked_hooks/stacked_hooks.dart';
 
 @RoutePage()
 class OrganizedTournamentDetailView extends StatelessWidget {
@@ -153,86 +155,186 @@ class OrganizedTournamentDetailView extends StatelessWidget {
                         tournament: tournament,
                       ),
                       UIHelper.verticalSpaceMediumLarge(),
-                      FadeInUp(
-                        delay: const Duration(milliseconds: 500),
-                        from: 60,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const BoxText.headingFour('Organized by'),
-                            UIHelper.verticalSpaceSmall(),
-                            FutureBuilder(
-                              future: model
-                                  .getOrganizerName(tournament.organizerId),
-                              builder: (context, snapshot) {
-                                if (snapshot.hasData) {
-                                  return BoxText.body(snapshot.data.toString());
-                                } else {
-                                  return BoxText.body(tournament.organizerId);
-                                }
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                      UIHelper.verticalSpaceMediumLarge(),
-                      FadeInUp(
-                        delay: const Duration(milliseconds: 500),
-                        from: 60,
-                        child: const BoxText.headingThree('Rules'),
-                      ),
+                      TournamentRule(tournament: tournament),
+                      UIHelper.verticalSpaceMedium(),
+                      Participant(tournament: tournament),
                     ],
-                  ),
-                ),
-              ),
-            ),
-            SliverList(
-              delegate: SliverChildBuilderDelegate((context, index) {
-                return FadeInUp(
-                  delay: const Duration(milliseconds: 500),
-                  from: 60,
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 5, horizontal: 25),
-                    color: kcWhiteColor,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        BoxText.body('${index + 1}. '),
-                        // Padding(
-                        //   // padding: const EdgeInsets.only(top: 2),
-                        // ),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.80,
-                          child: BoxText.body(
-                            tournament.rules[index],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }, childCount: tournament.rules.length),
-            ),
-            SliverToBoxAdapter(
-              child: FadeInUp(
-                duration: const Duration(milliseconds: 400),
-                child: HeroWidget(
-                  tag: 'registerButton',
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 25, vertical: 25),
-                    color: kcWhiteColor,
-                    child: BoxButton(
-                        title: 'Register',
-                        onTap: () => model.registerTournament(tournament)),
                   ),
                 ),
               ),
             ),
           ],
         ),
+        bottomNavigationBar: FadeInUp(
+          duration: const Duration(milliseconds: 400),
+          child: HeroWidget(
+            tag: 'registerButton',
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+              color: kcWhiteColor,
+              child: BoxButton(title: 'Create seeding', onTap: () => null),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class TournamentRule extends StatelessWidget {
+  const TournamentRule({
+    super.key,
+    required this.tournament,
+  });
+
+  final Tournament tournament;
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeInUp(
+      delay: const Duration(milliseconds: 500),
+      from: 60,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        // mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          const BoxText.headingThree('Rules'),
+          UIHelper.verticalSpaceSmall(),
+          ListView.builder(
+            padding: const EdgeInsets.all(0),
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount:
+                tournament.rules.length, // The number of items in the list
+            itemBuilder: (BuildContext context, int index) {
+              // Build each item of the list
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 5),
+                child: Container(
+                  color: kcWhiteColor,
+                  child: Row(
+                    children: [
+                      BoxText.body('${index + 1}. '),
+                      // Padding(
+                      //   // padding: const EdgeInsets.only(top: 2),
+                      // ),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.80,
+                        child: BoxText.body(
+                          tournament.rules[index],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class Participant extends StackedHookView<OrganizedTournamentDetailViewModel> {
+  const Participant({
+    super.key,
+    required this.tournament,
+  });
+
+  final Tournament tournament;
+
+  @override
+  Widget builder(
+      BuildContext context, OrganizedTournamentDetailViewModel model) {
+    return FadeInUp(
+      delay: const Duration(milliseconds: 500),
+      from: 60,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const BoxText.headingThree('Participants'),
+          UIHelper.verticalSpaceSmall(),
+          FutureBuilder<Map<String, dynamic>>(
+            future: model.fetchParticipant(tournament),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                // While the future is still loading
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                // If an error occurred while fetching the data
+                return Center(child: Text('Error: ${snapshot.error}'));
+              } else {
+                // When the future has successfully completed
+                if (snapshot.data!.isEmpty) {
+                  return BoxText.body('No participant yet');
+                }
+                return ListView.builder(
+                  padding: const EdgeInsets.all(0),
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: snapshot.data!['participantList']
+                      .length, // The number of items in the list
+                  itemBuilder: (BuildContext context, int index) {
+                    // Build each item of the list
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Container(
+                        color: kcWhiteColor,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            BoxText.subheading2(
+                              'Team ${index + 1}: ${snapshot.data!['participantList'][index].teamName}',
+                            ),
+                            Row(
+                              children: [
+                                BoxText.subheading2(
+                                  'Seeding : ${snapshot.data!['participantList'][index].seeding}',
+                                ),
+                                Spacer(),
+                                BoxText.subheading2(
+                                  snapshot
+                                      .data!['participantList'][index].country,
+                                ),
+                              ],
+                            ),
+                            BoxText.body('Member List: '),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.86,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  BoxText.body(
+                                    snapshot.data!['playerList'][index]
+                                        ['username'],
+                                  ),
+                                  Expanded(
+                                    child: Center(
+                                      child: BoxText.body(
+                                        snapshot.data!['playerList'][index]
+                                            ['name'],
+                                      ),
+                                    ),
+                                  ),
+                                  BoxText.body(
+                                    snapshot.data!['playerList'][index]
+                                        ['country'],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                );
+              }
+            },
+          )
+        ],
       ),
     );
   }

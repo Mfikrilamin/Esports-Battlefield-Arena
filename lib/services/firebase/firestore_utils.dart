@@ -1,7 +1,6 @@
 import 'package:esports_battlefield_arena/models/user.dart';
 import 'package:esports_battlefield_arena/models/apex_match_result.dart';
 import 'package:esports_battlefield_arena/models/invoice.dart';
-import 'package:esports_battlefield_arena/models/nickname.dart';
 import 'package:esports_battlefield_arena/models/organizer.dart';
 import 'package:esports_battlefield_arena/models/player.dart';
 import 'package:esports_battlefield_arena/models/player_stats.dart';
@@ -39,10 +38,6 @@ final Map<FirestoreCollections, Map<FirestoreDeclration, String>>
   FirestoreCollections.tournamentParticipant: {
     FirestoreDeclration.collectionName: 'TournamentParticipants',
     FirestoreDeclration.id: 'participantId'
-  },
-  FirestoreCollections.nickname: {
-    FirestoreDeclration.collectionName: 'Nicknames',
-    FirestoreDeclration.id: 'userId'
   },
   FirestoreCollections.match: {
     FirestoreDeclration.collectionName: 'Matches',
@@ -101,8 +96,6 @@ dynamic checkCollectionNameAndgetModelData(
         return Tournament.fromJson(data);
       case FirestoreCollections.tournamentParticipant:
         return TournamentParticipant.fromJson(data);
-      case FirestoreCollections.nickname:
-        return Nickname.fromJson(data);
       case FirestoreCollections.match:
         return Match.fromJson(data);
       case FirestoreCollections.apexMatchResult:
@@ -136,8 +129,6 @@ bool checkCollectionNameAndgetFieldName(
       return Tournament().toJson().containsKey(field);
     case FirestoreCollections.tournamentParticipant:
       return TournamentParticipant().toJson().containsKey(field);
-    case FirestoreCollections.nickname:
-      return Nickname().toJson().containsKey(field);
     case FirestoreCollections.match:
       return Match().toJson().containsKey(field);
     case FirestoreCollections.apexMatchResult:
@@ -172,8 +163,6 @@ dynamic getDataModelType(FirestoreCollections collection) {
       return Tournament;
     case FirestoreCollections.tournamentParticipant:
       return TournamentParticipant;
-    case FirestoreCollections.nickname:
-      return Nickname;
     case FirestoreCollections.match:
       return Match;
     case FirestoreCollections.apexMatchResult:

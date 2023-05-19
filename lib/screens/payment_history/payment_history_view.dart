@@ -150,12 +150,11 @@ class InvoiceCard extends StackedHookView<PaymentHistoryViewModel> {
                     children: [
                       BoxText.subheading(model.getTournamentName(
                           model.invoiceList[index].tournamentId)),
+                      BoxText.body(
+                          'Paid by : ${model.getPaidBy(model.invoiceList[index].invoiceId).isEmpty ? 'Not paid yet' : model.getPaidBy(model.invoiceList[index].invoiceId)}'),
                       BoxText.body(model.invoiceList[index].date.isEmpty
                           ? 'No date'
                           : model.invoiceList[index].date),
-                      BoxText.body(model.invoiceList[index].time.isEmpty
-                          ? 'No time'
-                          : model.invoiceList[index].time),
                       UIHelper.verticalSpaceSmall(),
                       BoxText.caption(
                           'Invoice Id: ${model.invoiceList[index].invoiceId}'),

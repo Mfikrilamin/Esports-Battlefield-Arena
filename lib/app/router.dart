@@ -75,6 +75,8 @@ class AppRouter extends $AppRouter {
       }),
     ),
     AutoRoute(page: MyOrganizedTournamentRoute.page),
+    AutoRoute(page: ParticipantInformationRoute.page),
+    AutoRoute(page: PlayerRegisteredTournamentRoute.page),
     // AutoRoute(page: RegisteredTournament.page),
   ];
 }

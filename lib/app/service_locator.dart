@@ -4,17 +4,11 @@ import 'package:esports_battlefield_arena/screens/main_home/main_home_viewmodel.
 import 'package:esports_battlefield_arena/screens/profile/profile_viewmodel.dart';
 import 'package:esports_battlefield_arena/screens/sign_in/signin_viewmodel.dart';
 import 'package:esports_battlefield_arena/screens/sign_up/signup_viewmodel.dart';
-import 'package:esports_battlefield_arena/services/counter/counter_service.dart';
-import 'package:esports_battlefield_arena/services/firebase/authentication/auth.dart';
-import 'package:esports_battlefield_arena/services/firebase/authentication/fireauth_service.dart';
-import 'package:esports_battlefield_arena/services/firebase/database/database.dart';
-import 'package:esports_battlefield_arena/services/firebase/database/firestore_service.dart';
-import 'package:esports_battlefield_arena/services/initializer/service_initializer.dart';
-import 'package:esports_battlefield_arena/services/initializer/service_initializer_firebase.dart';
-import 'package:esports_battlefield_arena/services/log/log_services.dart';
+import 'package:esports_battlefield_arena/services/game_database/apex_legend/apex_legend_statusAPI.dart';
+import 'package:esports_battlefield_arena/services/game_database/valorant/valorant.dart';
 import 'package:esports_battlefield_arena/services/payment/stripe.dart';
-import 'package:esports_battlefield_arena/services/payment/stripe_service.dart';
-import 'package:esports_battlefield_arena/services/signup/signup_service.dart';
+import 'package:esports_battlefield_arena/services/service.dart';
+import 'package:esports_battlefield_arena/services/viewmodel_shared_data/signup_service.dart';
 import 'package:esports_battlefield_arena/services/viewmodel_shared_data/tournament_service.dart';
 import 'package:map_mvvm/service_locator.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -45,6 +39,9 @@ Future<void> initializeServiceLocator() async {
   locator.registerLazySingleton(() => AppRouter());
   locator.registerLazySingleton(() => LogService());
   locator.registerLazySingleton<Payment>(() => StripePaymentService());
+  locator.registerLazySingleton<ValorantDatabase>(() => ValorantHenrikdevAPI());
+  locator
+      .registerLazySingleton<ApexLegendDatabase>(() => ApexLegendStatusAPI());
 
   //viewmodel
   locator.registerLazySingleton(() => SignUpViewModel());
