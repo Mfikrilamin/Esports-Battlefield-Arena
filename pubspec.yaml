@@ -62,6 +62,7 @@ dependencies:
   http: ^0.13.5
   direct_select: ^2.0.0
   cloud_functions: ^4.3.1
+  carousel_slider: ^4.2.1
 
 dev_dependencies:
   flutter_test:

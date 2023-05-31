@@ -57,7 +57,25 @@ class AppRouter extends $AppRouter {
       }),
     ),
     AutoRoute(page: PaymentHistoryRoute.page),
-    AutoRoute(page: CreateTournamentRoute.page),
+    CustomRoute(
+      durationInMilliseconds: 500,
+      reverseDurationInMilliseconds: 500,
+      page: CreateTournamentRoute.page,
+      transitionsBuilder: ((BuildContext context, Animation<double> animation,
+          Animation<double> secondaryAnimation, Widget child) {
+        final curvedAnimation =
+            CurvedAnimation(parent: animation, curve: const Interval(0.5, 1.0));
+        return SharedAxisTransition(
+          //  fillColor: Theme.of(context).cardColor,
+          animation: animation,
+          secondaryAnimation: secondaryAnimation,
+          transitionType: SharedAxisTransitionType.horizontal,
+          child: child,
+        );
+        // you get an animation object and a widget
+        // make your own transition
+      }),
+    ),
     CustomRoute(
       durationInMilliseconds: 500,
       reverseDurationInMilliseconds: 500,
@@ -75,8 +93,39 @@ class AppRouter extends $AppRouter {
       }),
     ),
     AutoRoute(page: MyOrganizedTournamentRoute.page),
-    AutoRoute(page: ParticipantInformationRoute.page),
+    CustomRoute(
+      durationInMilliseconds: 500,
+      reverseDurationInMilliseconds: 500,
+      page: ParticipantInformationRoute.page,
+      transitionsBuilder: ((BuildContext context, Animation<double> animation,
+          Animation<double> secondaryAnimation, Widget child) {
+        final curvedAnimation =
+            CurvedAnimation(parent: animation, curve: const Interval(0, 0.5));
+        return FadeTransition(
+          opacity: curvedAnimation,
+          child: child,
+        );
+        // you get an animation object and a widget
+        // make your own transition
+      }),
+    ),
     AutoRoute(page: PlayerRegisteredTournamentRoute.page),
-    // AutoRoute(page: RegisteredTournament.page),
+    // AutoRoute(page: LeaderboardRoute.page),
+    CustomRoute(
+      durationInMilliseconds: 500,
+      reverseDurationInMilliseconds: 500,
+      page: LeaderboardRoute.page,
+      transitionsBuilder: ((BuildContext context, Animation<double> animation,
+          Animation<double> secondaryAnimation, Widget child) {
+        final curvedAnimation =
+            CurvedAnimation(parent: animation, curve: const Interval(0, 0.5));
+        return FadeTransition(
+          opacity: curvedAnimation,
+          child: child,
+        );
+        // you get an animation object and a widget
+        // make your own transition
+      }),
+    ),
   ];
 }

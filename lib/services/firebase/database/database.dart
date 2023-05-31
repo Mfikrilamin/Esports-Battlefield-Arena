@@ -15,7 +15,7 @@ abstract class Database with ServiceStream {
       List<String> field, List<String> value, FirestoreCollections collection);
   Future<List> getAll(FirestoreCollections collection);
   Future<List<Map<String, dynamic>>> getAllByQuery(
-      List<String> field, List<String> value, FirestoreCollections collection);
+      List<String> field, List<dynamic> value, FirestoreCollections collection);
   Future<List<Map<String, dynamic>>> getAllByQueryList(
       String field, String value, FirestoreCollections collection);
   Stream<Map<String, dynamic>> streamByQuery(

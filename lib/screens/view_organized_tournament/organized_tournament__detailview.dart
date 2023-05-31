@@ -158,6 +158,8 @@ class OrganizedTournamentDetailView extends StatelessWidget {
                       TournamentRule(tournament: tournament),
                       UIHelper.verticalSpaceMedium(),
                       Participant(tournament: tournament),
+                      UIHelper.verticalSpaceMedium(),
+                      Leaderboard(tournament: tournament),
                     ],
                   ),
                 ),
@@ -172,7 +174,11 @@ class OrganizedTournamentDetailView extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
               color: kcWhiteColor,
-              child: BoxButton(title: 'Create seeding', onTap: () => null),
+              child: BoxButton(
+                  title: 'Create seeding',
+                  onTap: () {
+                    model.createSeeding(tournament, context);
+                  }),
             ),
           ),
         ),
@@ -255,85 +261,62 @@ class Participant extends StackedHookView<OrganizedTournamentDetailViewModel> {
         children: [
           const BoxText.headingThree('Participants'),
           UIHelper.verticalSpaceSmall(),
-          FutureBuilder<Map<String, dynamic>>(
-            future: model.fetchParticipant(tournament),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                // While the future is still loading
-                return const Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                // If an error occurred while fetching the data
-                return Center(child: Text('Error: ${snapshot.error}'));
-              } else {
-                // When the future has successfully completed
-                if (snapshot.data!.isEmpty) {
-                  return BoxText.body('No participant yet');
-                }
-                return ListView.builder(
-                  padding: const EdgeInsets.all(0),
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: snapshot.data!['participantList']
-                      .length, // The number of items in the list
-                  itemBuilder: (BuildContext context, int index) {
-                    // Build each item of the list
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: Container(
-                        color: kcWhiteColor,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            BoxText.subheading2(
-                              'Team ${index + 1}: ${snapshot.data!['participantList'][index].teamName}',
-                            ),
-                            Row(
-                              children: [
-                                BoxText.subheading2(
-                                  'Seeding : ${snapshot.data!['participantList'][index].seeding}',
-                                ),
-                                Spacer(),
-                                BoxText.subheading2(
-                                  snapshot
-                                      .data!['participantList'][index].country,
-                                ),
-                              ],
-                            ),
-                            BoxText.body('Member List: '),
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.86,
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  BoxText.body(
-                                    snapshot.data!['playerList'][index]
-                                        ['username'],
-                                  ),
-                                  Expanded(
-                                    child: Center(
-                                      child: BoxText.body(
-                                        snapshot.data!['playerList'][index]
-                                            ['name'],
-                                      ),
-                                    ),
-                                  ),
-                                  BoxText.body(
-                                    snapshot.data!['playerList'][index]
-                                        ['country'],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                );
-              }
-            },
-          )
+          FadeInUp(
+            duration: const Duration(milliseconds: 400),
+            child: Container(
+              // width: 170,
+              padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+              color: kcWhiteColor,
+              child: BoxButton(
+                title: 'View participant',
+                outline: true,
+                onTap: () {
+                  model.viewAllParticipants(tournament);
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class Leaderboard extends StackedHookView<OrganizedTournamentDetailViewModel> {
+  const Leaderboard({
+    super.key,
+    required this.tournament,
+  });
+
+  final Tournament tournament;
+
+  @override
+  Widget builder(
+      BuildContext context, OrganizedTournamentDetailViewModel model) {
+    return FadeInUp(
+      delay: const Duration(milliseconds: 500),
+      from: 60,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const BoxText.headingThree('Leaderboard'),
+          UIHelper.verticalSpaceSmall(),
+          FadeInUp(
+            duration: const Duration(milliseconds: 400),
+            child: Container(
+              // width: 170,
+              padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+              color: kcWhiteColor,
+              child: BoxButton(
+                title: 'View leaderboard',
+                outline: true,
+                busy: model.isLeaderboardButtonBusy,
+                onTap: () {
+                  model.viewLeaderboard(tournament);
+                },
+              ),
+            ),
+          ),
         ],
       ),
     );

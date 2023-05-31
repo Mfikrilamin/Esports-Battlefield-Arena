@@ -1,54 +1,57 @@
 class ApexMatchResult {
   late String _resultId;
   late String _matchId;
+  late String _lobbyId;
+  late int _gameNumber;
+  late bool isCompleted;
+  //since one match contain a total of 20 teams
+  // _results will contain a list of 20 teams result
   late List<Map<String, dynamic>> _results;
-  // late String _participantId;
-  // late int _kills;
-  // late int _placement;
-  // late int _point;
+  // _result
+  // Key: Value
+  // participantId : participantId
+  // totalKills : totalKills
+  // placement : placement
+  // totalPoint : totalPoint
+  // seed : seed
 
   String get resultId => _resultId;
   String get matchId => _matchId;
+  String get lobbyId => _lobbyId;
+  int get gameNumber => _gameNumber;
+  bool get completed => isCompleted;
   List<Map<String, dynamic>> get results => _results;
-  // String get participantId => _participantId;
-  // int get kills => _kills;
-  // int get placement => _placement;
-  // int get point => _point;
 
   ApexMatchResult({
     String resultId = '',
     String matchId = '',
+    String lobbyId = '',
+    int gameNumber = 0,
+    bool completed = false,
     List<Map<String, dynamic>> results = const [],
-    // String participantId = '',
-    // int kills = 0,
-    // int placement = 0,
-    // int point = 0,
   })  : _resultId = resultId,
         _matchId = matchId,
+        _lobbyId = lobbyId,
+        _gameNumber = gameNumber,
+        isCompleted = completed,
         _results = results;
-  // _participantId = participantId,
-  // _kills = kills,
-  // _placement = placement,
-  // _point = point;
 
   ApexMatchResult.fromJson(Map<String, dynamic> map) {
     if (map.containsKey('resultId') &&
-            map.containsKey('matchId') &&
-            map.containsKey('resultList')
-        // map.containsKey('participantId') &&
-        // map.containsKey('kills') &&
-        // map.containsKey('placement') &&
-        // map.containsKey('point')
-        ) {
+        map.containsKey('matchId') &&
+        map.containsKey('lobbyId') &&
+        map.containsKey('results') &&
+        map.containsKey('gameNumber') &&
+        map.containsKey('isCompleted')) {
       _resultId = map['resultId'] ?? '';
       _matchId = map['matchId'] ?? '';
-      _results = map['resultList'] ?? [];
-      // _participantId = map['participantId'] ?? '';
-      // _kills = map['kills'] ?? 0;
-      // _placement = map['placement'] ?? 0;
-      // _point = map['point'] ?? 0;
+      _lobbyId = map['lobbyId'] ?? '';
+      _gameNumber = map['gameNumber'] ?? 0;
+      isCompleted = map['isCompleted'] ?? false;
+      _results = map['results'].cast<Map<String, dynamic>>().toList() ?? [];
     } else {
-      throw ArgumentError('Required keys are missing from the User model');
+      throw ArgumentError(
+          'Required keys are missing from the ApexMatchResult model');
     }
   }
 
@@ -56,11 +59,10 @@ class ApexMatchResult {
     return {
       'resultId': _resultId,
       'matchId': _matchId,
-      'resultList': _results,
-      // 'participantId': _participantId,
-      // 'kills': _kills,
-      // 'placement': _placement,
-      // 'point': _point,
+      'lobbyId': _lobbyId,
+      'gameNumber': _gameNumber,
+      'isCompleted': isCompleted,
+      'results': _results,
     };
   }
 

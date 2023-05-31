@@ -15,6 +15,7 @@ class PlayerRegisteredTournamentView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ViewModelBuilder<PlayerRegisterTournamentViewModel>.reactive(
+      onModelReady: (model) => model.refreshRegisteredTournament(),
       viewModelBuilder: () => PlayerRegisterTournamentViewModel(),
       builder: (context, model, child) {
         return Scaffold(
@@ -44,6 +45,9 @@ class PlayerRegisteredTournamentView extends StatelessWidget {
                           itemCount: model.registeredTournamentList.length,
                           itemBuilder: (context, index) {
                             return ListTile(
+                              onTap: () {
+                                model.navigateToLeaderboard(index);
+                              },
                               visualDensity: const VisualDensity(vertical: 3),
                               leading: CircleAvatar(
                                 radius: 25,

@@ -7,16 +7,17 @@ import 'package:esports_battlefield_arena/services/firebase/authentication/auth.
 import 'package:esports_battlefield_arena/services/firebase/database/database.dart';
 import 'package:esports_battlefield_arena/services/firebase/firestore_config.dart';
 import 'package:esports_battlefield_arena/services/log/log_services.dart';
+import 'package:esports_battlefield_arena/services/viewmodel_shared_data/tournament_service.dart';
 import 'package:esports_battlefield_arena/utils/enum.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 
-class PlayerRegisterTournamentViewModel extends FutureViewModel {
+class PlayerRegisterTournamentViewModel extends ReactiveViewModel {
   Database _database = locator<Database>();
   Auth _auth = locator<Auth>();
   LogService _log = locator<LogService>();
   final AppRouter _router = locator<AppRouter>();
-
+  final _tournamentService = locator<TournamentService>();
   List<Tournament> _registeredTournamentList = [];
 
   List<Tournament> get registeredTournamentList => _registeredTournamentList;
@@ -54,6 +55,12 @@ class PlayerRegisterTournamentViewModel extends FutureViewModel {
     }
   }
 
+  Future<void> navigateToLeaderboard(int index) async {
+    await _tournamentService
+        .getLeaderboardResult(_registeredTournamentList[index]);
+    _router.push(const LeaderboardRoute());
+  }
+
   @override
-  Future futureToRun() => refreshRegisteredTournament();
+  List<ReactiveServiceMixin> get reactiveServices => [_tournamentService];
 }

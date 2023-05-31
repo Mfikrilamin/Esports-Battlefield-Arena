@@ -1,3 +1,4 @@
+import 'package:esports_battlefield_arena/models/apex_match.dart';
 import 'package:esports_battlefield_arena/models/user.dart';
 import 'package:esports_battlefield_arena/models/apex_match_result.dart';
 import 'package:esports_battlefield_arena/models/invoice.dart';
@@ -5,9 +6,9 @@ import 'package:esports_battlefield_arena/models/organizer.dart';
 import 'package:esports_battlefield_arena/models/player.dart';
 import 'package:esports_battlefield_arena/models/player_stats.dart';
 import 'package:esports_battlefield_arena/models/team.dart';
-import 'package:esports_battlefield_arena/models/match.dart';
 import 'package:esports_battlefield_arena/models/tournament.dart';
 import 'package:esports_battlefield_arena/models/tournament_participant.dart';
+import 'package:esports_battlefield_arena/models/valorant_match.dart';
 import 'package:esports_battlefield_arena/models/valorant_match_result.dart';
 import 'package:esports_battlefield_arena/services/firebase/firestore_config.dart';
 
@@ -39,8 +40,12 @@ final Map<FirestoreCollections, Map<FirestoreDeclration, String>>
     FirestoreDeclration.collectionName: 'TournamentParticipants',
     FirestoreDeclration.id: 'participantId'
   },
-  FirestoreCollections.match: {
-    FirestoreDeclration.collectionName: 'Matches',
+  FirestoreCollections.valorantMatch: {
+    FirestoreDeclration.collectionName: 'ValorantMatches',
+    FirestoreDeclration.id: 'matchId'
+  },
+  FirestoreCollections.apexMatch: {
+    FirestoreDeclration.collectionName: 'ApexMatches',
     FirestoreDeclration.id: 'matchId'
   },
   FirestoreCollections.apexMatchResult: {
@@ -53,7 +58,7 @@ final Map<FirestoreCollections, Map<FirestoreDeclration, String>>
   },
   FirestoreCollections.playerStats: {
     FirestoreDeclration.collectionName: 'PlayerStats',
-    FirestoreDeclration.id: 'userId'
+    FirestoreDeclration.id: 'playerStatsId'
   },
   FirestoreCollections.invoice: {
     FirestoreDeclration.collectionName: 'Invoices',
@@ -96,8 +101,10 @@ dynamic checkCollectionNameAndgetModelData(
         return Tournament.fromJson(data);
       case FirestoreCollections.tournamentParticipant:
         return TournamentParticipant.fromJson(data);
-      case FirestoreCollections.match:
-        return Match.fromJson(data);
+      case FirestoreCollections.valorantMatch:
+        return ValorantMatch.fromJson(data);
+      case FirestoreCollections.apexMatch:
+        return ApexMatch.fromJson(data);
       case FirestoreCollections.apexMatchResult:
         return ApexMatchResult.fromJson(data);
       case FirestoreCollections.valorantMatchResult:
@@ -129,8 +136,10 @@ bool checkCollectionNameAndgetFieldName(
       return Tournament().toJson().containsKey(field);
     case FirestoreCollections.tournamentParticipant:
       return TournamentParticipant().toJson().containsKey(field);
-    case FirestoreCollections.match:
-      return Match().toJson().containsKey(field);
+    case FirestoreCollections.valorantMatch:
+      return ValorantMatch().toJson().containsKey(field);
+    case FirestoreCollections.apexMatch:
+      return ValorantMatch().toJson().containsKey(field);
     case FirestoreCollections.apexMatchResult:
       return ApexMatchResult().toJson().containsKey(field);
     case FirestoreCollections.valorantMatchResult:
@@ -163,8 +172,10 @@ dynamic getDataModelType(FirestoreCollections collection) {
       return Tournament;
     case FirestoreCollections.tournamentParticipant:
       return TournamentParticipant;
-    case FirestoreCollections.match:
-      return Match;
+    case FirestoreCollections.valorantMatch:
+      return ValorantMatch;
+    case FirestoreCollections.apexMatch:
+      return ValorantMatch;
     case FirestoreCollections.apexMatchResult:
       return ApexMatchResult;
     case FirestoreCollections.valorantMatchResult:

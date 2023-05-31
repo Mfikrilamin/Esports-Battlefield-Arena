@@ -5,7 +5,6 @@ import 'package:esports_battlefield_arena/app/router.gr.dart';
 import 'package:esports_battlefield_arena/app/service_locator.dart';
 import 'package:esports_battlefield_arena/models/invoice.dart';
 import 'package:esports_battlefield_arena/models/username.dart';
-import 'package:esports_battlefield_arena/models/nickname.dart';
 import 'package:esports_battlefield_arena/models/player.dart';
 import 'package:esports_battlefield_arena/models/team.dart';
 import 'package:esports_battlefield_arena/models/tournament.dart';

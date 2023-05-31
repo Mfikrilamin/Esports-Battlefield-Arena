@@ -26,10 +26,12 @@ class ParticipantInformationViewModel extends ReactiveViewModel {
   List<ReactiveServiceMixin> get reactiveServices => [_tournamentService];
 
   Future<void> refreshParticipant() {
+    _tournamentService.refreshParticipantInformation();
     return Future.value();
   }
 
   void navigateBack() {
+    _tournamentService.disposeParticipantInformation();
     _router.pop();
   }
 }

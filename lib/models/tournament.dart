@@ -11,6 +11,7 @@ class Tournament {
   late int _maxMemberPerTeam;
   late String _organizerId;
   late String _game;
+  late int _gamePerMatch;
   late String _status;
   //Store all the matchId in the tournament
   late List<String> _matchList;
@@ -29,6 +30,7 @@ class Tournament {
   String get endDate => _endDate;
   String get organizerId => _organizerId;
   String get game => _game;
+  int get gamePerMatch => _gamePerMatch;
   String get status => _status;
   int get maxParticipants => _maxParticipants;
   int get maxMemberPerTeam => _maxMemberPerTeam;
@@ -49,6 +51,7 @@ class Tournament {
     int maxMemberPerTeam = 0,
     String organizerId = '',
     String game = '',
+    int gamePerMatch = 0,
     String status = '',
     List<String> matchList = const [],
     List<String> currentParticipant = const [],
@@ -65,6 +68,7 @@ class Tournament {
         _maxMemberPerTeam = maxMemberPerTeam,
         _organizerId = organizerId,
         _game = game,
+        _gamePerMatch = gamePerMatch,
         _status = status,
         _matchList = matchList,
         _currentParticipant = currentParticipant,
@@ -83,6 +87,7 @@ class Tournament {
         map.containsKey('maxMemberPerTeam') &&
         map.containsKey('organizerId') &&
         map.containsKey('game') &&
+        map.containsKey('gamePerMatch') &&
         map.containsKey('status') &&
         map.containsKey('matchList') &&
         map.containsKey('currentParticipant') &&
@@ -99,6 +104,7 @@ class Tournament {
       _maxMemberPerTeam = map['maxMemberPerTeam'] ?? '';
       _organizerId = map['organizerId'] ?? '';
       _game = map['game'] ?? '';
+      _gamePerMatch = map['gamePerMatch'] ?? '';
       _status = map['status'] ?? '';
       _matchList = map['matchList'].cast<String>().toList() ?? [];
       _currentParticipant =
@@ -124,6 +130,7 @@ class Tournament {
       'maxMemberPerTeam': _maxMemberPerTeam,
       'organizerId': _organizerId,
       'game': _game,
+      'gamePerMatch': _gamePerMatch,
       'status': _status,
       'matchList': _matchList,
       'currentParticipant': _currentParticipant,

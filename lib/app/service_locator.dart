@@ -4,9 +4,6 @@ import 'package:esports_battlefield_arena/screens/main_home/main_home_viewmodel.
 import 'package:esports_battlefield_arena/screens/profile/profile_viewmodel.dart';
 import 'package:esports_battlefield_arena/screens/sign_in/signin_viewmodel.dart';
 import 'package:esports_battlefield_arena/screens/sign_up/signup_viewmodel.dart';
-import 'package:esports_battlefield_arena/services/game_database/apex_legend/apex_legend_statusAPI.dart';
-import 'package:esports_battlefield_arena/services/game_database/valorant/valorant.dart';
-import 'package:esports_battlefield_arena/services/payment/stripe.dart';
 import 'package:esports_battlefield_arena/services/service.dart';
 import 'package:esports_battlefield_arena/services/viewmodel_shared_data/signup_service.dart';
 import 'package:esports_battlefield_arena/services/viewmodel_shared_data/tournament_service.dart';
@@ -42,6 +39,7 @@ Future<void> initializeServiceLocator() async {
   locator.registerLazySingleton<ValorantDatabase>(() => ValorantHenrikdevAPI());
   locator
       .registerLazySingleton<ApexLegendDatabase>(() => ApexLegendStatusAPI());
+  locator.registerLazySingleton<Seeding>(() => SeedingAlgorithm());
 
   //viewmodel
   locator.registerLazySingleton(() => SignUpViewModel());

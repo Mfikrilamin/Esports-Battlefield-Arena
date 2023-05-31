@@ -288,7 +288,7 @@ class FirestoreService extends Database {
   //This function is to find the list of document that has the same value in the field
   @override
   Future<List<Map<String, dynamic>>> getAllByQuery(List<String> field,
-      List<String> value, FirestoreCollections collection) async {
+      List<dynamic> value, FirestoreCollections collection) async {
     try {
       bool fieldValid = true;
       //Get the collection name from the firestore configuration

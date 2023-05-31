@@ -75,6 +75,8 @@ class CreateTournamentView extends StatelessWidget {
             UIHelper.verticalSpaceSmall(),
             const ParticipationTypeInputField(),
             UIHelper.verticalSpaceSmall(),
+            const GamePerMatchInputField(),
+            UIHelper.verticalSpaceSmall(),
             Row(
               children: const [
                 DigitInputField('Max Participants', '15', true),
@@ -341,6 +343,21 @@ class ParticipationTypeInputField
           .toList();
     }
 
+    List<Widget> buildModeItem2() {
+      // Get the first element of the participationTypeList
+      String lastElement = model.participationTypeList.last;
+
+      // Create a list with a single widget containing the first element
+      List<Widget> widgetList = [
+        MySelectionItem(
+          isForList: false,
+          title: lastElement,
+        ),
+      ];
+
+      return widgetList;
+    }
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 0),
       child: Column(
@@ -351,12 +368,18 @@ class ParticipationTypeInputField
           DirectSelect(
             mode: DirectSelectMode.tap,
             itemExtent: 45.0,
-            selectedIndex: model.modeSelectedIndex,
+            selectedIndex:
+                model.gameSelectedIndex == 0 ? 1 : model.modeSelectedIndex,
             // backgroundColor: Colors.red,
-            onSelectedItemChanged: model.updateModeSelectedIndex,
-            items: buildModeItem(),
+            onSelectedItemChanged: (value) {
+              model.gameSelectedIndex == 0 ? value = 1 : value = value;
+              model.updateModeSelectedIndex(value);
+            },
+            items: model.gameSelectedIndex == 0
+                ? buildModeItem2()
+                : buildModeItem(),
             child: MySelectionItem(
-              isForList: false,
+              isForList: model.gameSelectedIndex == 0 ? true : false,
               title: model.participationTypeList[model.modeSelectedIndex],
             ),
           ),
@@ -410,6 +433,41 @@ class MySelectionItem extends StatelessWidget {
                 ],
               ),
             ),
+    );
+  }
+}
+
+class GamePerMatchInputField
+    extends StackedHookView<CreateTournamentViewModel> {
+  const GamePerMatchInputField({Key? key}) : super(key: key, reactive: true);
+  @override
+  Widget builder(BuildContext context, CreateTournamentViewModel model) {
+    var controller =
+        useTextEditingController(text: model.gamePerMatch.toString());
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          BoxText.body('Game per match'),
+          UIHelper.verticalSpaceSmall(),
+          BoxInputField(
+            readOnly: false,
+            controller: controller,
+            keyboardType: TextInputType.number,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+            ],
+            placeholder: '3',
+            onChanged: (digit) {
+              if (digit == '') {
+                digit = '0';
+              }
+              model.updateGamePerMatch(digit);
+            },
+          ),
+        ],
+      ),
     );
   }
 }
