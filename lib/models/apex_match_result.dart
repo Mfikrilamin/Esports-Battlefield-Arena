@@ -10,6 +10,7 @@ class ApexMatchResult {
   // _result
   // Key: Value
   // participantId : participantId
+  // teamName : teamName
   // totalKills : totalKills
   // placement : placement
   // totalPoint : totalPoint

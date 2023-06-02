@@ -20,7 +20,7 @@ class ParticipantInformationViewModel extends ReactiveViewModel {
   //getter
   List<TournamentParticipant> get participantList =>
       _tournamentService.participantsInformation;
-  List<Player> get playerList => _tournamentService.players;
+  List<List<Player>> get playerList => _tournamentService.players;
 
   @override
   List<ReactiveServiceMixin> get reactiveServices => [_tournamentService];

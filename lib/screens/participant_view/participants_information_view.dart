@@ -63,7 +63,7 @@ class ParticipantInformationView extends StatelessWidget {
                                       itemCount: model.playerList.length,
                                       itemBuilder: (context, index2) {
                                         return BoxText.body(
-                                            'Player ${index2 + 1} : ${model.playerList[index2].firstName + ' ' + model.playerList[index2].lastName} (${model.participantList[index].usernameList[index2]['username']})');
+                                            'Player ${index2 + 1} : ${model.playerList[index][index2].firstName + ' ' + model.playerList[index][index2].lastName} (${model.participantList[index].usernameList[index2]['username']})');
                                       },
                                     ),
                                   ],

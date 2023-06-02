@@ -8,14 +8,20 @@ import 'package:esports_battlefield_arena/shared/ui_helper.dart';
 import 'package:esports_battlefield_arena/utils/enum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_hooks/stacked_hooks.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
 @RoutePage()
-class LeaderboardView extends StatelessWidget {
-  const LeaderboardView({super.key});
+class EditLeaderboardView extends StatelessWidget {
+  final int roundIndex;
+  final int matchIndex;
+  final int matchResultIndex;
+  const EditLeaderboardView(
+      {super.key,
+      required this.roundIndex,
+      required this.matchIndex,
+      required this.matchResultIndex});
 
   @override
   Widget build(BuildContext context) {
@@ -32,42 +38,113 @@ class LeaderboardView extends StatelessWidget {
                 Icons.arrow_back_rounded,
                 color: kcDarkTextColor,
               ),
-              onPressed: () => model.navigateBack(),
+              onPressed: () => model.navigateBackOnEditPage(
+                  roundIndex, matchIndex, matchResultIndex),
             )),
-        body: LiquidPullToRefresh(
-          onRefresh: model.refreshLeadboard,
-          color: kcPrimaryColor,
-          animSpeedFactor: 2,
-          backgroundColor: kcPrimaryLightColor,
-          height: 100,
-          child: ListView(
+        body: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          child: Column(
             children: [
-              ExpansionPanelList(
-                elevation: 1,
-                expandedHeaderPadding: EdgeInsets.zero,
-                expansionCallback: (int roundIndex, bool isExpanded) {
-                  model.updateRoundPanel(roundIndex,
-                      isExpanded); // Toggle the expansion state for the corresponding panel
-                },
-                children:
-                    List.generate(model.roundExpanded.length, (roundIndex) {
-                  return ExpansionPanel(
-                    headerBuilder: (BuildContext context, bool isExpanded) {
-                      return ListTile(
-                        title: BoxText.headingTwo('Round ${roundIndex + 1}'),
-                      );
+              BoxText.headingThree('Game result $matchResultIndex'),
+              UIHelper.verticalSpaceMedium(),
+              Expanded(
+                child: ListView.separated(
+                    shrinkWrap: true,
+                    // physics: const NeverScrollableScrollPhysics(),
+                    itemBuilder: (context, index) {
+                      return TeamRowField(
+                          roundIndex: roundIndex,
+                          matchIndex: matchIndex,
+                          matchResultIndex: (matchResultIndex - 1),
+                          index: index);
                     },
-                    body: MatchInformation(
-                      roundIndex,
-                    ),
-                    isExpanded: model.roundExpanded[roundIndex],
-                  );
-                }),
+                    separatorBuilder: (context, index) => const Divider(),
+                    itemCount: model
+                        .apexMatchResult[roundIndex]
+                            [matchIndex.toString()]![matchResultIndex - 1]
+                        .results
+                        .length),
               ),
             ],
           ),
         ),
+        bottomNavigationBar: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          child: BoxButton(
+            title: 'Update leaderboard',
+            onTap: () {
+              model.upateApexLeaderboard(
+                  roundIndex: roundIndex,
+                  matchIndex: matchIndex,
+                  matchResultIndex: matchResultIndex);
+            },
+          ),
+        ),
       ),
+    );
+  }
+}
+
+class TeamRowField extends StackedHookView<LeaderboardViewModel> {
+  const TeamRowField({
+    super.key,
+    required this.roundIndex,
+    required this.matchIndex,
+    required this.matchResultIndex,
+    required this.index,
+  });
+
+  final int roundIndex;
+  final int matchIndex;
+  final int matchResultIndex;
+  final int index;
+
+  @override
+  Widget builder(BuildContext context, LeaderboardViewModel model) {
+    final _killController = useTextEditingController();
+    final _placementController = useTextEditingController();
+    print(model
+        .apexMatchResult[roundIndex][matchIndex.toString()]![matchResultIndex]
+        .resultId);
+    return Row(
+      children: [
+        Text((index + 1).toString()),
+        UIHelper.horizontalSpaceSmall(),
+        Expanded(
+          child: Text(
+            model
+                .apexMatchResult[roundIndex]
+                    [matchIndex.toString()]![matchResultIndex]
+                .results[index]['teamName'],
+            overflow: TextOverflow.ellipsis,
+            softWrap: false,
+          ),
+        ),
+        // UIHelper.horizontalSpaceSmall(),
+        SizedBox(
+          width: 100,
+          child: BoxInputField(
+            readOnly: false,
+            placeholder: 'placement',
+            controller: _placementController,
+            keyboardType: TextInputType.number,
+            onChanged: (value) => model.updatePlacement(
+                roundIndex, matchIndex, matchResultIndex, index, value),
+          ),
+        ),
+        UIHelper.horizontalSpaceSmall(),
+        SizedBox(
+          width: 100,
+          child: BoxInputField(
+            readOnly: false,
+            placeholder: 'kills',
+            controller: _killController,
+            keyboardType: TextInputType.number,
+            onChanged: (value) => model.updateKill(
+                roundIndex, matchIndex, matchResultIndex, index, value),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -198,39 +275,32 @@ class ApexResultCardListBuilder extends StackedHookView<LeaderboardViewModel> {
                               //         matchIndex, item.gameNumber, lobbyId);
                               //   },
                               // ),
-                              UIHelper.verticalSpaceSmall(),
-                              Center(
-                                child: BoxButton(
-                                  title: 'Match Finished',
-                                  height: 36,
-                                  // width: 150,
-                                  onTap: () {
-                                    model.apexMatchGameFinish(
-                                      roundIndex,
-                                      matchIndex,
-                                      item.gameNumber,
-                                    );
-                                  },
-                                ),
-                              ),
-                              UIHelper.verticalSpaceSmall(),
-                              const Center(
-                                child: BoxText.headingFive('OR'),
-                              ),
+                              // UIHelper.verticalSpaceSmall(),
+                              // Center(
+                              //   child: BoxButton(
+                              //     title: 'submit',
+                              //     height: 36,
+                              //     // width: 150,
+                              //     onTap: () {
+                              //       model.submitLobbyId(
+                              //         roundIndex,
+                              //         matchIndex,
+                              //         item.gameNumber,
+                              //       );
+                              //     },
+                              //   ),
+                              // ),
+                              // UIHelper.verticalSpaceSmall(),
+                              // const Center(
+                              //   child: BoxText.headingFive('OR'),
+                              // ),
                               UIHelper.verticalSpaceSmall(),
                               Center(
                                 child: BoxButton(
                                   title: 'edit manually',
                                   height: 36,
                                   // width: 150,
-                                  onTap: () {
-                                    // Navigator.pop(context);
-                                    model.navigateToEditLeaderboardPage(
-                                      roundIndex,
-                                      matchIndex,
-                                      item.gameNumber,
-                                    );
-                                  },
+                                  onTap: () {},
                                 ),
                               ),
                               // Row(
@@ -289,9 +359,6 @@ class ApexResultCardListBuilder extends StackedHookView<LeaderboardViewModel> {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemBuilder: (BuildContext context, int resultTeamIndex) {
-                  item.results.sort((a, b) {
-                    return a['seed'].compareTo(b['seed']);
-                  });
                   return ListTile(
                     contentPadding:
                         const EdgeInsets.only(left: 0.0, right: 0.0),

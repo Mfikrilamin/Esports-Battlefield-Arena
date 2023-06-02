@@ -175,10 +175,75 @@ class OrganizedTournamentDetailView extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
               color: kcWhiteColor,
               child: BoxButton(
-                  title: 'Create seeding',
-                  onTap: () {
-                    model.createSeeding(tournament, context);
-                  }),
+                title: 'Create seeding',
+                onTap: () {
+                  Future<bool> sucess = model.createSeeding(tournament);
+                  sucess.then(
+                    (value) => {
+                      if (value)
+                        {
+                          showDialog(
+                            context: context,
+                            builder: (_) => AlertDialog(
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: const [
+                                      Icon(
+                                        Icons.error,
+                                        color: kcPrimaryDarkerColor,
+                                      ),
+                                      SizedBox(
+                                        width: 200,
+                                        child:
+                                            Text('Sucessfully create seeding'),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        }
+                      else
+                        {
+                          showDialog(
+                            context: context,
+                            builder: (_) => AlertDialog(
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: const [
+                                      Icon(
+                                        Icons.error,
+                                        color: kcTertiaryColor,
+                                      ),
+                                      SizedBox(
+                                        width: 200,
+                                        child: Text(
+                                            'There is an error creating seeding'),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        }
+                    },
+                  );
+                },
+              ),
             ),
           ),
         ),

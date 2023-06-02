@@ -21,7 +21,7 @@ class MyOrganizedTournamentViewModel extends FutureViewModel<void> {
 
   //Navigation
   void navigateToCreateTournament() {
-    _router.push(CreateTournamentRoute());
+    _router.push(const CreateTournamentRoute());
   }
 
   void navigateToTournamentDetail(int index) {

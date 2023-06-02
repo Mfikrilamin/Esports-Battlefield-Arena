@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:esports_battlefield_arena/app/service_locator.dart';
 import 'package:esports_battlefield_arena/models/apex_match.dart';
@@ -69,7 +70,8 @@ class TournamentService with ReactiveServiceMixin {
       ReactiveValue<Tournament>(Tournament());
   ReactiveValue<List<TournamentParticipant>> _participantsInformation =
       ReactiveValue<List<TournamentParticipant>>([]);
-  ReactiveValue<List<Player>> _players = ReactiveValue<List<Player>>([]);
+  ReactiveValue<List<List<Player>>> _players =
+      ReactiveValue<List<List<Player>>>([]);
 
   //Leadboard screen
   ReactiveValue<String> _leaderboardGame = ReactiveValue<String>('');
@@ -169,7 +171,7 @@ class TournamentService with ReactiveServiceMixin {
   int get maxParticipant => _maxParticipant.value;
   List<TournamentParticipant> get participantsInformation =>
       _participantsInformation.value;
-  List<Player> get players => _players.value;
+  List<List<Player>> get players => _players.value;
   int get memberPerTeam => _memberPerTeam.value;
   int get gamePerMatch => _gamePerMatch.value;
   List<String> get ruleList => _ruleList.value;
@@ -241,25 +243,31 @@ class TournamentService with ReactiveServiceMixin {
 
   Future<void> getAllParticipantInformation(Tournament tournament) async {
     log('this is running');
+    log(tournament.tournamentId);
+    log(tournament.currentParticipant.toString());
+
+    _tournament.value = tournament;
     List<TournamentParticipant> participantList = [];
-    List<String> playerIdList = [];
+
     for (String id in tournament.currentParticipant) {
+      List<String> playerIdList = [];
       log('the loop is running');
       log(id);
       TournamentParticipant participant = TournamentParticipant.fromJson(
           await _database.get(id, FirestoreCollections.tournamentParticipant));
       participantList.add(participant);
       playerIdList.addAll(participant.memberList.cast<String>());
-    }
-    _tournament.value = tournament;
-
-    for (String id in playerIdList) {
-      Player player =
-          Player.fromJson(await _database.get(id, FirestoreCollections.player));
-      _players.value.add(player);
+      List<Player> playerList = [];
+      for (String id in playerIdList) {
+        Player player = Player.fromJson(
+            await _database.get(id, FirestoreCollections.player));
+        playerList.add(player);
+      }
+      _players.value.add(playerList);
     }
     _participantsInformation.value = participantList;
-
+    log('players: ${_players.value.toString()}');
+    log('participantInformation: ${_participantsInformation.value.toString()}');
     notifyListeners();
   }
 
@@ -268,22 +276,26 @@ class TournamentService with ReactiveServiceMixin {
     _participantsInformation.value = [];
     log('this is running');
     List<TournamentParticipant> participantList = [];
-    List<String> playerIdList = [];
+
     for (String id in _tournament.value.currentParticipant) {
+      List<String> playerIdList = [];
       log('the loop is running');
       log(id);
       TournamentParticipant participant = TournamentParticipant.fromJson(
           await _database.get(id, FirestoreCollections.tournamentParticipant));
       participantList.add(participant);
       playerIdList.addAll(participant.memberList.cast<String>());
-    }
-    for (String id in playerIdList) {
-      Player player =
-          Player.fromJson(await _database.get(id, FirestoreCollections.player));
-      _players.value.add(player);
+      List<Player> playerList = [];
+      for (String id in playerIdList) {
+        Player player = Player.fromJson(
+            await _database.get(id, FirestoreCollections.player));
+        playerList.add(player);
+      }
+      _players.value.add(playerList);
     }
     _participantsInformation.value = participantList;
-
+    log('players: ${_players.value.toString()}');
+    log('participantInformation: ${_participantsInformation.value.toString()}');
     notifyListeners();
   }
 
@@ -319,6 +331,7 @@ class TournamentService with ReactiveServiceMixin {
                   FirestoreCollections.apexMatchResult);
           List<ApexMatchResult> apexMatchResults =
               resultsData.map((e) => ApexMatchResult.fromJson(e)).toList();
+          apexMatchResults.sort((a, b) => a.gameNumber.compareTo(b.gameNumber));
           if (apexMatch.round > round) {
             round = apexMatch.round;
             _apexMatches.value.add(tempApexMatch);
@@ -443,5 +456,38 @@ class TournamentService with ReactiveServiceMixin {
     _players.value = [];
     _tournamentId.value = '';
     notifyListeners();
+  }
+
+  Future<void> resetPointKillAndPlacement(
+      int roundIndex, int matchIndex, int gameIndex) async {
+    try {
+      String matchIndexStr = matchIndex.toString();
+      ApexMatchResult existingMatchResult = ApexMatchResult.fromJson(
+          await _database.get(
+              apexResults[roundIndex][matchIndexStr]![gameIndex].resultId,
+              FirestoreCollections.apexMatchResult));
+      List<Map<String, dynamic>> resultsData =
+          apexResults[roundIndex][matchIndexStr]![gameIndex].results;
+      // Reupdate back the state with the exisiting data
+      for (int teamResultIndex = 0;
+          teamResultIndex < resultsData.length;
+          teamResultIndex++) {
+        // this loop will assign back the existing data to the current state
+        // currentState = exisitngData
+        apexResults[roundIndex][matchIndexStr]![gameIndex]
+                .results[teamResultIndex]['kills'] =
+            existingMatchResult.results[teamResultIndex]['kills'];
+        apexResults[roundIndex][matchIndexStr]![gameIndex]
+                .results[teamResultIndex]['placement'] =
+            existingMatchResult.results[teamResultIndex]['placement'];
+        apexResults[roundIndex][matchIndexStr]![gameIndex]
+                .results[teamResultIndex]['points'] =
+            existingMatchResult.results[teamResultIndex]['points'];
+      }
+      notifyListeners();
+    } catch (e) {
+      log('error in resetPointKillAndPlacement');
+      log(e.toString());
+    }
   }
 }

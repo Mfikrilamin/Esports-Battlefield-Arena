@@ -64,56 +64,55 @@ class SeedingAlgorithm extends Seeding {
         //1 match consist of two team
         //if thre is not enough team, one team would need bye
         //check if there is enough team
+        // List<ValorantMatchResult> matchResultList = [];
+        // for (int gameResult = 0;
+        //     gameResult < matchList[match].resultList.length;
+        //     gameResult++) {
+        //   ValorantMatchResult result = ValorantMatchResult.fromJson(
+        //       await _database.get(matchList[match].resultList[gameResult],
+        //           FirestoreCollections.valorantMatchResult));
+        //   matchResultList.add(result);
+        // }
+        // matchResultList.sort((a, b) => a.gameNumber.compareTo(b.ga));
         if (teams.length >= 2) {
           TournamentParticipant teamA = teams.removeLast();
           TournamentParticipant teamB = teams.removeLast();
-          List<String> resultIdList = [];
-          if (matchList[match].resultList.isEmpty) {
-            // No result yet, so create the result for that match
-            for (int game = 0; game < tournament.gamePerMatch; game++) {
-              ValorantMatchResult result = await createNewValorantResult(
-                  matchList[match], teamA.teamName, teamB.teamName, (game + 1));
-              resultIdList.add(result.resultId);
-            }
+          // No need to create new result, instead rewrite it in the created result
+          // get the result and update it
+          for (int game = 0; game < tournament.gamePerMatch; game++) {
             await _database.update(
-                matchList[match].matchId,
+                matchList[match].resultList[game],
                 {
-                  'teamA': teamA.participantId,
-                  'teamB': teamB.participantId,
-                  'resultId': resultIdList,
+                  'teamA': teamA.teamName,
+                  'teamB': teamB.teamName,
                 },
-                FirestoreCollections.valorantMatch);
-          } else {
-            // No need to create new result, instead rewrite it in the created result
-            // get the result and update it
+                FirestoreCollections.valorantMatchResult);
+          }
+          await _database.update(
+              matchList[match].matchId,
+              {
+                'teamA': teamA.participantId,
+                'teamB': teamB.participantId,
+              },
+              FirestoreCollections.valorantMatch);
+        } else {
+          if (teams.isNotEmpty) {
+            //assign bye team
+            TournamentParticipant lastTeam = teams.removeLast();
             for (int game = 0; game < tournament.gamePerMatch; game++) {
               await _database.update(
                   matchList[match].resultList[game],
                   {
-                    'teamA': teamA.teamName,
-                    'teamB': teamB.teamName,
+                    'teamA': lastTeam.teamName,
+                    'teamB': 'No team',
                   },
                   FirestoreCollections.valorantMatchResult);
             }
             await _database.update(
                 matchList[match].matchId,
                 {
-                  'teamA': teamA.participantId,
-                  'teamB': teamB.participantId,
-                },
-                FirestoreCollections.valorantMatch);
-          }
-        } else {
-          if (teams.isNotEmpty) {
-            //assign bye team
-            TournamentParticipant lastTeam = teams.removeLast();
-            await _database.update(
-                matchList[match].matchId,
-                {
                   'teamA': lastTeam.participantId,
-                  'teamB': 'BYE',
-                  'winner': lastTeam.participantId,
-                  'loser': 'BYE',
+                  'teamB': 'No team',
                 },
                 FirestoreCollections.valorantMatch);
           } else {
@@ -131,19 +130,19 @@ class SeedingAlgorithm extends Seeding {
   @override
   Future<bool> seedTeamsForApex(Tournament tournament) async {
     try {
-      if (tournament.game != GameType.ApexLegend.name ||
-          tournament.currentParticipant.isEmpty) {
-        return false;
-      }
+      // if (tournament.game != GameType.ApexLegend.name ||
+      //     tournament.currentParticipant.isEmpty) {
+      //   return false;
+      // }
 
-      MockDataGenerator mockDataGenerator = MockDataGenerator();
-      List<TournamentParticipant> fakeTeams = [];
-      for (int i = 0; i < tournament.maxParticipants; i++) {
-        fakeTeams.add(mockDataGenerator.generateFakeParticipant(tournament));
-      }
+      // MockDataGenerator mockDataGenerator = MockDataGenerator();
+      // List<TournamentParticipant> fakeTeams = [];
+      // for (int i = 0; i < tournament.maxParticipants; i++) {
+      //   fakeTeams.add(mockDataGenerator.generateFakeParticipant(tournament));
+      // }
 
-      List<String> teamsId =
-          fakeTeams.map((participant) => participant.participantId).toList();
+      List<String> teamsId = [...tournament.currentParticipant];
+      // fakeTeams.map((participant) => participant.participantId).toList();
 
       // List<String> teamsId = tournament.currentParticipant;
       List<Map<String, dynamic>> matchData = await _database.getAllByQuery(
@@ -154,6 +153,7 @@ class SeedingAlgorithm extends Seeding {
           matchData.map((data) => ApexMatch.fromJson(data)).toList();
 
       teamsId.shuffle(Random());
+      _log.debug(' teamsId : ${teamsId.toString()}');
 
       for (int match = 0; match < matchList.length; match++) {
         //if there is no team available then no need to create the result
@@ -164,46 +164,31 @@ class SeedingAlgorithm extends Seeding {
         if (teamsId.length < 20) {
           teamList = [...teamsId.take(teamsId.length)];
           teamsId.removeRange(0, teamsId.length);
+          _log.debug('this is executed');
         } else {
           //create 20 team into a list
-          teamList = [...teamsId.take(20)];
+          teamList = [...teamsId.take(19)];
           teamsId.removeRange(0, 20);
         }
 
         // for each of the team list, create a match result
-        if (matchList[match].resultList.isEmpty) {
-          //create new result
-          List<String> resultList = [];
-          for (int game = 0; game < tournament.gamePerMatch; game++) {
-            ApexMatchResult result = await createNewApexResult(
-                matchList[match], teamList, (game + 1));
-            resultList.add(result.resultId);
-          }
-          await _database.update(
-              matchList[match].matchId,
-              {
-                'teamList': teamList,
-                'results': resultList,
-              },
-              FirestoreCollections.apexMatch);
-        } else {
-          for (int game = 0; game < tournament.gamePerMatch; game++) {
-            //for each of the game in the match, update the team list in the result
-            _log.info(
-                'Updating team list for game ${game + 1} in match $match');
-            _log.info('Team list: $teamList');
-            _log.info('resultId: ${matchList[match].resultList[game]}');
-            await updateApexResultTeamList(
-                matchList[match].resultList[game], teamList);
-          }
-          await _database.update(
-              matchList[match].matchId,
-              {
-                'teamList': teamList,
-              },
-              FirestoreCollections.apexMatch);
+        _log.info('Update new result for match $match');
+        for (int game = 0; game < tournament.gamePerMatch; game++) {
+          //for each of the game in the match, update the team list in the result
+          _log.info('Updating team list for game ${game + 1} in match $match');
+          _log.info('Team list: $teamList');
+          _log.info('resultId: ${matchList[match].resultList[game]}');
+          await updateApexResultTeamList(
+              matchList[match].resultList[game], teamList);
         }
+        await _database.update(
+            matchList[match].matchId,
+            {
+              'teamList': teamList,
+            },
+            FirestoreCollections.apexMatch);
       }
+
       return true;
     } on Failure catch (e) {
       _log.debug(e.toString());
@@ -257,16 +242,32 @@ class SeedingAlgorithm extends Seeding {
             tournament,
             round,
             match,
-            '',
-            '',
+            '', //This will store participant Id later
+            '', //This will store participant Id later
             round == rounds
                 ? numberOfGameForFinalMatch
                 : numberOfGameForNormalMatch);
+        for (int gameNumber = 0;
+            gameNumber <
+                (round == rounds
+                    ? numberOfGameForFinalMatch
+                    : numberOfGameForNormalMatch);
+            gameNumber++) {
+          ValorantMatchResult result = await createNewValorantResult(
+              matchInformation, 'No team', 'No team', gameNumber + 1);
+          matchInformation.resultList.add(result.resultId);
+        }
         if (round == 1) {
           initialRoundMatchList.add(matchInformation);
         } else {
           currentRoundmatch.add(matchInformation);
         }
+        await _database.update(
+            matchInformation.matchId,
+            {
+              'resultList': matchInformation.resultList,
+            },
+            FirestoreCollections.valorantMatch);
         tournament.matchList.add(matchInformation
             .matchId); //to update tournament collection to store match id list
       }
@@ -314,6 +315,14 @@ class SeedingAlgorithm extends Seeding {
         //create 1 match for each group
         ApexMatch matchInformation =
             await createNewApexMatch(tournament, round, group);
+        //create match result depending on number of game set in the tournament for each match
+        for (int gameResult = 0;
+            gameResult < tournament.gamePerMatch;
+            gameResult++) {
+          ApexMatchResult result =
+              await createNewApexResult(matchInformation, [], gameResult + 1);
+          matchInformation.resultList.add(result.resultId);
+        }
         if (round == 1) {
           previousMatchList.add(matchInformation);
         } else {
@@ -371,6 +380,14 @@ class SeedingAlgorithm extends Seeding {
         //create final match
         ApexMatch matchInformation =
             await createNewApexMatch(tournament, round, 0);
+        //create match result depending on number of game set in the tournament for each match
+        for (int gameResult = 0;
+            gameResult < tournament.gamePerMatch;
+            gameResult++) {
+          ApexMatchResult result =
+              await createNewApexResult(matchInformation, [], gameResult + 1);
+          matchInformation.resultList.add(result.resultId);
+        }
         ApexMatch matchA = previousMatchList.removeLast();
         ApexMatch matchB = previousMatchList.removeLast();
         // Assign the next match id
@@ -475,8 +492,8 @@ class SeedingAlgorithm extends Seeding {
       teamB: teamNameB,
       winner: '',
       loser: '',
-      teamAScore: '',
-      teamBScore: '',
+      teamAScore: '0',
+      teamBScore: '0',
       isCompleted: false,
       playerStats: [],
     );
@@ -635,14 +652,18 @@ class SeedingAlgorithm extends Seeding {
   }
 
   Future<ApexMatchResult> createNewApexResult(
-      ApexMatch matchList, List<String> teamList, int gameNumber) async {
+      ApexMatch match, List<String> teamList, int gameNumber) async {
     List<Map<String, dynamic>> results = [];
     for (int participantIndex = 0; participantIndex < 20; participantIndex++) {
       Map<String, dynamic> result = {};
-      if (participantIndex <= teamList.length) {
+      if (participantIndex < teamList.length) {
         String participantId = teamList[participantIndex];
+        TournamentParticipant participant = TournamentParticipant.fromJson(
+            await _database.get(
+                participantId, FirestoreCollections.tournamentParticipant));
         result = {
           'participantId': participantId,
+          'teamName': participant.teamName,
           'kills': 0,
           'placement': 0,
           'points': 0,
@@ -651,7 +672,8 @@ class SeedingAlgorithm extends Seeding {
         };
       } else {
         result = {
-          'participantId': 'No team',
+          'participantId': '',
+          'teamName': 'No team',
           'kills': 0,
           'placement': 0,
           'points': 0,
@@ -663,7 +685,7 @@ class SeedingAlgorithm extends Seeding {
     }
 
     ApexMatchResult matchResult = ApexMatchResult(
-      matchId: matchList.matchId,
+      matchId: match.matchId,
       lobbyId: '',
       gameNumber: gameNumber,
       completed: false,
@@ -675,7 +697,7 @@ class SeedingAlgorithm extends Seeding {
 
     matchResult = ApexMatchResult(
       resultId: resultId!,
-      matchId: matchList.matchId,
+      matchId: match.matchId,
       lobbyId: '',
       gameNumber: gameNumber,
       completed: false,
@@ -695,8 +717,12 @@ class SeedingAlgorithm extends Seeding {
         Map<String, dynamic> result;
         if (participantIndex < teamList.length) {
           String participantId = teamList[participantIndex];
+          TournamentParticipant participant = TournamentParticipant.fromJson(
+              await _database.get(
+                  participantId, FirestoreCollections.tournamentParticipant));
           result = {
             'participantId': participantId,
+            'teamName': participant.teamName,
             'kills': 0,
             'placement': 0,
             'points': 0,
@@ -705,7 +731,8 @@ class SeedingAlgorithm extends Seeding {
           };
         } else {
           result = {
-            'participantId': 'No team',
+            'participantId': '',
+            'teamName': 'No team',
             'kills': 0,
             'placement': 0,
             'points': 0,

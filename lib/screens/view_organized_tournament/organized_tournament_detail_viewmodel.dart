@@ -56,7 +56,7 @@ class OrganizedTournamentDetailViewModel extends ReactiveViewModel {
   @override
   List<ReactiveServiceMixin> get reactiveServices => [_tournamentService];
 
-  createSeeding(Tournament tournament, context) async {
+  Future<bool> createSeeding(Tournament tournament) async {
     setBusy(true);
     // await _database.update(tournament.tournamentId, {'matchList': []},
     //     FirestoreCollections.tournament);
@@ -74,71 +74,19 @@ class OrganizedTournamentDetailViewModel extends ReactiveViewModel {
         //       tournament.matchList[i], FirestoreCollections.valorantMatch);
         // }
       }
-      if (sucess) {
-        showDialog(
-          context: context,
-          builder: (_) => AlertDialog(
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: const [
-                    Icon(
-                      Icons.error,
-                      color: kcPrimaryDarkerColor,
-                    ),
-                    SizedBox(
-                      width: 200,
-                      child: Text('Sucessfully create seeding'),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      } else {
-        showDialog(
-          context: context,
-          builder: (_) => AlertDialog(
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: const [
-                    Icon(
-                      Icons.error,
-                      color: kcTertiaryColor,
-                    ),
-                    SizedBox(
-                      width: 200,
-                      child: Text('There is an error creating seeding'),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      }
 
       setBusy(false);
-      return;
+      return sucess;
     } on Failure catch (e) {
       _log.info('${e.message!} \n ${e.location!}');
       setBusy(false);
-      return;
+      return false;
     } catch (e) {
       _log.info(e.toString());
       setBusy(false);
-      return;
+      return false;
     } finally {
       setBusy(false);
-      return;
     }
   }
 

@@ -36,7 +36,8 @@ class MyOrganizedTournamentView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                   child: Row(
                     children: [
                       const BoxText.headingThree('My Tournament'),
