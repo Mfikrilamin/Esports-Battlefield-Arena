@@ -60,7 +60,7 @@ class ParticipantInformationView extends StatelessWidget {
                                     UIHelper.verticalSpaceSmall(),
                                     ListView.builder(
                                       shrinkWrap: true,
-                                      itemCount: model.playerList.length,
+                                      itemCount: model.playerList[index].length,
                                       itemBuilder: (context, index2) {
                                         return BoxText.body(
                                             'Player ${index2 + 1} : ${model.playerList[index][index2].firstName + ' ' + model.playerList[index][index2].lastName} (${model.participantList[index].usernameList[index2]['username']})');

@@ -95,6 +95,74 @@ class MatchInformation extends StackedHookView<LeaderboardViewModel> {
             canTapOnHeader: true,
             headerBuilder: (BuildContext context, bool isExpanded) {
               return ListTile(
+                trailing: IconButton(
+                    onPressed: () => {
+                          showDialog(
+                            context: context,
+                            builder: (_) => AlertDialog(
+                              content: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Center(
+                                    child:
+                                        BoxText.headingThree('Match finish?'),
+                                  ),
+
+                                  UIHelper.verticalSpaceMedium(),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      Center(
+                                        child: BoxButton(
+                                          width: 100,
+                                          title: 'Yes',
+                                          height: 36,
+                                          // width: 150,
+                                          onTap: () {
+                                            model.apexMatchFinish(
+                                              roundIndex,
+                                              matchIndex,
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                      Center(
+                                        child: BoxButton(
+                                          outline: true,
+                                          title: 'No',
+                                          width: 100,
+                                          height: 36,
+                                          // width: 150,
+                                          onTap: () {
+                                            Navigator.pop(context);
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+
+                                  UIHelper.verticalSpaceSmall(),
+
+                                  // Row(
+                                  //   children: const [
+                                  //     Icon(
+                                  //       Icons.error,
+                                  //       color: Colors.red,
+                                  //     ),
+                                  //     Text("Payment Failed"),
+                                  //   ],
+                                  // ),
+                                ],
+                              ),
+                            ),
+                          )
+                        },
+                    icon: const Icon(
+                      Icons.ads_click_rounded,
+                      color: kcDarkGreyColor,
+                    )),
                 title: (model.game == GameType.Valorant.name)
                     ? BoxText.headingFour('Match ${matchIndex + 1}')
                     : BoxText.headingFour('Group ${matchIndex + 1}'),
@@ -179,10 +247,26 @@ class ApexResultCardListBuilder extends StackedHookView<LeaderboardViewModel> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Center(
-                                child: BoxText.headingFive(
-                                    'Result Game ${item.gameNumber} | result : ${item.resultId}'),
+                                child: BoxText.headingThree(
+                                    'Result Game ${item.gameNumber}'),
                               ),
-                              // UIHelper.verticalSpaceSmall(),
+                              UIHelper.verticalSpaceSmall(),
+                              Center(
+                                child: BoxText.headingFive(
+                                    'result : ${item.resultId}'),
+                              ),
+                              const Center(
+                                child: SizedBox(
+                                  width: 220,
+                                  child: Text(
+                                    'Are you sure want to edit the result manually?',
+                                    style: TextStyle(
+                                      color: kcMediumGreyColor,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ),
                               // BoxText.body(
                               //   'This feature is not available yet',
                               //   color: kcTertiaryMediumColor,
@@ -198,31 +282,31 @@ class ApexResultCardListBuilder extends StackedHookView<LeaderboardViewModel> {
                               //         matchIndex, item.gameNumber, lobbyId);
                               //   },
                               // ),
+                              // UIHelper.verticalSpaceSmall(),
+                              // Center(
+                              //   child: BoxButton(
+                              //     title: 'Match Finished',
+                              //     height: 36,
+                              //     // width: 150,
+                              //     onTap: () {
+                              //       model.apexMatchGameFinish(
+                              //         roundIndex,
+                              //         matchIndex,
+                              //         item.gameNumber,
+                              //       );
+                              //     },
+                              //   ),
+                              // ),
+                              // UIHelper.verticalSpaceSmall(),
+                              // const Center(
+                              //   child: BoxText.headingFive('OR'),
+                              // ),
                               UIHelper.verticalSpaceSmall(),
                               Center(
                                 child: BoxButton(
-                                  title: 'Match Finished',
+                                  title: 'Edit',
                                   height: 36,
-                                  // width: 150,
-                                  onTap: () {
-                                    model.apexMatchGameFinish(
-                                      roundIndex,
-                                      matchIndex,
-                                      item.gameNumber,
-                                    );
-                                  },
-                                ),
-                              ),
-                              UIHelper.verticalSpaceSmall(),
-                              const Center(
-                                child: BoxText.headingFive('OR'),
-                              ),
-                              UIHelper.verticalSpaceSmall(),
-                              Center(
-                                child: BoxButton(
-                                  title: 'edit manually',
-                                  height: 36,
-                                  // width: 150,
+                                  width: 150,
                                   onTap: () {
                                     // Navigator.pop(context);
                                     model.navigateToEditLeaderboardPage(

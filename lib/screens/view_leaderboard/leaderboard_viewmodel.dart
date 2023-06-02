@@ -12,6 +12,7 @@ import 'package:esports_battlefield_arena/services/firebase/database/database.da
 import 'package:esports_battlefield_arena/services/firebase/firestore_config.dart';
 import 'package:esports_battlefield_arena/services/game_database/valorant/valorant.dart';
 import 'package:esports_battlefield_arena/services/viewmodel_shared_data/tournament_service.dart';
+import 'package:esports_battlefield_arena/utils/date.dart';
 import 'package:esports_battlefield_arena/utils/enum.dart';
 
 import 'package:stacked/stacked.dart';
@@ -425,32 +426,76 @@ class LeaderboardViewModel extends ReactiveViewModel {
     _router.pop();
   }
 
-  Future<void> apexMatchGameFinish(
-      int roundIndex, int matchIndex, int gameNumber) async {
-    gameNumber = gameNumber - 1;
-    ApexMatchResult gameResultData =
-        apexMatchResult[roundIndex][matchIndex.toString()]![gameNumber];
+  Future<void> apexMatchFinish(int roundIndex, int matchIndex) async {
+    List<ApexMatchResult> gameResults =
+        apexMatchResult[roundIndex][matchIndex.toString()]!;
+    Map<String, dynamic> teamPoint = {};
+    // Loop through all result
+    for (int result = 0; result < gameResults.length; result++) {
+      ApexMatchResult gameResult =
+          apexMatchResult[roundIndex][matchIndex.toString()]![result];
 
-    //change the isCompleted to true
+      //change the isCompleted to true
+      await _database.update(
+          gameResult.resultId,
+          {
+            'isCompleted': true,
+          },
+          FirestoreCollections.apexMatchResult);
+
+      //get the point for each team for each game
+      for (int i = 0; i < gameResult.results.length; i++) {
+        //if team is not exist in the teamPoint, add it to the teamPoint
+
+        if (gameResult.results[i]['participantId'].isEmpty) {
+          continue;
+        }
+        if (result == 0) {
+          teamPoint.putIfAbsent(gameResult.results[i]['participantId'],
+              () => {...gameResult.results[i]});
+          teamPoint[gameResult.results[i]['participantId']]['placement'] = 0;
+          teamPoint[gameResult.results[i]['participantId']]['seed'] = 0;
+          teamPoint[gameResult.results[i]['participantId']]['kills'] = 0;
+        } else {
+          teamPoint[gameResult.results[i]['participantId']]['points'] =
+              int.parse((teamPoint[gameResult.results[i]['participantId']]
+                          ['points'] +
+                      gameResult.results[i]['points'])
+                  .toString());
+        }
+      }
+    }
+    //update the match information
     await _database.update(
-        gameResultData.resultId,
+        gameResults[0].matchId,
         {
-          'isCompleted': true,
+          'date': DateHelper.formatDate(DateTime.now()),
+          'endTime': DateHelper.formatTime(DateTime.now()),
+          'hasCompleted': true,
         },
-        FirestoreCollections.apexMatchResult);
+        FirestoreCollections.apexMatch);
 
-    List<Map<String, dynamic>> sortedTeamsResultData =
-        List.from(gameResultData.results);
-    sortedTeamsResultData.sort((a, b) => b['points'].compareTo(a['points']));
-
-    List<Map<String, dynamic>> qualifiedTeam = sortedTeamsResultData.sublist(
-        0, (sortedTeamsResultData.length * 0.5).round());
-    // get nextMatchId
+    //Bring the qualified team to the next match
+    List<MapEntry<String, dynamic>> sortedEntries = teamPoint.entries.toList();
+    sortedEntries
+        .sort((a, b) => b.value['points'].compareTo(a.value['points']));
+    //qualified team
+    if (sortedEntries.length > 10) {
+      sortedEntries = sortedEntries.sublist(0, 10);
+    }
+    List<Map<String, dynamic>> qualifiedTeam =
+        sortedEntries.map((entry) => {entry.key: entry.value}).toList();
     String nextMatchId = '';
-
+    log('qualifiedTeam : $qualifiedTeam');
     //Current match
     ApexMatch match = ApexMatch.fromJson(await _database.get(
-        gameResultData.matchId, FirestoreCollections.apexMatch));
+        gameResults[0].matchId, FirestoreCollections.apexMatch));
+    if (match.nextMatchId.isEmpty) {
+      log('no next match');
+      //final match, no need to update anymore
+      _router.pop();
+      return;
+    }
     nextMatchId = match.nextMatchId;
 
     // get the next match result
@@ -460,20 +505,53 @@ class LeaderboardViewModel extends ReactiveViewModel {
     List<ApexMatchResult> nextMatchResults = nextMatchResultData
         .map((resultData) => ApexMatchResult.fromJson(resultData))
         .toList();
-    for (int result = 0; result < nextMatchResults.length; result++) {
-      //check in the resultList if there is team or not
-      if (nextMatchResults[result]
-          .results
-          .first['participantId']
-          .isNotEmpty()) {
-        // meaning there is a team in the first 10 of the result list
-        // So we append the qualified team at the last of 10 team in the resultList
-        nextMatchResults[result].results.replaceRange(10, 20, qualifiedTeam);
+
+    // To update the list of qualified team to the next match
+    ApexMatchResult nextMatchResult =
+        ApexMatchResult().copyWith(nextMatchResults.first.toJson());
+
+    log('nextMatchResult : $nextMatchResult');
+    log('nextMatchResult : ${nextMatchResult.results.length}');
+    log('initial qualifiedTeam length : ${qualifiedTeam.length}');
+    while (qualifiedTeam.isNotEmpty) {
+      Map<String, dynamic> qTeam = qualifiedTeam.removeLast().values.first;
+      log('qualifiedTeam length : ${qualifiedTeam.length}');
+      log('qTeam : ${qTeam}');
+      log('choice : ${nextMatchResult.results.contains(qTeam)}');
+      if (!nextMatchResult.results.contains(qTeam)) {
+        for (int team = 0; team < nextMatchResult.results.length; team++) {
+          if (nextMatchResult.results[team]['participantId'].isEmpty) {
+            qTeam['points'] = 0;
+            nextMatchResult.results[team] = qTeam;
+            break;
+          }
+        }
       } else {
-        // meaning there is no team in the first 10 of the result list
-        // So we append the qualified team at the first of 10 team in the resultList
-        nextMatchResults[result].results.replaceRange(0, 10, qualifiedTeam);
+        continue;
       }
     }
+
+    // Map<String, dynamic> fakeData = {
+    //   'participantId': '',
+    //   'points': 0,
+    //   'placement': 0,
+    //   'seed': 0,
+    //   'kills': 0,
+    //   'teamName': 'No team'
+    // };
+
+    // log('nextMatchResult : ${nextMatchResult.results}');
+
+    //update the next match result
+    for (int result = 0; result < nextMatchResults.length; result++) {
+      await _database.update(
+          nextMatchResults[result].resultId,
+          {
+            'results': nextMatchResult.results,
+            // 'results': List.generate(20, (index) => fakeData),
+          },
+          FirestoreCollections.apexMatchResult);
+    }
+    _router.pop();
   }
 }

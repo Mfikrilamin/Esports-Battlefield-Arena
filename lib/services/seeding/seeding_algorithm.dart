@@ -130,10 +130,10 @@ class SeedingAlgorithm extends Seeding {
   @override
   Future<bool> seedTeamsForApex(Tournament tournament) async {
     try {
-      // if (tournament.game != GameType.ApexLegend.name ||
-      //     tournament.currentParticipant.isEmpty) {
-      //   return false;
-      // }
+      if (tournament.game != GameType.ApexLegend.name ||
+          tournament.currentParticipant.isEmpty) {
+        return false;
+      }
 
       // MockDataGenerator mockDataGenerator = MockDataGenerator();
       // List<TournamentParticipant> fakeTeams = [];
@@ -151,6 +151,7 @@ class SeedingAlgorithm extends Seeding {
           FirestoreCollections.apexMatch);
       List<ApexMatch> matchList =
           matchData.map((data) => ApexMatch.fromJson(data)).toList();
+      _log.debug('matchList : ${matchList.toString()}');
 
       teamsId.shuffle(Random());
       _log.debug(' teamsId : ${teamsId.toString()}');
@@ -323,6 +324,12 @@ class SeedingAlgorithm extends Seeding {
               await createNewApexResult(matchInformation, [], gameResult + 1);
           matchInformation.resultList.add(result.resultId);
         }
+        await _database.update(
+            matchInformation.matchId,
+            {
+              'resultList': matchInformation.resultList,
+            },
+            FirestoreCollections.apexMatch);
         if (round == 1) {
           previousMatchList.add(matchInformation);
         } else {
@@ -388,6 +395,7 @@ class SeedingAlgorithm extends Seeding {
               await createNewApexResult(matchInformation, [], gameResult + 1);
           matchInformation.resultList.add(result.resultId);
         }
+        tournament.matchList.add(matchInformation.matchId);
         ApexMatch matchA = previousMatchList.removeLast();
         ApexMatch matchB = previousMatchList.removeLast();
         // Assign the next match id
