@@ -298,6 +298,9 @@ app.get('/users/:id', async (req, res) => {
         const reqData = db.collection(userCollection).doc(req.params.id);
         let userDetail = await reqData.get();
         let response = userDetail.data();
+        if(response == null){
+            return res.status(404).send({ success: false, error: 'User not found' })
+        }
         logger.info("GET USER API", { data: response });
         return res.status(200).send({ success: true, data: response });
     } catch (error) {
@@ -471,6 +474,9 @@ app.get('/invoices/:id', async (req, res) => {
         const reqData = db.collection(invoiceCollection).doc(req.params.id);
         let userDetail = await reqData.get();
         let response = userDetail.data();
+        if(response == null){
+            return res.status(404).send({ success: false, error: 'Invoice not found' })
+        }
         logger.info("GET INVOICE API", { data: response });
         return res.status(200).send({ success: true, data: response });
     } catch (error) {
