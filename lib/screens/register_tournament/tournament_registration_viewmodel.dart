@@ -53,6 +53,7 @@ class TournamentRegistrationViewModel extends FutureViewModel<void> {
   //state
   String _teamName = '';
   String _teamCountry = '';
+  List<bool> _isBusyVerifying = [];
 
   //getter
   String get getTeamName => _teamName;
@@ -63,6 +64,7 @@ class TournamentRegistrationViewModel extends FutureViewModel<void> {
   List<bool> get getIsEmailAlreadyRegisted => _isEmailAlreadyRegisted;
   List<bool> get getIsUsernameValid => _isUsernameValid;
   List<int> get getSelectedPlatformIndex => _selectedPlatformIndex;
+  List<bool> get isBusyVerifying => _isBusyVerifying;
 
   void updateTeamName(String teamName) {
     _teamName = teamName;
@@ -450,6 +452,7 @@ class TournamentRegistrationViewModel extends FutureViewModel<void> {
     _usernameList = ['', '', '', '', ''];
     _usernameId = ['', '', '', '', ''];
     _tagline = ['', '', '', '', ''];
+    _isBusyVerifying = [false, false, false, false, false];
     _selectedPlatformIndex = [0, 0, 0];
     //add current user to the state
     _userListState = [
@@ -472,6 +475,8 @@ class TournamentRegistrationViewModel extends FutureViewModel<void> {
   verifyPlayerUsername(String game, int index, context) async {
     try {
       _log.debug('game: $game');
+      _isBusyVerifying[index] = true;
+      notifyListeners();
       if (_usernameList[index].isEmpty) {
         showDialog(
           context: context,
@@ -492,7 +497,8 @@ class TournamentRegistrationViewModel extends FutureViewModel<void> {
             ),
           ),
         );
-
+        _isBusyVerifying[index] = false;
+        notifyListeners();
         return;
       }
       if (game == GameType.ApexLegend.name) {
@@ -503,13 +509,18 @@ class TournamentRegistrationViewModel extends FutureViewModel<void> {
             _usernameList[index], platformList[_selectedPlatformIndex[index]]);
         if (response['status'] == true) {
           _isUsernameValid[index] = true;
-          _usernameId[index] = response['data']['uid'];
-          notifyListeners();
+          if (response['data']['uid'] != null) {
+            _usernameId[index] = response['data']['uid'];
+          } else {
+            _usernameId[index] = '';
+            _isUsernameValid[index] = false;
+          }
         } else {
           _isUsernameValid[index] = false;
           _usernameId[index] = '';
-          notifyListeners();
         }
+        _isBusyVerifying[index] = false;
+        notifyListeners();
       } else {
         //valorant game
         _log.debug(
@@ -534,6 +545,8 @@ class TournamentRegistrationViewModel extends FutureViewModel<void> {
               ),
             ),
           );
+          _isBusyVerifying[index] = false;
+          notifyListeners();
           return;
         }
         Map<String, dynamic> data = await _valorantDatabase.verifyPlayer(
@@ -541,12 +554,12 @@ class TournamentRegistrationViewModel extends FutureViewModel<void> {
         if (data['status'] == true) {
           _usernameId[index] = data['data']['puuid'];
           _isUsernameValid[index] = true;
-          notifyListeners();
         } else {
           _isUsernameValid[index] = false;
           _usernameId[index] = '';
-          notifyListeners();
         }
+        _isBusyVerifying[index] = false;
+        notifyListeners();
       }
     } on Failure catch (e) {
       _log.debug(e.toString());

@@ -97,7 +97,7 @@ class ProfileViewModel extends FutureViewModel<void> {
           _auth.currentUser()!, user.toJson(), FirestoreCollections.users);
 
       if (isPlayer) {
-        Player player = Player(
+        player = Player(
           userId: _auth.currentUser()!,
           firstName: _firstName,
           lastName: _lastName,
@@ -105,13 +105,14 @@ class ProfileViewModel extends FutureViewModel<void> {
         await _database.update(
             _auth.currentUser()!, player.toJson(), FirestoreCollections.player);
       } else {
-        Organizer organizer = Organizer(
+        organizer = Organizer(
           userId: _auth.currentUser()!,
           organizerName: _organization,
         );
         await _database.update(_auth.currentUser()!, organizer.toJson(),
             FirestoreCollections.organizer);
       }
+      notifyListeners();
       setBusy(false);
       _isUpdateSucess = true;
       await Future.delayed(const Duration(seconds: 2), () {
@@ -161,5 +162,13 @@ class ProfileViewModel extends FutureViewModel<void> {
     await _auth.signOut();
     //pop all the screens and navigate to sign in screen
     _router.popUntil((route) => route.settings.name == SignInRoute.name);
+  }
+
+  Future<void> refreshProfile() {
+    // if (isPlayer) {
+    //   player = Player.fromJson(await _database.get(, collection));
+    // } else {}
+    // notifyListeners();
+    return Future.value();
   }
 }

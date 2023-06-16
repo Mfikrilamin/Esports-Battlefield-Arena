@@ -32,33 +32,36 @@ class MyOrganizedTournamentView extends StatelessWidget {
             animSpeedFactor: 2,
             backgroundColor: kcPrimaryLightColor,
             height: 100,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                  child: Row(
-                    children: [
-                      const BoxText.headingThree('My Tournament'),
-                      const Spacer(),
-                      IconButton(
-                        alignment: Alignment.centerRight,
-                        onPressed: () {
-                          model.navigateToCreateTournament();
-                        },
-                        icon: const Icon(Icons.add),
-                      ),
-                      // )
-                    ],
+            child: WillPopScope(
+              onWillPop: () async => false,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 15),
+                    child: Row(
+                      children: [
+                        const BoxText.headingThree('My Tournament'),
+                        const Spacer(),
+                        IconButton(
+                          alignment: Alignment.centerRight,
+                          onPressed: () {
+                            model.navigateToCreateTournament();
+                          },
+                          icon: const Icon(Icons.add),
+                        ),
+                        // )
+                      ],
+                    ),
                   ),
-                ),
-                model.organizedTournamentList.isNotEmpty
-                    ? const Expanded(
-                        child: TournamentCardBuilder(),
-                      )
-                    : const EmptyTournamentMessage()
-              ],
+                  model.organizedTournamentList.isNotEmpty
+                      ? const Expanded(
+                          child: TournamentCardBuilder(),
+                        )
+                      : const EmptyTournamentMessage()
+                ],
+              ),
             ),
           ),
         );

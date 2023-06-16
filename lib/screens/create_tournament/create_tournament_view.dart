@@ -79,7 +79,7 @@ class CreateTournamentView extends StatelessWidget {
             UIHelper.verticalSpaceSmall(),
             Row(
               children: const [
-                DigitInputField('Max Participants', '15', true),
+                DigitInputField('Max team', '15', true),
                 DigitInputField('Member per team', '5', false),
               ],
             ),

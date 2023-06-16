@@ -23,8 +23,7 @@ class SignInView extends StatelessWidget {
     return ViewModelBuilder<SignInViewModel>.reactive(
       viewModelBuilder: () => SignInViewModel(),
       builder: (context, model, child) => Scaffold(
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        body: ListView(
           children: [
             Stack(
               children: [
@@ -32,6 +31,7 @@ class SignInView extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 25, vertical: 30),
                   child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Center(
                         child: Column(

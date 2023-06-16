@@ -76,14 +76,17 @@ class ParticipantInformationView extends StatelessWidget {
                         ),
                       )
                     : Expanded(
-                        child: ListView.builder(
-                          itemCount: 0, // Set the item count to 0
-                          itemBuilder: (BuildContext context, int index) {
-                            // This builder function won't be called since the item count is 0
-                            return ListTile(
-                              title: Text('Item $index'),
-                            );
-                          },
+                        child: ListView(
+                          shrinkWrap: true,
+                          children: const [
+                            SizedBox(
+                              height: 200,
+                              child: Center(
+                                child:
+                                    BoxText.headingThree('No participant yet'),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
               ],

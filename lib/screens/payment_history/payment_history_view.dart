@@ -55,8 +55,16 @@ class PaymentHistoryView extends StatelessWidget {
                   ? const Expanded(
                       child: InvoiceCard(),
                     )
-                  : const Center(
-                      child: BoxText.headingThree('No receipt available'),
+                  : ListView(
+                      shrinkWrap: true,
+                      children: const [
+                        SizedBox(
+                          height: 200,
+                          child: Center(
+                            child: BoxText.headingThree('No bills found'),
+                          ),
+                        ),
+                      ],
                     ),
             ],
           ),
@@ -130,7 +138,9 @@ class InvoiceCard extends StackedHookView<PaymentHistoryViewModel> {
         log('Building Invoice Card ${index + 1}', name: 'InvoiceCard');
         return GestureDetector(
           onTap: () {
-            model.makeUnresolvePayment(model.invoiceList[index], context);
+            if (!model.invoiceList[index].isPaid) {
+              model.makeUnresolvePayment(model.invoiceList[index], context);
+            }
           },
           child: Container(
             // height: isExpanded ? _ACTIVEHEIGHT : _INACTIVEHEIGHT,

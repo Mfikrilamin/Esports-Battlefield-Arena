@@ -1,6 +1,7 @@
 import 'package:esports_battlefield_arena/app/router.dart';
 import 'package:esports_battlefield_arena/app/router.gr.dart';
 import 'package:esports_battlefield_arena/app/service_locator.dart';
+import 'package:esports_battlefield_arena/models/organizer.dart';
 import 'package:esports_battlefield_arena/models/tournament.dart';
 import 'package:esports_battlefield_arena/services/firebase/authentication/auth.dart';
 import 'package:esports_battlefield_arena/services/firebase/database/database.dart';
@@ -27,11 +28,13 @@ class MainHomeViewModel extends FutureViewModel<void> {
   int _selectedIndex = 0;
   bool _isExpanded = false;
   List<Tournament> _tournamentListState = [];
+  List<String> _organizerName = [];
 
   //getters
   int get selectedIndex => _selectedIndex;
   bool get isExpanded => _isExpanded;
   List<Tournament> get tournamentList => _tournamentListState;
+  List<String> get organizerName => _organizerName;
 
   //setters
   void updateSelectedIndex(int index) {
@@ -71,8 +74,21 @@ class MainHomeViewModel extends FutureViewModel<void> {
             .map((tournamentData) => Tournament.fromJson(tournamentData))
             .toList();
         _log.debug(_tournamentListState.toString());
+        // get the organizer name by their id and add to the state
+        for (int i = 0; i < _tournamentListState.length; i++) {
+          String organizerId = _tournamentListState[i].organizerId;
+          String organizerName = '';
+
+          Map<String, dynamic>? data = await _database.getByQuery(
+              ['userId'], [organizerId], FirestoreCollections.organizer);
+          if (data != null) {
+            organizerName = Organizer.fromJson(data).organizerName;
+          } else {
+            organizerName = 'Organizer name not found';
+          }
+          _organizerName.add(organizerName);
+        }
       }
-      return Future.value();
     } catch (e) {
       _log.debug(e.toString());
     }

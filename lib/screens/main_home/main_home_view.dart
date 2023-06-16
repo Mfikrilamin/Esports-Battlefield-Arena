@@ -153,6 +153,7 @@ class TournamentCard extends StackedHookView<MainHomeViewModel> {
           child: TournamentCardSt(
             tournament: model.tournamentList[index],
             index: index,
+            organizerName: model.organizerName[index],
             isExpanded: model.selectedIndex == index,
           ),
         ),
@@ -165,13 +166,15 @@ class TournamentCardSt extends StatelessWidget {
   final double _INACTIVETOP = 25;
   final double _ACTIVEDATETOP = 155.5;
   final Tournament tournament;
+  final String organizerName;
   final int index;
   final bool isExpanded;
   const TournamentCardSt(
       {Key? key,
       required this.tournament,
       required this.index,
-      required this.isExpanded})
+      required this.isExpanded,
+      required this.organizerName})
       : super(key: key);
 
   @override
@@ -192,7 +195,8 @@ class TournamentCardSt extends StatelessWidget {
                 opacity: isExpanded ? 0 : 1,
                 duration: const Duration(milliseconds: 400),
                 child: BoxText.body(
-                  index.toString(),
+                  (index + 1).toString(),
+                  // index.toString(),
                   color: kcVeryDarkGreyTextColor,
                 ),
               ),
@@ -312,7 +316,19 @@ class TournamentCardSt extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               BoxText.body('Organized by'),
-                              BoxText.caption(tournament.organizerId),
+                              SizedBox(
+                                width: 100,
+                                child: Text(
+                                  organizerName,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400,
+                                    // color: kcVeryDarkGreyTextColor,
+                                  ),
+                                  softWrap: false,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
                             ],
                           ),
                           Column(

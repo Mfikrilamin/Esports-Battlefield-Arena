@@ -9,6 +9,7 @@ import 'package:esports_battlefield_arena/shared/ui_helper.dart';
 import 'package:esports_battlefield_arena/utils/rive_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:rive/rive.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_hooks/stacked_hooks.dart';
@@ -45,7 +46,8 @@ class ProfileView extends StatelessWidget {
             UIHelper.horizontalSpaceSmall(),
           ],
           bottom: PreferredSize(
-            preferredSize: Size.fromHeight(60), // Set the height of the AppBar
+            preferredSize:
+                const Size.fromHeight(60), // Set the height of the AppBar
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 0),
               height: 80,
@@ -71,72 +73,79 @@ class ProfileView extends StatelessWidget {
             ),
           ),
         ),
-        body: PreferredSize(
-          preferredSize: const Size.fromHeight(35),
-          child: Stack(
-            children: [
-              ListView(
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    // mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      UIHelper.verticalSpaceMedium(),
-                      const EmailInputField(),
-                      UIHelper.verticalSpaceSmall(),
-                      const PasswordInputField(),
-                      UIHelper.verticalSpaceSmall(),
-                      const CountryInputField(),
-                      UIHelper.verticalSpaceSmall(),
-                      const AddressInputField(),
-                      UIHelper.verticalSpaceSmall(),
-                      model.isPlayer
-                          ? const FirstNameInputField()
-                          : const OrganizerNameInputField(),
-                      UIHelper.verticalSpaceSmall(),
-                      model.isPlayer
-                          ? const LastNameInputField()
-                          : const SizedBox(),
-                    ],
-                  ),
-                  UIHelper.verticalSpaceMediumLarge(),
-                  !model.isBusy
-                      ? Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 25, vertical: 0),
-                          child: BoxButton(
-                            title: 'Update',
-                            onTap: () {
-                              model.updateProfileInformation();
-                            },
+        body: LiquidPullToRefresh(
+          onRefresh: model.refreshProfile,
+          // showChildOpacityTransition: false,
+          color: kcPrimaryColor,
+          animSpeedFactor: 2,
+          backgroundColor: kcPrimaryLightColor,
+          child: PreferredSize(
+            preferredSize: const Size.fromHeight(35),
+            child: Stack(
+              children: [
+                ListView(
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      // mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        UIHelper.verticalSpaceMedium(),
+                        const EmailInputField(),
+                        UIHelper.verticalSpaceSmall(),
+                        const PasswordInputField(),
+                        UIHelper.verticalSpaceSmall(),
+                        const CountryInputField(),
+                        UIHelper.verticalSpaceSmall(),
+                        const AddressInputField(),
+                        UIHelper.verticalSpaceSmall(),
+                        model.isPlayer
+                            ? const FirstNameInputField()
+                            : const OrganizerNameInputField(),
+                        UIHelper.verticalSpaceSmall(),
+                        model.isPlayer
+                            ? const LastNameInputField()
+                            : const SizedBox(),
+                      ],
+                    ),
+                    UIHelper.verticalSpaceMediumLarge(),
+                    !model.isBusy
+                        ? Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 25, vertical: 0),
+                            child: BoxButton(
+                              title: 'Update',
+                              onTap: () {
+                                model.updateProfileInformation();
+                              },
+                            ),
+                          )
+                        : Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 25, vertical: 0),
+                            child: const BoxButton(
+                              title: 'Next',
+                              busy: true,
+                            ),
                           ),
-                        )
-                      : Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 25, vertical: 0),
-                          child: const BoxButton(
-                            title: 'Next',
-                            busy: true,
-                          ),
+                  ],
+                ),
+                model.isUpdateSuccess
+                    ? Positioned.fill(
+                        child: Column(
+                          children: const [
+                            Spacer(),
+                            SizedBox(
+                                height: 180,
+                                width: 180,
+                                child: RiveAnimation.asset(
+                                    "assets/RiveAssets/sucess_check2.riv")),
+                            Spacer(),
+                          ],
                         ),
-                ],
-              ),
-              model.isUpdateSuccess
-                  ? Positioned.fill(
-                      child: Column(
-                        children: const [
-                          Spacer(),
-                          SizedBox(
-                              height: 180,
-                              width: 180,
-                              child: RiveAnimation.asset(
-                                  "assets/RiveAssets/sucess_check2.riv")),
-                          Spacer(),
-                        ],
-                      ),
-                    )
-                  : Container(),
-            ],
+                      )
+                    : Container(),
+              ],
+            ),
           ),
         ),
       ),
@@ -336,7 +345,7 @@ class OrganizerNameInputField extends StackedHookView<ProfileViewModel> {
             controller: controller,
             readOnly: false,
             placeholder: 'Company/Club Name',
-            onChanged: model.updateLastName,
+            onChanged: model.updateOrganization,
           ),
         ],
       ),

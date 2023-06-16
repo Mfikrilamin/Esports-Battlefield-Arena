@@ -433,6 +433,7 @@ class CreateTournamentViewModel extends ReactiveViewModel {
         prizePool == 0 ||
         entryFee == 0 ||
         maxParticipant == 0 ||
+        gamePerMatch == 0 ||
         memberPerTeam == 0 ||
         (ruleList.length == 1 && ruleList[0].isEmpty)) {
       //show error dialog

@@ -383,12 +383,17 @@ class UsernameInputField
         BoxInputField(
           controller: text,
           placeholder: 'Enter your game username',
-          trailing: model.getIsUsernameValid[index]
-              ? const Icon(
-                  Icons.done,
-                  color: Colors.green,
+          trailing: model.isBusyVerifying[index]
+              ? Transform.scale(
+                  scale: 0.5,
+                  child: const CircularProgressIndicator(),
                 )
-              : null,
+              : model.getIsUsernameValid[index]
+                  ? const Icon(
+                      Icons.done,
+                      color: Colors.green,
+                    )
+                  : const SizedBox.shrink(),
           onChanged: (username) {
             model.updateUsername(username, index);
           },
