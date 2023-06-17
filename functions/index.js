@@ -224,18 +224,41 @@ app.post('/users', async (req, res) => {
         let address = req.body.address;
         let country = req.body.country;
         let role = req.body.role;
+        let fName = req.body.firstName;
+        let lName = req.body.lastName;
+        let orgsName = req.body.organizerName;
+
+        // Check all input, if missing return error
+        let allInputIsInsert = checkInputUser(email, password, address, country, role);
+        if (!allInputIsInsert) {
+            return res.status(404).send({ success: false, error: 'Input for user is missing' });
+        }
+
+
+        if (role == 'player') {
+            allInputIsInsert = checkInputPlayer(fName, lName);
+            if (!allInputIsInsert) {
+                return res.status(404).send({ success: false, error: 'Input for player is missing' });
+            }
+        } else {
+            allInputIsInsert = checkInputOrganizer(orgsName);
+            if (!allInputIsInsert) {
+                return res.status(404).send({ success: false, error: 'Input for organizer is missing' })
+            }
+        }
+
         let request = {
             email: email,
             password: password,
             address: address,
             country: country,
             role: role,
-            userId : ''
+            userId: ''
         }
+
         logger.info("POST USER API: REQUEST DATA", { data: request });
         let documentRef = await db.collection(userCollection).add(request);
 
-        
         //update the user id
         await db.collection(userCollection).doc(documentRef.id).update({
             userId: documentRef.id
@@ -246,8 +269,6 @@ app.post('/users', async (req, res) => {
 
         // If user role is player, create a new player document
         if (role == 'player') {
-            let fName = req.body.firstName;
-            let lName = req.body.lastName;
             await db.collection(playerCollection).doc(documentRef.id).create({
                 userId: documentRef.id,
                 firstName: fName,
@@ -256,7 +277,6 @@ app.post('/users', async (req, res) => {
             response.put('firstName', documentRef.id);
             response.put('lastName', documentRef.id);
         } else if (role == 'organizer') { // If user role is organizer, create a new organizer document
-            let orgsName = req.body.organizerName;
             await db.collection(organizerCollection).doc(documentRef.id).create({
                 userId: documentRef.id,
                 organizerName: orgsName,
@@ -271,7 +291,6 @@ app.post('/users', async (req, res) => {
     } catch (error) {
         console.error(error);
         return res.status(500).send({ success: false, error: error.message })
-
     }
 });
 
@@ -295,10 +314,14 @@ app.get('/users', async (req, res) => {
 //Get user by id -> GET()
 app.get('/users/:id', async (req, res) => {
     try {
-        const reqData = db.collection(userCollection).doc(req.params.id);
+        let id = req.params.id;
+        if (id == null || id.isEmpty) {
+            return res.status(404).send({ success: false, error: 'Input Id is missing' });
+        }
+        const reqData = db.collection(userCollection).doc(id);
         let userDetail = await reqData.get();
         let response = userDetail.data();
-        if(response == null){
+        if (response == null) {
             return res.status(404).send({ success: false, error: 'User not found' })
         }
         logger.info("GET USER API", { data: response });
@@ -313,13 +336,38 @@ app.get('/users/:id', async (req, res) => {
 //Update user by id -> PUT()
 app.put('/users/:id', async (req, res) => {
     try {
-        const reqDoc = db.collection(userCollection).doc(req.params.id);
+        let id = req.params.id;
         let email = req.body.email;
         let password = req.body.password;
         let address = req.body.address;
         let country = req.body.country;
         let role = req.body.role;
+        let fName = req.body.firstName;
+        let lName = req.body.lastName;
+        let orgsName = req.body.organizerName;
+        if (id == null || id.isEmpty) {
+            return res.status(404).send({ success: false, error: 'Input Id is missing' });
+        }
 
+        // Check all input, if missing return error
+        let allInputIsInsert = checkInputUser(email, password, address, country, role);
+        if (!allInputIsInsert) {
+            return res.status(404).send({ success: false, error: 'Input for user is missing' });
+        }
+
+        if (role == 'player') {
+            allInputIsInsert = checkInputPlayer(fName, lName);
+            if (!allInputIsInsert) {
+                return res.status(404).send({ success: false, error: 'Input for player is missing' });
+            }
+        } else {
+            allInputIsInsert = checkInputOrganizer(orgsName);
+            if (!allInputIsInsert) {
+                return res.status(404).send({ success: false, error: 'Input for organizer is missing' })
+            }
+        }
+
+        const reqDoc = db.collection(userCollection).doc(id);
         let request = {
             email: email,
             password: password,
@@ -334,8 +382,7 @@ app.put('/users/:id', async (req, res) => {
         let response;
         // If user role is player, create a new player document
         if (role == 'player') {
-            let fName = req.body.firstName;
-            let lName = req.body.lastName;
+
             const playerDoc = db.collection(playerCollection).doc(req.params.id);
             await playerDoc.update({
                 firstName: fName,
@@ -351,7 +398,7 @@ app.put('/users/:id', async (req, res) => {
                 lastName: lName,
             }
         } else if (role == 'organizer') { // If user role is organizer, create a new organizer document
-            let orgsName = req.body.organizerName;
+
             const teamDoc = db.collection(organizerCollection).doc(req.params.id);
             await teamDoc.update({
                 organizerName: orgsName,
@@ -379,7 +426,11 @@ app.put('/users/:id', async (req, res) => {
 //Delete user by id -> DELETE()
 app.delete('/users/:id', async (req, res) => {
     try {
-        const reqData = db.collection(userCollection).doc(req.params.id);
+        let id = req.params.id;
+        if (id == null || id.isEmpty) {
+            return res.status(404).send({ success: false, error: 'Input Id is missing' });
+        }
+        const reqData = db.collection(userCollection).doc(id);
 
         //get the detail data to be deleted
         let userDetail = await reqData.get();
@@ -419,6 +470,11 @@ app.post('/invoices', async (req, res) => {
         let paymentReferenceId = req.body.paymentReferenceId;
         let time = req.body.time;
         let tournementId = req.body.tournementId;
+
+        let allInputIsInsert = checkInvoiceInput(amount, belognsTo, date, paidBy, paidCompleted, paymentReferenceId, time, tournementId);
+        if (!allInputIsInsert) {
+            return res.status(404).send({ success: false, error: 'Input for invoice is missing' });
+        }
 
         request = {
             amount: amount,
@@ -471,10 +527,14 @@ app.get('/invoices', async (req, res) => {
 //Get invoice by id -> GET()
 app.get('/invoices/:id', async (req, res) => {
     try {
-        const reqData = db.collection(invoiceCollection).doc(req.params.id);
+        let id = req.params.id;
+        if (id == null || id.isEmpty) {
+            return res.status(404).send({ success: false, error: 'Input Id is missing' });
+        }
+        const reqData = db.collection(invoiceCollection).doc(id);
         let userDetail = await reqData.get();
         let response = userDetail.data();
-        if(response == null){
+        if (response == null) {
             return res.status(404).send({ success: false, error: 'Invoice not found' })
         }
         logger.info("GET INVOICE API", { data: response });
@@ -489,7 +549,7 @@ app.get('/invoices/:id', async (req, res) => {
 //Update invoice by id -> PUT()
 app.put('/invoices/:id', async (req, res) => {
     try {
-        const reqDoc = db.collection(invoiceCollection).doc(req.params.id);
+        let id = req.params.id;
         let amount = req.body.amount;
         let belognsTo = req.body.belognsTo;
         let date = req.body.date;
@@ -499,6 +559,17 @@ app.put('/invoices/:id', async (req, res) => {
         let time = req.body.time;
         let tournementId = req.body.tournementId;
         let invoiceId = req.body.invoiceId;
+
+        if (id == null || id.isEmpty) {
+            return res.status(404).send({ success: false, error: 'Input Id is missing' });
+        }
+
+        let allInputIsInsert = checkInvoiceInput(amount, belognsTo, date, paidBy, paidCompleted, paymentReferenceId, time, tournementId);
+        if (!allInputIsInsert) {
+            return res.status(404).send({ success: false, error: 'Input for invoice is missing' });
+        }
+
+        const reqDoc = db.collection(invoiceCollection).doc(id);
 
         request = {
             amount: amount,
@@ -514,7 +585,7 @@ app.put('/invoices/:id', async (req, res) => {
 
         await reqDoc.update(request);
         let response = request;
-      
+
         logger.info("PUT INVOICE API", { data: response });
         return res.status(200).send({ success: true, data: response });
     } catch (error) {
@@ -527,6 +598,11 @@ app.put('/invoices/:id', async (req, res) => {
 //Delete invoice by id -> DELETE()
 app.delete('/invoices/:id', async (req, res) => {
     try {
+        let id = req.params.id;
+        if (id == null || id.isEmpty) {
+            return res.status(404).send({ success: false, error: 'Input Id is missing' });
+        }
+        
         const reqData = db.collection(userCollection).doc(req.params.id);
 
         //get the detail data to be deleted
@@ -546,3 +622,42 @@ app.delete('/invoices/:id', async (req, res) => {
 });
 
 exports.api = functions.https.onRequest(app);
+
+function checkInputUser(email, password, address, country, role) {
+    if ((email == null || email.isEmpty) &&
+        (password == null || password.isEmpty) &&
+        (address == null || address.isEmpty) &&
+        (country == null || country.isEmpty) &&
+        (role == null || role.isEmpty)) {
+        return false;
+    }
+    return true;
+}
+
+function checkInputPlayer(fName, lName) {
+    if ((fName == null || fName.isEmpty) &&
+        (lName == null || lName.isEmpty)) {
+        return false;
+    }
+    return true;
+}
+function checkInputOrganizer(orgsName) {
+    if ((orgsName == null || orgsName.isEmpty)) {
+        return false
+    }
+    return true;
+}
+
+function checkInvoiceInput(amount, belognsTo, date, paidBy, paidCompleted, paymentReferenceId, time, tournementId) {
+    if ((amount == null) &&
+        (belognsTo == null || belognsTo.isEmpty) &&
+        (date == null || date.isEmpty) &&
+        (paidBy == null || paidBy.isEmpty) &&
+        (paidCompleted == null) &&
+        (paymentReferenceId == null || paymentReferenceId.isEmpty) &&
+        (time == null || time.isEmpty) &&
+        (tournementId == null || tournementId.isEmpty)) {
+        return false;
+    }
+    return true;
+}
