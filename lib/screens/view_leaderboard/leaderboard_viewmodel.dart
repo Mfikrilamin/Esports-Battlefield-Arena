@@ -25,6 +25,8 @@ class LeaderboardViewModel extends ReactiveViewModel {
   final _tournamentService = locator<TournamentService>();
   final ValorantDatabase _valorantDatabase = locator<ValorantDatabase>();
 
+  bool _showDialogErrorMessage = false;
+
   // getter
   bool get isOrganizer => _isOrganizer;
   String get game => _tournamentService.leaderboardGame;
@@ -35,6 +37,7 @@ class LeaderboardViewModel extends ReactiveViewModel {
   List<List<ApexMatch>> get apexMatches => _tournamentService.apexMatches;
   List<List<ValorantMatch>> get valorantMatches =>
       _tournamentService.valorantMatches;
+  bool get showDialogErrorMessage => _showDialogErrorMessage;
   // The first list is the round,
   // For each round, it contains a map of matches id and list of results
   // Match id here is using the index due too using list view builder
@@ -43,6 +46,11 @@ class LeaderboardViewModel extends ReactiveViewModel {
       _tournamentService.apexResults;
   List<Map<String, List<ValorantMatchResult>>> get valorantMatchResult =>
       _tournamentService.valorantResults;
+
+  void updateShowDialogErrorMessageState(bool value) {
+    _showDialogErrorMessage = value;
+    notifyListeners();
+  }
 
   Future<void> refreshLeadboard() {
     return Future.value();
@@ -171,14 +179,23 @@ class LeaderboardViewModel extends ReactiveViewModel {
       gameIndex = gameIndex - 1;
       ApexMatchResult result =
           apexMatchResult[roundIndex][matchIndexStr]![gameIndex];
-      await _database.update(result.resultId, {'lobbyId': result.lobbyId},
+      await _database.update(
+          result.resultId,
+          {
+            'lobbyId': valorantMatchResult[roundIndex]
+                    [matchIndexStr]![gameIndex]
+                .lobbyId
+          },
           FirestoreCollections.apexMatchResult);
       // Fire backend fucntion to create a websocket or get the data from the external database and update in our database
     } else {
       ValorantMatchResult result =
           valorantMatchResult[roundIndex][matchIndexStr]![gameIndex];
+      log('update lobby id in result: ${result.resultId}');
       await _database.update(result.resultId, {'lobbyId': result.lobbyId},
           FirestoreCollections.valorantMatchResult);
+      notifyListeners();
+      _router.pop();
       // Fire backend fucntion to create a websocket or get the data from the external database and update in our database
     }
   }
@@ -191,6 +208,7 @@ class LeaderboardViewModel extends ReactiveViewModel {
           .lobbyId
           .isNotEmpty;
     } else {
+      log("is lobbyId available : ${valorantMatchResult[roundIndex][matchIndexStr]![gameResultIndex].lobbyId.isNotEmpty}");
       return valorantMatchResult[roundIndex][matchIndexStr]![gameResultIndex]
           .lobbyId
           .isNotEmpty;
@@ -249,7 +267,8 @@ class LeaderboardViewModel extends ReactiveViewModel {
     }
   }
 
-  void finishLobby(int roundIndex, int matchIndex, int resultIndex) {
+  Future<void> finishLobby(
+      int roundIndex, int matchIndex, int resultIndex) async {
     String matchIndexStr = matchIndex.toString();
     if (game == GameType.ApexLegend.name) {
       resultIndex = resultIndex - 1;
@@ -259,8 +278,72 @@ class LeaderboardViewModel extends ReactiveViewModel {
       ValorantMatchResult result =
           valorantMatchResult[roundIndex][matchIndexStr]![resultIndex];
 
-      _valorantDatabase.getMatchSummaryAndUpdateLeaderboard(
-          valorantMatches[roundIndex][matchIndex], result);
+      String matchWinner =
+          await _valorantDatabase.getMatchSummaryAndUpdateLeaderboard(
+              valorantMatches[roundIndex][matchIndex], result);
+      if (matchWinner == "unsucessful") {
+        return;
+      } else {
+        String updatedPoint = '';
+        if (matchWinner == valorantMatches[roundIndex][matchIndex].teamA) {
+          updatedPoint = valorantMatches[roundIndex][matchIndex].teamAScore;
+          if (updatedPoint.isEmpty) {
+            updatedPoint = '0';
+          }
+          updatedPoint = (int.parse(updatedPoint) + 1).toString();
+          ValorantMatch valorantMatch = ValorantMatch(
+            tournamentId: valorantMatches[roundIndex][matchIndex].tournamentId,
+            matchId: valorantMatches[roundIndex][matchIndex].matchId,
+            nextMatchId: valorantMatches[roundIndex][matchIndex].nextMatchId,
+            game: valorantMatches[roundIndex][matchIndex].game,
+            round: valorantMatches[roundIndex][matchIndex].round,
+            match: valorantMatches[roundIndex][matchIndex].match,
+            teamA: valorantMatches[roundIndex][matchIndex].teamA,
+            teamB: valorantMatches[roundIndex][matchIndex].teamB,
+            winner: valorantMatches[roundIndex][matchIndex].winner,
+            loser: valorantMatches[roundIndex][matchIndex].loser,
+            teamAScore: updatedPoint,
+            teamBScore: valorantMatches[roundIndex][matchIndex].teamBScore,
+            date: valorantMatches[roundIndex][matchIndex].date,
+            startTime: valorantMatches[roundIndex][matchIndex].startTime,
+            endTime: valorantMatches[roundIndex][matchIndex].endTime,
+            hasCompleted: valorantMatches[roundIndex][matchIndex].hasCompleted,
+            resultList: valorantMatches[roundIndex][matchIndex].resultList,
+          );
+          valorantMatches[roundIndex][matchIndex] = valorantMatch;
+        } else {
+          updatedPoint = valorantMatches[roundIndex][matchIndex].teamBScore;
+          if (updatedPoint.isEmpty) {
+            updatedPoint = '0';
+          }
+          updatedPoint = (int.parse(updatedPoint) + 1).toString();
+          ValorantMatch valorantMatch = ValorantMatch(
+            tournamentId: valorantMatches[roundIndex][matchIndex].tournamentId,
+            matchId: valorantMatches[roundIndex][matchIndex].matchId,
+            nextMatchId: valorantMatches[roundIndex][matchIndex].nextMatchId,
+            game: valorantMatches[roundIndex][matchIndex].game,
+            round: valorantMatches[roundIndex][matchIndex].round,
+            match: valorantMatches[roundIndex][matchIndex].match,
+            teamA: valorantMatches[roundIndex][matchIndex].teamA,
+            teamB: valorantMatches[roundIndex][matchIndex].teamB,
+            winner: valorantMatches[roundIndex][matchIndex].winner,
+            loser: valorantMatches[roundIndex][matchIndex].loser,
+            teamAScore: valorantMatches[roundIndex][matchIndex].teamAScore,
+            teamBScore: updatedPoint,
+            date: valorantMatches[roundIndex][matchIndex].date,
+            startTime: valorantMatches[roundIndex][matchIndex].startTime,
+            endTime: valorantMatches[roundIndex][matchIndex].endTime,
+            hasCompleted: valorantMatches[roundIndex][matchIndex].hasCompleted,
+            resultList: valorantMatches[roundIndex][matchIndex].resultList,
+          );
+          valorantMatches[roundIndex][matchIndex] = valorantMatch;
+        }
+        notifyListeners();
+        await _database.update(
+            valorantMatches[roundIndex][matchIndex].matchId,
+            valorantMatches[roundIndex][matchIndex].toJson(),
+            FirestoreCollections.valorantMatch);
+      }
     }
   }
 
@@ -272,6 +355,7 @@ class LeaderboardViewModel extends ReactiveViewModel {
         matchResultIndex: gameNumber));
   }
 
+  // Function used in upateApexLeaderboard
   updatePlacement(int roundIndex, int matchIndex, int matchResultIndex,
       int index, String value) {
     log('round: $roundIndex match: $matchIndex  gameIndex: $matchResultIndex  teamIndex: $index  value: $value');
@@ -296,6 +380,7 @@ class LeaderboardViewModel extends ReactiveViewModel {
     }
   }
 
+  // Function used in upateApexLeaderboard
   updateKill(int roundIndex, int matchIndex, int matchResultIndex, int index,
       String value) {
     log('round: $roundIndex match: $matchIndex  gameIndex: $matchResultIndex  teamIndex: $index  value: $value');
@@ -315,6 +400,7 @@ class LeaderboardViewModel extends ReactiveViewModel {
     }
   }
 
+  // Function used in upateApexLeaderboard
   int calculatePlacementPoint(int placement) {
     int point = 0;
     switch (placement) {
@@ -424,6 +510,15 @@ class LeaderboardViewModel extends ReactiveViewModel {
         FirestoreCollections.apexMatchResult);
     notifyListeners();
     _router.pop();
+  }
+
+  Future<void> matchFinish(int roundIndex, int matchIndex) {
+    if (game == GameType.ApexLegend.name) {
+      apexMatchFinish(roundIndex, matchIndex);
+    } else {
+      valorantMatchFinish(roundIndex, matchIndex);
+    }
+    return Future.value();
   }
 
   Future<void> apexMatchFinish(int roundIndex, int matchIndex) async {
@@ -552,6 +647,175 @@ class LeaderboardViewModel extends ReactiveViewModel {
           },
           FirestoreCollections.apexMatchResult);
     }
+    _router.pop();
+  }
+
+  Future<void> valorantMatchFinish(int roundIndex, int matchIndex) async {
+    log('valorantMatchFinish : $roundIndex, $matchIndex');
+    String teamA = valorantMatches[roundIndex][matchIndex].teamA;
+    String teamB = valorantMatches[roundIndex][matchIndex].teamB;
+    if (roundIndex > 0) {
+      if (teamA.isEmpty && teamB.isEmpty) {
+        _showDialogErrorMessage = true;
+        notifyListeners();
+        _router.pop();
+        return;
+      }
+    }
+    String teamAName =
+        valorantMatchResult[roundIndex][matchIndex.toString()]![0].teamA;
+    String teamBName =
+        valorantMatchResult[roundIndex][matchIndex.toString()]![0].teamB;
+    String teamAScore = valorantMatches[roundIndex][matchIndex].teamAScore;
+    String teamBScore = valorantMatches[roundIndex][matchIndex].teamBScore;
+    int teamAScoreInt = int.parse(teamAScore);
+    int teamBScoreInt = int.parse(teamBScore);
+    bool teamAwinning = teamAScoreInt > teamBScoreInt ? true : false;
+
+    ValorantMatch valorantMatch = ValorantMatch(
+      tournamentId: valorantMatches[roundIndex][matchIndex].tournamentId,
+      matchId: valorantMatches[roundIndex][matchIndex].matchId,
+      nextMatchId: valorantMatches[roundIndex][matchIndex].nextMatchId,
+      game: valorantMatches[roundIndex][matchIndex].game,
+      round: valorantMatches[roundIndex][matchIndex].round,
+      match: valorantMatches[roundIndex][matchIndex].match,
+      teamA: valorantMatches[roundIndex][matchIndex].teamA,
+      teamB: valorantMatches[roundIndex][matchIndex].teamB,
+      winner: teamAwinning ? teamA : teamB,
+      loser: teamAwinning ? teamB : teamA,
+      teamAScore: valorantMatches[roundIndex][matchIndex].teamAScore,
+      teamBScore: valorantMatches[roundIndex][matchIndex].teamBScore,
+      date: DateHelper.formatDate(DateTime.now()),
+      startTime: valorantMatches[roundIndex][matchIndex].startTime,
+      endTime: DateHelper.formatTime(DateTime.now()),
+      hasCompleted: true,
+      resultList: valorantMatches[roundIndex][matchIndex].resultList,
+    );
+    await _database.update(valorantMatches[roundIndex][matchIndex].matchId,
+        valorantMatch.toJson(), FirestoreCollections.valorantMatch);
+    valorantMatches[roundIndex][matchIndex] = valorantMatch;
+    notifyListeners();
+
+    String nextMatchId = valorantMatches[roundIndex][matchIndex].nextMatchId;
+    //update winning team to the next round
+    if (nextMatchId.isNotEmpty) {
+      int nextRoundTotalMatch = valorantMatches[roundIndex + 1].length;
+      for (int nextMatchIndex = 0;
+          nextMatchIndex < nextRoundTotalMatch;
+          nextMatchIndex++) {
+        ValorantMatch nextMatch =
+            valorantMatches[roundIndex + 1][nextMatchIndex];
+        if (nextMatch.matchId == nextMatchId) {
+          if (nextMatch.teamA.isEmpty) {
+            //update into team A
+            ValorantMatch nextValorantMatch = ValorantMatch(
+              tournamentId: nextMatch.tournamentId,
+              matchId: nextMatch.matchId,
+              nextMatchId: nextMatch.nextMatchId,
+              game: nextMatch.game,
+              round: nextMatch.round,
+              match: nextMatch.match,
+              teamA: teamAwinning ? teamA : teamB,
+              teamB: nextMatch.teamB,
+              winner: nextMatch.winner,
+              loser: nextMatch.loser,
+              teamAScore: nextMatch.teamAScore,
+              teamBScore: nextMatch.teamBScore,
+              date: nextMatch.date,
+              startTime: nextMatch.startTime,
+              endTime: nextMatch.endTime,
+              hasCompleted: nextMatch.hasCompleted,
+              resultList: nextMatch.resultList,
+            );
+            await _database.update(nextMatch.matchId,
+                nextValorantMatch.toJson(), FirestoreCollections.valorantMatch);
+            valorantMatches[roundIndex + 1][nextMatchIndex] = nextValorantMatch;
+
+            //update the result as well
+            List<ValorantMatchResult> nextMatchResultList =
+                valorantMatchResult[roundIndex + 1][nextMatchIndex.toString()]!;
+            for (int resultIndex = 0;
+                resultIndex < nextMatchResultList.length;
+                resultIndex++) {
+              ValorantMatchResult nextMatchResult = ValorantMatchResult(
+                resultId: nextMatchResultList[resultIndex].resultId,
+                matchId: nextMatchResultList[resultIndex].matchId,
+                lobbyId: nextMatchResultList[resultIndex].lobbyId,
+                gameNumber: nextMatchResultList[resultIndex].gameNumber,
+                teamA: teamAName,
+                teamB: nextMatchResultList[resultIndex].teamB,
+                winner: nextMatchResultList[resultIndex].winner,
+                loser: nextMatchResultList[resultIndex].loser,
+                teamAScore: nextMatchResultList[resultIndex].teamAScore,
+                teamBScore: nextMatchResultList[resultIndex].teamBScore,
+                isCompleted: nextMatchResultList[resultIndex].isCompleted,
+                playerStats: nextMatchResultList[resultIndex].playerStats,
+              );
+              await _database.update(
+                  nextMatchResultList[resultIndex].resultId,
+                  nextMatchResult.toJson(),
+                  FirestoreCollections.valorantMatchResult);
+              nextMatchResultList[resultIndex] = nextMatchResult;
+            }
+          } else if (nextMatch.teamB.isEmpty) {
+            //update into team B
+            ValorantMatch nextValorantMatch = ValorantMatch(
+              tournamentId: nextMatch.tournamentId,
+              matchId: nextMatch.matchId,
+              nextMatchId: nextMatch.nextMatchId,
+              game: nextMatch.game,
+              round: nextMatch.round,
+              match: nextMatch.match,
+              teamA: nextMatch.teamA,
+              teamB: teamAwinning ? teamA : teamB,
+              winner: nextMatch.winner,
+              loser: nextMatch.loser,
+              teamAScore: nextMatch.teamAScore,
+              teamBScore: nextMatch.teamBScore,
+              date: nextMatch.date,
+              startTime: nextMatch.startTime,
+              endTime: nextMatch.endTime,
+              hasCompleted: nextMatch.hasCompleted,
+              resultList: nextMatch.resultList,
+            );
+            await _database.update(nextMatch.matchId,
+                nextValorantMatch.toJson(), FirestoreCollections.valorantMatch);
+            valorantMatches[roundIndex + 1][nextMatchIndex] = nextValorantMatch;
+
+            //update the result as well
+            List<ValorantMatchResult> nextMatchResultList =
+                valorantMatchResult[roundIndex + 1][nextMatchIndex.toString()]!;
+            for (int resultIndex = 0;
+                resultIndex < nextMatchResultList.length;
+                resultIndex++) {
+              ValorantMatchResult nextMatchResult = ValorantMatchResult(
+                resultId: nextMatchResultList[resultIndex].resultId,
+                matchId: nextMatchResultList[resultIndex].matchId,
+                lobbyId: nextMatchResultList[resultIndex].lobbyId,
+                gameNumber: nextMatchResultList[resultIndex].gameNumber,
+                teamA: nextMatchResultList[resultIndex].teamA,
+                teamB: teamBName,
+                winner: nextMatchResultList[resultIndex].winner,
+                loser: nextMatchResultList[resultIndex].loser,
+                teamAScore: nextMatchResultList[resultIndex].teamAScore,
+                teamBScore: nextMatchResultList[resultIndex].teamBScore,
+                isCompleted: nextMatchResultList[resultIndex].isCompleted,
+                playerStats: nextMatchResultList[resultIndex].playerStats,
+              );
+              await _database.update(
+                  nextMatchResultList[resultIndex].resultId,
+                  nextMatchResult.toJson(),
+                  FirestoreCollections.valorantMatchResult);
+              nextMatchResultList[resultIndex] = nextMatchResult;
+            }
+          } else {
+            break;
+          }
+          break;
+        }
+      }
+    }
+    notifyListeners();
     _router.pop();
   }
 }

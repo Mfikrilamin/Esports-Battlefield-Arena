@@ -44,10 +44,10 @@ class OrganizedTournamentDetailViewModel extends ReactiveViewModel {
     _router.push(const CreateTournamentRoute());
   }
 
-  void viewAllParticipants(Tournament tournament) {
+  Future<void> viewAllParticipants(Tournament tournament) async {
     isParticipantButtonBusy = true;
     notifyListeners();
-    _tournamentService.getAllParticipantInformation(tournament);
+    await _tournamentService.getAllParticipantInformation(tournament);
     _router.push(const ParticipantInformationRoute());
     isParticipantButtonBusy = false;
     notifyListeners();
@@ -57,10 +57,10 @@ class OrganizedTournamentDetailViewModel extends ReactiveViewModel {
   List<ReactiveServiceMixin> get reactiveServices => [_tournamentService];
 
   Future<bool> createSeeding(Tournament tournament) async {
-    setBusy(true);
     // await _database.update(tournament.tournamentId, {'matchList': []},
     //     FirestoreCollections.tournament);
     try {
+      setBusy(true);
       bool sucess = false;
       if (tournament.game == GameType.ApexLegend.name) {
         // _seedingAlgorithm.generateMatchForApex(tournament);

@@ -134,7 +134,7 @@ class OrganizedTournamentDetailView extends StatelessWidget {
                                 FadeInUp(
                                   from: 60,
                                   child: BoxText.headingThree(
-                                    '${tournament.prizePool}000',
+                                    '${tournament.prizePool}',
                                   ),
                                 ),
                               ],
@@ -335,6 +335,7 @@ class Participant extends StackedHookView<OrganizedTournamentDetailViewModel> {
               child: BoxButton(
                 title: 'View participant',
                 outline: true,
+                busy: model.isParticipantButtonBusy,
                 onTap: () {
                   model.viewAllParticipants(tournament);
                 },
