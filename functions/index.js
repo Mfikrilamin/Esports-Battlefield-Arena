@@ -15,6 +15,7 @@ const axios = require('axios');
 const express = require('express');
 const cors = require('cors');
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+
 // Create and deploy your first functions
 // https://firebase.google.com/docs/functions/get-started
 
@@ -23,8 +24,15 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 //   response.send("Hello from Firebase!");
 // });
 
-
 admin.initializeApp();
+const db = admin.firestore();
+
+//Collection names
+const userCollection = 'Users';
+const playerCollection = 'Players';
+const organizerCollection = 'Organizers';
+const invoiceCollection = 'Invoices';
+const tournamentCollection = 'Tournaments';
 
 exports.stripePaymentIntentRequest = functions.https.onRequest(async (req, res) => {
     try {
@@ -197,23 +205,58 @@ exports.updateValorantGameResult = functions.https.onCall(async (data, context) 
 
 });
 
+exports.dailyScheduledFunction = functions.pubsub
+    .schedule('0 0 * * *') // Schedule at midnight (00:00) every day
+    .timeZone('Asia/Kuala_Lumpur') // Set the time zone to Malaysia (GMT+8)
+    .onRun(async (context) => {
+        // Your code here
+        console.log('Daily scheduled function executed at midnight in Malaysia time zone');
+
+        // Access Firestore and perform desired operations
+        // Perform operations on Firestore collections, documents, etc.
+        const query = db.collection(tournamentCollection);
+        let querySnapshot = await query.get();
+        let docs = querySnapshot.docs;
+        docs.map(async (doc) => {
+            const tournament = doc.data();
+            if (tournament.status == 'upcoming') {
+                let startDate = new Date(tournament.startDate);
+                let currentDate = new Date();
+
+                if (currentDate > startDate) {
+                    await doc.update({
+                        status: 'ongoing',
+                    });
+                }
+            } else if (tournament.status == 'ongoing') {
+                let endDate = new Date(tournament.endDate);
+                let currentDate = new Date();
+
+                if (currentDate > endDate) {
+                    await doc.update({
+                        status: 'completed',
+                    });
+                }
+            } else {
+                //do nothing
+            }
+        });
+
+
+        return null;
+    });
+
 
 // RESTFUL API
 const app = express();
 app.use(cors({ origin: true }));
 
-const db = admin.firestore();
 
 //Routes
 app.get('/', (req, res) => {
     return res.status(200).send('Hello World!');
 });
 
-//Collection names
-const userCollection = 'Users';
-const playerCollection = 'Players';
-const organizerCollection = 'Organizers';
-const invoiceCollection = 'Invoices';
 
 //User
 //Create new user -> POST()
@@ -602,7 +645,7 @@ app.delete('/invoices/:id', async (req, res) => {
         if (id == null || id.isEmpty) {
             return res.status(404).send({ success: false, error: 'Input Id is missing' });
         }
-        
+
         const reqData = db.collection(userCollection).doc(req.params.id);
 
         //get the detail data to be deleted
