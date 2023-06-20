@@ -219,30 +219,20 @@ exports.dailyScheduledFunction = functions.pubsub
         let docs = querySnapshot.docs;
         docs.map(async (doc) => {
             const tournament = doc.data();
-            if (tournament.status == 'upcoming') {
-                let startDate = new Date(tournament.startDate);
-                let currentDate = new Date();
-
-                if (currentDate > startDate) {
-                    await doc.update({
-                        status: 'ongoing',
-                    });
-                }
-            } else if (tournament.status == 'ongoing') {
-                let endDate = new Date(tournament.endDate);
-                let currentDate = new Date();
-
-                if (currentDate > endDate) {
-                    await doc.update({
-                        status: 'completed',
-                    });
-                }
-            } else {
-                //do nothing
+            logger.info("TEST API: REQUEST DATA", { data: tournament });
+            let startDate = new Date(tournament['startDate']);
+            let endDate = new Date(tournament['endDate']);
+            let currentDate = new Date();
+            if (currentDate > endDate) {
+                await doc.ref.update({
+                    status: 'completed',
+                });
+            } else if (currentDate > startDate) {
+                await doc.ref.update({
+                    status: 'ongoing',
+                });
             }
         });
-
-
         return null;
     });
 
@@ -253,9 +243,14 @@ app.use(cors({ origin: true }));
 
 
 //Routes
-app.get('/', (req, res) => {
-    return res.status(200).send('Hello World!');
+app.post('/', async (req, res) => {
+    try {
+        return res.status(200).send({ success: true, data: 'Hello world' });
+    } catch (error) {
+        throw new functions.https.HttpsError('internal', 'An error occurred', error.message);
+    }
 });
+
 
 
 //User
