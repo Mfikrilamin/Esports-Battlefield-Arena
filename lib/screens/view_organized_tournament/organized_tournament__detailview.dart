@@ -2,8 +2,8 @@ import 'package:animate_do/animate_do.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:esports_battlefield_arena/components/widgets/box_game_logo.dart';
 import 'package:esports_battlefield_arena/components/widgets/hero_widget.dart';
+import 'package:esports_battlefield_arena/components/widgets/progress_bar.dart';
 import 'package:esports_battlefield_arena/models/tournament.dart';
-import 'package:esports_battlefield_arena/models/tournament_participant.dart';
 import 'package:esports_battlefield_arena/screens/view_organized_tournament/organized_tournament_detail_viewmodel.dart';
 import 'package:esports_battlefield_arena/shared/app_colors.dart';
 import 'package:esports_battlefield_arena/shared/box_button.dart';
@@ -33,15 +33,17 @@ class OrganizedTournamentDetailView extends StatelessWidget {
               floating: true,
               stretch: true,
               actions: [
-                IconButton(
-                  onPressed: () {
-                    model.navigateToEditTournament(tournament);
-                  },
-                  icon: const Icon(
-                    Icons.edit,
-                    size: 20,
-                  ),
-                )
+                tournament.status == GameStatus.pending.name
+                    ? IconButton(
+                        onPressed: () {
+                          model.navigateToEditTournament(tournament);
+                        },
+                        icon: const Icon(
+                          Icons.edit,
+                          size: 20,
+                        ),
+                      )
+                    : const SizedBox.shrink(),
               ],
               backgroundColor: (tournament.game == GameType.ApexLegend.name)
                   ? kcTertiaryColor
@@ -169,82 +171,97 @@ class OrganizedTournamentDetailView extends StatelessWidget {
         ),
         bottomNavigationBar: FadeInUp(
           duration: const Duration(milliseconds: 400),
-          child: HeroWidget(
-            tag: 'registerButton',
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
-              color: kcWhiteColor,
-              child: BoxButton(
-                title: 'Create seeding',
-                onTap: () {
-                  Future<bool> sucess = model.createSeeding(tournament);
-                  sucess.then(
-                    (value) => {
-                      if (value)
-                        {
-                          showDialog(
-                            context: context,
-                            builder: (_) => AlertDialog(
-                              content: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: const [
-                                      Icon(
-                                        Icons.error,
-                                        color: kcPrimaryDarkerColor,
-                                      ),
-                                      SizedBox(
-                                        width: 200,
-                                        child:
-                                            Text('Sucessfully create seeding'),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          )
-                        }
-                      else
-                        {
-                          showDialog(
-                            context: context,
-                            builder: (_) => AlertDialog(
-                              content: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: const [
-                                      Icon(
-                                        Icons.error,
-                                        color: kcTertiaryColor,
-                                      ),
-                                      SizedBox(
-                                        width: 200,
-                                        child: Text(
-                                            'There is an error creating seeding'),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+            color: kcWhiteColor,
+            child: (tournament.status == GameStatus.pending.name)
+                ? BoxButton(
+                    title: 'Create seeding',
+                    onTap: () {
+                      Future<bool> sucess = model.createSeeding(tournament);
+                      sucess.then(
+                        (value) => {
+                          if (value)
+                            {
+                              showDialog(
+                                context: context,
+                                builder: (_) => AlertDialog(
+                                  content: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceAround,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: const [
+                                          Icon(
+                                            Icons.error,
+                                            color: kcPrimaryDarkerColor,
+                                          ),
+                                          SizedBox(
+                                            width: 200,
+                                            child: Text(
+                                                'Sucessfully create seeding'),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
-                                ],
-                              ),
-                            ),
-                          )
-                        }
+                                ),
+                              )
+                            }
+                          else
+                            {
+                              showDialog(
+                                context: context,
+                                builder: (_) => AlertDialog(
+                                  content: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceAround,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: const [
+                                          Icon(
+                                            Icons.error,
+                                            color: kcTertiaryColor,
+                                          ),
+                                          SizedBox(
+                                            width: 200,
+                                            child: Text(
+                                                'There is an error creating seeding'),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
+                            }
+                        },
+                      );
                     },
-                  );
-                },
-              ),
-            ),
+                  )
+                : (tournament.status == GameStatus.ongoing.name)
+                    ? CurvedProgressBar(
+                        progress: 55,
+                        fillColor: kcPrimaryColor,
+                        backgroundColor: kcPrimaryLightColor,
+                        height: 48,
+                        text: 'In progress',
+                        // title: 'Tournament ongoing',
+                      )
+                    : CurvedProgressBar(
+                        progress: 100,
+                        fillColor: kcPrimaryColor,
+                        backgroundColor: kcPrimaryLightColor,
+                        height: 48,
+                        text: 'Completed',
+                        // title: 'Tournament ongoing',
+                      ),
           ),
         ),
       ),
@@ -373,14 +390,19 @@ class Leaderboard extends StackedHookView<OrganizedTournamentDetailViewModel> {
               // width: 170,
               padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
               color: kcWhiteColor,
-              child: BoxButton(
-                title: 'View leaderboard',
-                outline: true,
-                busy: model.isLeaderboardButtonBusy,
-                onTap: () {
-                  model.viewLeaderboard(tournament);
-                },
-              ),
+              child: (tournament.status == GameStatus.ongoing.name ||
+                      tournament.status == GameStatus.completed.name)
+                  ? BoxButton(
+                      title: 'View leaderboard',
+                      outline: true,
+                      busy: model.isLeaderboardButtonBusy,
+                      onTap: () {
+                        model.viewLeaderboard(tournament);
+                      },
+                    )
+                  : const Center(
+                      child: BoxText.headingFour(
+                          'Tournament has not started yet')),
             ),
           ),
         ],
@@ -426,7 +448,7 @@ class TournamentDate extends StatelessWidget {
             ),
             UIHelper.verticalSpaceSmall(),
             FadeInUp(
-              delay: Duration(milliseconds: 400),
+              delay: const Duration(milliseconds: 400),
               from: 60,
               child: BoxText.body(tournament.startDate),
             ),
@@ -458,7 +480,7 @@ class TournamentDate extends StatelessWidget {
             ),
             UIHelper.verticalSpaceSmall(),
             FadeInUp(
-              delay: Duration(milliseconds: 400),
+              delay: const Duration(milliseconds: 400),
               from: 60,
               child: BoxText.body(tournament.endDate),
             ),
@@ -490,9 +512,9 @@ class TournamentParticipantInformation extends StatelessWidget {
               children: [
                 // UIHelper.verticalSpaceMedium(),
                 FadeInUp(
-                  delay: Duration(milliseconds: 400),
+                  delay: const Duration(milliseconds: 400),
                   from: 60,
-                  child: BoxText.headingFive('Mode'),
+                  child: const BoxText.headingFive('Mode'),
                 ),
               ],
             ),
@@ -500,8 +522,6 @@ class TournamentParticipantInformation extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // UIHelper.verticalSpaceMedium(),
-
                 FadeInUp(
                   delay: const Duration(milliseconds: 400),
                   from: 60,

@@ -95,196 +95,201 @@ class MatchInformation extends StackedHookView<LeaderboardViewModel> {
             canTapOnHeader: true,
             headerBuilder: (BuildContext context, bool isExpanded) {
               return ListTile(
-                trailing: (model.game == GameType.Valorant.name)
-                    ? !model.valorantMatches[roundIndex][matchIndex]
-                            .hasCompleted
-                        ? IconButton(
-                            onPressed: () async => {
-                              await showDialog(
-                                context: context,
-                                builder: (_) => AlertDialog(
-                                  content: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Center(
-                                        child: BoxText.headingThree(
-                                            !model.showDialogErrorMessage
+                trailing: model.isOrganizer
+                    ? (model.game == GameType.Valorant.name)
+                        ? !model.valorantMatches[roundIndex][matchIndex]
+                                .hasCompleted
+                            ? IconButton(
+                                onPressed: () async => {
+                                  await showDialog(
+                                    context: context,
+                                    builder: (_) => AlertDialog(
+                                      content: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Center(
+                                            child: BoxText.headingThree(!model
+                                                    .showDialogErrorMessage
                                                 ? 'Match finish?'
                                                 : 'Something wrong happen!'),
-                                      ),
-                                      UIHelper.verticalSpaceMedium(),
-                                      Center(
-                                        child: BoxText.body(!model
-                                                .showDialogErrorMessage
-                                            ? 'This action is irreversible, once finished you cannot edit the match result.'
-                                            : 'Cannot finish match, no team found'),
-                                      ),
-                                      UIHelper.verticalSpaceMedium(),
-                                      !model.showDialogErrorMessage
-                                          ? Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.spaceEvenly,
-                                              children: [
-                                                Center(
+                                          ),
+                                          UIHelper.verticalSpaceMedium(),
+                                          Center(
+                                            child: BoxText.body(!model
+                                                    .showDialogErrorMessage
+                                                ? 'This action is irreversible, once finished you cannot edit the match result.'
+                                                : 'Cannot finish match, no team found'),
+                                          ),
+                                          UIHelper.verticalSpaceMedium(),
+                                          !model.showDialogErrorMessage
+                                              ? Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceEvenly,
+                                                  children: [
+                                                    Center(
+                                                      child: BoxButton(
+                                                        width: 100,
+                                                        title: 'Yes',
+                                                        height: 36,
+                                                        // width: 150,
+                                                        onTap: () {
+                                                          model.matchFinish(
+                                                            roundIndex,
+                                                            matchIndex,
+                                                          );
+                                                        },
+                                                      ),
+                                                    ),
+                                                    Center(
+                                                      child: BoxButton(
+                                                        outline: true,
+                                                        title: 'No',
+                                                        width: 100,
+                                                        height: 36,
+                                                        // width: 150,
+                                                        onTap: () {
+                                                          Navigator.pop(
+                                                              context);
+                                                        },
+                                                      ),
+                                                    ),
+                                                  ],
+                                                )
+                                              : Center(
                                                   child: BoxButton(
+                                                    title: 'Okay',
                                                     width: 100,
-                                                    title: 'Yes',
                                                     height: 36,
                                                     // width: 150,
                                                     onTap: () {
-                                                      model.matchFinish(
-                                                        roundIndex,
-                                                        matchIndex,
-                                                      );
-                                                    },
-                                                  ),
-                                                ),
-                                                Center(
-                                                  child: BoxButton(
-                                                    outline: true,
-                                                    title: 'No',
-                                                    width: 100,
-                                                    height: 36,
-                                                    // width: 150,
-                                                    onTap: () {
+                                                      model
+                                                          .updateShowDialogErrorMessageState(
+                                                              false);
                                                       Navigator.pop(context);
                                                     },
                                                   ),
                                                 ),
-                                              ],
-                                            )
-                                          : Center(
-                                              child: BoxButton(
-                                                title: 'Okay',
-                                                width: 100,
-                                                height: 36,
-                                                // width: 150,
-                                                onTap: () {
-                                                  model
-                                                      .updateShowDialogErrorMessageState(
-                                                          false);
-                                                  Navigator.pop(context);
-                                                },
-                                              ),
-                                            ),
-                                      UIHelper.verticalSpaceSmall(),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              model.showDialogErrorMessage
-                                  ? await showDialog(
-                                      context: context,
-                                      builder: (_) => AlertDialog(
-                                        content: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            const Center(
-                                              child: BoxText.headingThree(
-                                                  'Something wrong happen!'),
-                                            ),
-                                            UIHelper.verticalSpaceMedium(),
-                                            Center(
-                                              child: BoxText.body(
-                                                  'Cannot finish match, no team found'),
-                                            ),
-                                            UIHelper.verticalSpaceMedium(),
-                                            Center(
-                                              child: BoxButton(
-                                                title: 'Okay',
-                                                width: 100,
-                                                height: 36,
-                                                // width: 150,
-                                                onTap: () {
-                                                  model
-                                                      .updateShowDialogErrorMessageState(
-                                                          false);
-                                                  Navigator.pop(context);
-                                                },
-                                              ),
-                                            ),
-                                            UIHelper.verticalSpaceSmall(),
-                                          ],
-                                        ),
-                                      ),
-                                    )
-                                  : const SizedBox.shrink(),
-                            },
-                            icon: const Icon(
-                              Icons.ads_click_rounded,
-                              color: kcDarkGreyColor,
-                            ),
-                          )
-                        : const SizedBox.shrink()
-                    : !model.apexMatches[roundIndex][matchIndex].hasCompleted
-                        ? IconButton(
-                            onPressed: () => {
-                              showDialog(
-                                context: context,
-                                builder: (_) => AlertDialog(
-                                  content: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const Center(
-                                        child: BoxText.headingThree(
-                                            'Match finish?'),
-                                      ),
-                                      UIHelper.verticalSpaceMedium(),
-                                      Center(
-                                        child: BoxText.body(
-                                            'This action is irreversible, once finished you cannot edit the match result.'),
-                                      ),
-                                      UIHelper.verticalSpaceMedium(),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceEvenly,
-                                        children: [
-                                          Center(
-                                            child: BoxButton(
-                                              width: 100,
-                                              title: 'Yes',
-                                              height: 36,
-                                              // width: 150,
-                                              onTap: () {
-                                                model.matchFinish(
-                                                  roundIndex,
-                                                  matchIndex,
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                          Center(
-                                            child: BoxButton(
-                                              outline: true,
-                                              title: 'No',
-                                              width: 100,
-                                              height: 36,
-                                              // width: 150,
-                                              onTap: () {
-                                                Navigator.pop(context);
-                                              },
-                                            ),
-                                          ),
+                                          UIHelper.verticalSpaceSmall(),
                                         ],
                                       ),
-                                      UIHelper.verticalSpaceSmall(),
-                                    ],
+                                    ),
                                   ),
+                                  model.showDialogErrorMessage
+                                      ? await showDialog(
+                                          context: context,
+                                          builder: (_) => AlertDialog(
+                                            content: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                const Center(
+                                                  child: BoxText.headingThree(
+                                                      'Something wrong happen!'),
+                                                ),
+                                                UIHelper.verticalSpaceMedium(),
+                                                Center(
+                                                  child: BoxText.body(
+                                                      'Cannot finish match, no team found'),
+                                                ),
+                                                UIHelper.verticalSpaceMedium(),
+                                                Center(
+                                                  child: BoxButton(
+                                                    title: 'Okay',
+                                                    width: 100,
+                                                    height: 36,
+                                                    // width: 150,
+                                                    onTap: () {
+                                                      model
+                                                          .updateShowDialogErrorMessageState(
+                                                              false);
+                                                      Navigator.pop(context);
+                                                    },
+                                                  ),
+                                                ),
+                                                UIHelper.verticalSpaceSmall(),
+                                              ],
+                                            ),
+                                          ),
+                                        )
+                                      : const SizedBox.shrink(),
+                                },
+                                icon: const Icon(
+                                  Icons.ads_click_rounded,
+                                  color: kcDarkGreyColor,
                                 ),
-                              ),
-                            },
-                            icon: const Icon(
-                              Icons.ads_click_rounded,
-                              color: kcDarkGreyColor,
-                            ),
-                          )
-                        : const SizedBox.shrink(),
+                              )
+                            : const SizedBox.shrink()
+                        : !model.apexMatches[roundIndex][matchIndex]
+                                .hasCompleted
+                            ? IconButton(
+                                onPressed: () => {
+                                  showDialog(
+                                    context: context,
+                                    builder: (_) => AlertDialog(
+                                      content: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Center(
+                                            child: BoxText.headingThree(
+                                                'Match finish?'),
+                                          ),
+                                          UIHelper.verticalSpaceMedium(),
+                                          Center(
+                                            child: BoxText.body(
+                                                'This action is irreversible, once finished you cannot edit the match result.'),
+                                          ),
+                                          UIHelper.verticalSpaceMedium(),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              Center(
+                                                child: BoxButton(
+                                                  width: 100,
+                                                  title: 'Yes',
+                                                  height: 36,
+                                                  // width: 150,
+                                                  onTap: () {
+                                                    model.matchFinish(
+                                                      roundIndex,
+                                                      matchIndex,
+                                                    );
+                                                  },
+                                                ),
+                                              ),
+                                              Center(
+                                                child: BoxButton(
+                                                  outline: true,
+                                                  title: 'No',
+                                                  width: 100,
+                                                  height: 36,
+                                                  // width: 150,
+                                                  onTap: () {
+                                                    Navigator.pop(context);
+                                                  },
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          UIHelper.verticalSpaceSmall(),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                },
+                                icon: const Icon(
+                                  Icons.ads_click_rounded,
+                                  color: kcDarkGreyColor,
+                                ),
+                              )
+                            : const SizedBox.shrink()
+                    : const SizedBox.shrink(),
                 title: (model.game == GameType.Valorant.name)
                     ? BoxText.headingFour('Match ${matchIndex + 1}')
                     : BoxText.headingFour('Group ${matchIndex + 1}'),
@@ -680,62 +685,65 @@ class ValorantResultCardListBuilder
                 ),
               ],
             ),
-            trailing: IconButton(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (_) => AlertDialog(
-                    content: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Center(
-                          child: BoxText.headingFive(
-                              'Result Game ${(resultIndex + 1).toString()} | result : ${model.valorantMatchResult[roundIndex][matchIndex.toString()]![resultIndex].resultId}'),
+            trailing: model.isOrganizer
+                ? IconButton(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (_) => AlertDialog(
+                          content: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Center(
+                                child: BoxText.headingFive(
+                                    'Result Game ${(resultIndex + 1).toString()} | result : ${model.valorantMatchResult[roundIndex][matchIndex.toString()]![resultIndex].resultId}'),
+                              ),
+                              UIHelper.verticalSpaceSmall(),
+                              const Center(
+                                child: BoxText.headingThree('Match finish?'),
+                              ),
+                              UIHelper.verticalSpaceSmall(),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  BoxButton(
+                                    title: 'No',
+                                    height: 36,
+                                    width: 120,
+                                    outline: true,
+                                    onTap: () {
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                  UIHelper.horizontalSpaceSmall(),
+                                  BoxButton(
+                                    title: 'Finish',
+                                    height: 36,
+                                    width: 120,
+                                    onTap: () {
+                                      model.finishLobby(
+                                        roundIndex,
+                                        matchIndex,
+                                        resultIndex,
+                                      );
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                ],
+                              )
+                            ],
+                          ),
                         ),
-                        UIHelper.verticalSpaceSmall(),
-                        const Center(
-                          child: BoxText.headingThree('Match finish?'),
-                        ),
-                        UIHelper.verticalSpaceSmall(),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            BoxButton(
-                              title: 'No',
-                              height: 36,
-                              width: 120,
-                              outline: true,
-                              onTap: () {
-                                Navigator.pop(context);
-                              },
-                            ),
-                            UIHelper.horizontalSpaceSmall(),
-                            BoxButton(
-                              title: 'Finish',
-                              height: 36,
-                              width: 120,
-                              onTap: () {
-                                model.finishLobby(
-                                  roundIndex,
-                                  matchIndex,
-                                  resultIndex,
-                                );
-                                Navigator.pop(context);
-                              },
-                            ),
-                          ],
-                        )
-                      ],
+                      );
+                    },
+                    icon: const Icon(
+                      Icons.edit,
+                      color: kcMediumGreyColor,
                     ),
-                  ),
-                );
-              },
-              icon: const Icon(
-                Icons.edit,
-                color: kcMediumGreyColor,
-              ),
-            ),
+                  )
+                : null,
           ),
         );
       },

@@ -301,7 +301,7 @@ app.post('/users', async (req, res) => {
         await db.collection(userCollection).doc(documentRef.id).update({
             userId: documentRef.id
         });
-        let response;
+        let response = {};
         response = request;
         response.userId = documentRef.id;
 

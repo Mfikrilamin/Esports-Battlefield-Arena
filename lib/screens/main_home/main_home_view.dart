@@ -85,8 +85,17 @@ class MainHomeView extends StatelessWidget {
                           },
                         ),
                       )
-                    : const Center(
-                        child: BoxText.headingThree('No tournaments available'),
+                    : ListView(
+                        shrinkWrap: true,
+                        children: const [
+                          SizedBox(
+                            height: 200,
+                            child: Center(
+                              child:
+                                  BoxText.headingThree('No tournament found'),
+                            ),
+                          ),
+                        ],
                       ),
               ],
             ),

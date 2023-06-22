@@ -24,7 +24,8 @@ class CreateTournamentViewModel extends ReactiveViewModel {
   final Seeding _seedingAlgorithm = locator<Seeding>();
 
   //Permanent Variables
-  final List<String> _gameList = GameType.values.map((e) => e.name).toList();
+  final List<String> _gameList = GameType.values.map((e) => e.name).toList()
+    ..sort();
   final List<String> _participationTypeList =
       ParticipationType.values.map((e) => e.name).toList();
 
@@ -75,8 +76,9 @@ class CreateTournamentViewModel extends ReactiveViewModel {
   }
 
   void updateGameSelectedIndex(int? index) {
-    if (index == 0) {
+    if (index == 1) {
       _tournamentService.updateModeSelectedIndex(1);
+      _tournamentService.updateMemberPerTeam('5');
     }
     _tournamentService.updateGameSelectedIndex(index);
 

@@ -1,6 +1,5 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:direct_select/direct_select.dart';
-import 'package:esports_battlefield_arena/models/tournament.dart';
 import 'package:esports_battlefield_arena/screens/create_tournament/create_tournament_viewmodel.dart';
 import 'package:esports_battlefield_arena/shared/app_colors.dart';
 import 'package:esports_battlefield_arena/shared/box_button.dart';
@@ -369,17 +368,17 @@ class ParticipationTypeInputField
             mode: DirectSelectMode.tap,
             itemExtent: 45.0,
             selectedIndex:
-                model.gameSelectedIndex == 0 ? 1 : model.modeSelectedIndex,
+                model.gameSelectedIndex == 1 ? 1 : model.modeSelectedIndex,
             // backgroundColor: Colors.red,
             onSelectedItemChanged: (value) {
-              model.gameSelectedIndex == 0 ? value = 1 : value = value;
+              model.gameSelectedIndex == 1 ? value = 1 : value = value;
               model.updateModeSelectedIndex(value);
             },
             items: model.gameSelectedIndex == 0
-                ? buildModeItem2()
-                : buildModeItem(),
+                ? buildModeItem()
+                : buildModeItem2(),
             child: MySelectionItem(
-              isForList: model.gameSelectedIndex == 0 ? true : false,
+              isForList: model.gameSelectedIndex == 1 ? true : false,
               title: model.participationTypeList[model.modeSelectedIndex],
             ),
           ),
