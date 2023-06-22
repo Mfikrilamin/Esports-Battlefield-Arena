@@ -312,14 +312,14 @@ app.post('/users', async (req, res) => {
                 firstName: fName,
                 lastName: lName,
             });
-            response.put('firstName', documentRef.id);
-            response.put('lastName', documentRef.id);
+            response['firstName'] = fName;
+            response['lastName'] = lName;
         } else if (role == 'organizer') { // If user role is organizer, create a new organizer document
             await db.collection(organizerCollection).doc(documentRef.id).create({
                 userId: documentRef.id,
                 organizerName: orgsName,
             });
-            response.put('organizerName', documentRef.id);
+            response['organizerName'] = orgsName;
         } else {
             return res.status(404).send({ success: false, error: 'Invalid user role' })
         }
@@ -501,28 +501,28 @@ app.delete('/users/:id', async (req, res) => {
 app.post('/invoices', async (req, res) => {
     try {
         let amount = req.body.amount;
-        let belognsTo = req.body.belognsTo;
+        let belongsTo = req.body.belongsTo;
         let date = req.body.date;
         let paidBy = req.body.paidBy;
         let paidCompleted = req.body.paidCompleted;
         let paymentReferenceId = req.body.paymentReferenceId;
         let time = req.body.time;
-        let tournementId = req.body.tournementId;
+        let tournamentId = req.body.tournamentId;
 
-        let allInputIsInsert = checkInvoiceInput(amount, belognsTo, date, paidBy, paidCompleted, paymentReferenceId, time, tournementId);
+        let allInputIsInsert = checkInvoiceInput(amount, belongsTo, date, paidBy, paidCompleted, paymentReferenceId, time, tournamentId);
         if (!allInputIsInsert) {
             return res.status(404).send({ success: false, error: 'Input for invoice is missing' });
         }
 
         request = {
             amount: amount,
-            belognsTo: belognsTo,
+            belongsTo: belongsTo,
             date: date,
             paidBy: paidBy,
             paidCompleted: paidCompleted,
             paymentReferenceId: paymentReferenceId,
             time: time,
-            tournementId: tournementId,
+            tournamentId: tournamentId,
             invoiceId: ''
         }
 
@@ -589,20 +589,20 @@ app.put('/invoices/:id', async (req, res) => {
     try {
         let id = req.params.id;
         let amount = req.body.amount;
-        let belognsTo = req.body.belognsTo;
+        let belongsTo = req.body.belongsTo;
         let date = req.body.date;
         let paidBy = req.body.paidBy;
         let paidCompleted = req.body.paidCompleted;
         let paymentReferenceId = req.body.paymentReferenceId;
         let time = req.body.time;
-        let tournementId = req.body.tournementId;
+        let tournamentId = req.body.tournamentId;
         let invoiceId = req.body.invoiceId;
 
         if (id == null || id.isEmpty) {
             return res.status(404).send({ success: false, error: 'Input Id is missing' });
         }
 
-        let allInputIsInsert = checkInvoiceInput(amount, belognsTo, date, paidBy, paidCompleted, paymentReferenceId, time, tournementId);
+        let allInputIsInsert = checkInvoiceInput(amount, belongsTo, date, paidBy, paidCompleted, paymentReferenceId, time, tournamentId);
         if (!allInputIsInsert) {
             return res.status(404).send({ success: false, error: 'Input for invoice is missing' });
         }
@@ -611,13 +611,13 @@ app.put('/invoices/:id', async (req, res) => {
 
         request = {
             amount: amount,
-            belognsTo: belognsTo,
+            belongsTo: belongsTo,
             date: date,
             paidBy: paidBy,
             paidCompleted: paidCompleted,
             paymentReferenceId: paymentReferenceId,
             time: time,
-            tournementId: tournementId,
+            tournamentId: tournamentId,
             invoiceId: invoiceId
         }
 
@@ -641,7 +641,7 @@ app.delete('/invoices/:id', async (req, res) => {
             return res.status(404).send({ success: false, error: 'Input Id is missing' });
         }
 
-        const reqData = db.collection(userCollection).doc(req.params.id);
+        const reqData = db.collection(invoiceCollection).doc(req.params.id);
 
         //get the detail data to be deleted
         let invoiceDetail = await reqData.get();
