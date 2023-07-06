@@ -63,6 +63,14 @@ dependencies:
   direct_select: ^2.0.0
   cloud_functions: ^4.3.1
   carousel_slider: ^4.2.1
+  flutter_launcher_icons: ^0.13.1
+
+
+
+flutter_icons:
+  image_path: "assets/images/ESA-Launch-Icon.png" 
+  android: true
+  ios: true
 
 dev_dependencies:
   flutter_test:

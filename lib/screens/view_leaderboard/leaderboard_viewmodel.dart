@@ -5,6 +5,8 @@ import 'package:esports_battlefield_arena/app/router.gr.dart';
 import 'package:esports_battlefield_arena/app/service_locator.dart';
 import 'package:esports_battlefield_arena/models/apex_match.dart';
 import 'package:esports_battlefield_arena/models/apex_match_result.dart';
+import 'package:esports_battlefield_arena/models/organizer.dart';
+import 'package:esports_battlefield_arena/models/user.dart';
 import 'package:esports_battlefield_arena/models/valorant_match.dart';
 import 'package:esports_battlefield_arena/models/valorant_match_result.dart';
 import 'package:esports_battlefield_arena/services/firebase/authentication/auth.dart';
@@ -46,6 +48,21 @@ class LeaderboardViewModel extends ReactiveViewModel {
       _tournamentService.apexResults;
   List<Map<String, List<ValorantMatchResult>>> get valorantMatchResult =>
       _tournamentService.valorantResults;
+
+  checkCurrentUserRole() async {
+    String? id = _auth.currentUser();
+
+    if (id != null) {
+      User user =
+          User.fromJson(await _database.get(id, FirestoreCollections.users));
+      if (user.role == UserRole.organizer.name) {
+        _isOrganizer = true;
+      } else {
+        _isOrganizer = false;
+      }
+    }
+    notifyListeners();
+  }
 
   void updateShowDialogErrorMessageState(bool value) {
     _showDialogErrorMessage = value;

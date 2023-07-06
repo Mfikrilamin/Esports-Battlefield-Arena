@@ -21,6 +21,7 @@ class LeaderboardView extends StatelessWidget {
   Widget build(BuildContext context) {
     return ViewModelBuilder<LeaderboardViewModel>.reactive(
       viewModelBuilder: () => LeaderboardViewModel(),
+      onModelReady: (model) async => model.checkCurrentUserRole(),
       builder: (context, model, child) => Scaffold(
         appBar: AppBar(
             backgroundColor: kcPrimaryColor,
@@ -296,11 +297,12 @@ class MatchInformation extends StackedHookView<LeaderboardViewModel> {
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    (model.game == GameType.Valorant.name)
-                        ? BoxText.body(
-                            '${model.valorantMatches[roundIndex][matchIndex].matchId}  ||  [${model.valorantMatches[roundIndex][matchIndex].teamAScore}]-[${model.valorantMatches[roundIndex][matchIndex].teamBScore}]')
-                        : BoxText.body(
-                            model.apexMatches[roundIndex][matchIndex].matchId),
+                    // (model.game == GameType.Valorant.name)
+                    //     ? BoxText.body(
+                    //         // '${model.valorantMatches[roundIndex][matchIndex].matchId}  ||  [${model.valorantMatches[roundIndex][matchIndex].teamAScore}]-[${model.valorantMatches[roundIndex][matchIndex].teamBScore}]')
+                    //         '[${model.valorantMatches[roundIndex][matchIndex].teamAScore}]-[${model.valorantMatches[roundIndex][matchIndex].teamBScore}]')
+                    //     : BoxText.body(
+                    //         model.apexMatches[roundIndex][matchIndex].matchId),
                     BoxText.caption(
                         'Winner to : ${model.getNextRoundMatch(roundIndex, matchIndex)}'),
                   ],
@@ -355,74 +357,76 @@ class ApexResultCardListBuilder extends StackedHookView<LeaderboardViewModel> {
                 children: [
                   BoxText.headingFive('Result Game ${item.gameNumber}'),
                   const Spacer(),
-                  IconButton(
-                    padding: const EdgeInsets.all(0),
-                    visualDensity:
-                        const VisualDensity(vertical: -4, horizontal: -4),
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (_) => AlertDialog(
-                          content: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Center(
-                                child: BoxText.headingThree(
-                                    'Result Game ${item.gameNumber}'),
-                              ),
-                              UIHelper.verticalSpaceSmall(),
-                              Center(
-                                child: BoxText.headingFive(
-                                    'result : ${item.resultId}'),
-                              ),
-                              const Center(
-                                child: SizedBox(
-                                  width: 220,
-                                  child: Text(
-                                    'Are you sure want to edit the result manually?',
-                                    style: TextStyle(
-                                      color: kcMediumGreyColor,
+                  model.isOrganizer
+                      ? IconButton(
+                          padding: const EdgeInsets.all(0),
+                          visualDensity:
+                              const VisualDensity(vertical: -4, horizontal: -4),
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                content: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Center(
+                                      child: BoxText.headingThree(
+                                          'Result Game ${item.gameNumber}'),
                                     ),
-                                    textAlign: TextAlign.center,
-                                  ),
+                                    UIHelper.verticalSpaceSmall(),
+                                    Center(
+                                      child: BoxText.headingFive(
+                                          'result : ${item.resultId}'),
+                                    ),
+                                    const Center(
+                                      child: SizedBox(
+                                        width: 220,
+                                        child: Text(
+                                          'Are you sure want to edit the result manually?',
+                                          style: TextStyle(
+                                            color: kcMediumGreyColor,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    ),
+                                    UIHelper.verticalSpaceSmall(),
+                                    Center(
+                                      child: BoxButton(
+                                        title: 'Edit',
+                                        height: 36,
+                                        width: 150,
+                                        onTap: () {
+                                          // Navigator.pop(context);
+                                          model.navigateToEditLeaderboardPage(
+                                            roundIndex,
+                                            matchIndex,
+                                            item.gameNumber,
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                    // Row(
+                                    //   children: const [
+                                    //     Icon(
+                                    //       Icons.error,
+                                    //       color: Colors.red,
+                                    //     ),
+                                    //     Text("Payment Failed"),
+                                    //   ],
+                                    // ),
+                                  ],
                                 ),
                               ),
-                              UIHelper.verticalSpaceSmall(),
-                              Center(
-                                child: BoxButton(
-                                  title: 'Edit',
-                                  height: 36,
-                                  width: 150,
-                                  onTap: () {
-                                    // Navigator.pop(context);
-                                    model.navigateToEditLeaderboardPage(
-                                      roundIndex,
-                                      matchIndex,
-                                      item.gameNumber,
-                                    );
-                                  },
-                                ),
-                              ),
-                              // Row(
-                              //   children: const [
-                              //     Icon(
-                              //       Icons.error,
-                              //       color: Colors.red,
-                              //     ),
-                              //     Text("Payment Failed"),
-                              //   ],
-                              // ),
-                            ],
+                            );
+                          },
+                          icon: const Icon(
+                            Icons.edit,
+                            size: 20,
                           ),
-                        ),
-                      );
-                    },
-                    icon: const Icon(
-                      Icons.edit,
-                      size: 20,
-                    ),
-                  ),
+                        )
+                      : const SizedBox.shrink(),
                 ],
               ),
               ListTile(
@@ -615,7 +619,8 @@ class ValorantResultCardListBuilder
       itemBuilder: (BuildContext context, int resultIndex) {
         return ListTile(
           title: BoxText.subheading2(
-              'Game : ${model.valorantMatches[roundIndex][matchIndex].resultList[resultIndex]}'),
+              // 'Game : ${model.valorantMatches[roundIndex][matchIndex].resultList[resultIndex]}'),
+              'Game'),
           subtitle: ListTile(
             contentPadding: const EdgeInsets.all(0),
             minLeadingWidth: 0,
@@ -686,64 +691,68 @@ class ValorantResultCardListBuilder
               ],
             ),
             trailing: model.isOrganizer
-                ? IconButton(
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (_) => AlertDialog(
-                          content: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Center(
-                                child: BoxText.headingFive(
-                                    'Result Game ${(resultIndex + 1).toString()} | result : ${model.valorantMatchResult[roundIndex][matchIndex.toString()]![resultIndex].resultId}'),
-                              ),
-                              UIHelper.verticalSpaceSmall(),
-                              const Center(
-                                child: BoxText.headingThree('Match finish?'),
-                              ),
-                              UIHelper.verticalSpaceSmall(),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
+                ? !model.valorantMatches[roundIndex][matchIndex].hasCompleted
+                    ? IconButton(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (_) => AlertDialog(
+                              content: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  BoxButton(
-                                    title: 'No',
-                                    height: 36,
-                                    width: 120,
-                                    outline: true,
-                                    onTap: () {
-                                      Navigator.pop(context);
-                                    },
+                                  Center(
+                                    child: BoxText.headingFive(
+                                        'Result Game ${(resultIndex + 1).toString()}'),
+                                    //  'Result Game ${(resultIndex + 1).toString()} | result : ${model.valorantMatchResult[roundIndex][matchIndex.toString()]![resultIndex].resultId}'),
                                   ),
-                                  UIHelper.horizontalSpaceSmall(),
-                                  BoxButton(
-                                    title: 'Finish',
-                                    height: 36,
-                                    width: 120,
-                                    onTap: () {
-                                      model.finishLobby(
-                                        roundIndex,
-                                        matchIndex,
-                                        resultIndex,
-                                      );
-                                      Navigator.pop(context);
-                                    },
+                                  UIHelper.verticalSpaceSmall(),
+                                  const Center(
+                                    child:
+                                        BoxText.headingThree('Match finish?'),
                                   ),
+                                  UIHelper.verticalSpaceSmall(),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      BoxButton(
+                                        title: 'No',
+                                        height: 36,
+                                        width: 120,
+                                        outline: true,
+                                        onTap: () {
+                                          Navigator.pop(context);
+                                        },
+                                      ),
+                                      UIHelper.horizontalSpaceSmall(),
+                                      BoxButton(
+                                        title: 'Finish',
+                                        height: 36,
+                                        width: 120,
+                                        onTap: () {
+                                          model.finishLobby(
+                                            roundIndex,
+                                            matchIndex,
+                                            resultIndex,
+                                          );
+                                          Navigator.pop(context);
+                                        },
+                                      ),
+                                    ],
+                                  )
                                 ],
-                              )
-                            ],
-                          ),
+                              ),
+                            ),
+                          );
+                        },
+                        icon: const Icon(
+                          Icons.edit,
+                          color: kcMediumGreyColor,
                         ),
-                      );
-                    },
-                    icon: const Icon(
-                      Icons.edit,
-                      color: kcMediumGreyColor,
-                    ),
-                  )
-                : null,
+                      )
+                    : const SizedBox.shrink()
+                : const SizedBox.shrink(),
           ),
         );
       },

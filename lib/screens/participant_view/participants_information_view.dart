@@ -68,8 +68,8 @@ class ParticipantInformationView extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-                                trailing: BoxText.subheading2(
-                                    'Seeding : ${model.participantList[index].seeding.toString()}'),
+                                // trailing: BoxText.subheading2(
+                                //     'Seeding : ${model.participantList[index].seeding.toString()}'),
                               ),
                             );
                           },
