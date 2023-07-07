@@ -58,7 +58,20 @@ class SeedingAlgorithm extends Seeding {
       List<ValorantMatch> matchList =
           matchDataList.map((e) => ValorantMatch.fromJson(e)).toList();
       matchList.sort((a, b) => a.match.compareTo(b.match));
-
+      //check if nextmatch is empty, if empty then this is final match
+      String nextMatchId = matchList[0].nextMatchId;
+      int gamePerMatch = tournament.gamePerMatch;
+      //This is final match, then adjust the game per match
+      if (nextMatchId.isEmpty) {
+        switch (gamePerMatch) {
+          case 1:
+            gamePerMatch = 3;
+            break;
+          case 3:
+            gamePerMatch = 5;
+            break;
+        }
+      }
       for (int match = 0; match < matchList.length; match++) {
         //only assign the team at round 1
         //1 match consist of two team
@@ -74,12 +87,13 @@ class SeedingAlgorithm extends Seeding {
         //   matchResultList.add(result);
         // }
         // matchResultList.sort((a, b) => a.gameNumber.compareTo(b.ga));
+
         if (teams.length >= 2) {
           TournamentParticipant teamA = teams.removeLast();
           TournamentParticipant teamB = teams.removeLast();
           // No need to create new result, instead rewrite it in the created result
           // get the result and update it
-          for (int game = 0; game < tournament.gamePerMatch; game++) {
+          for (int game = 0; game < gamePerMatch; game++) {
             await _database.update(
                 matchList[match].resultList[game],
                 {
@@ -99,7 +113,7 @@ class SeedingAlgorithm extends Seeding {
           if (teams.isNotEmpty) {
             //assign bye team
             TournamentParticipant lastTeam = teams.removeLast();
-            for (int game = 0; game < tournament.gamePerMatch; game++) {
+            for (int game = 0; game < gamePerMatch; game++) {
               await _database.update(
                   matchList[match].resultList[game],
                   {

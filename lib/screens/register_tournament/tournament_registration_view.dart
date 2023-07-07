@@ -420,8 +420,7 @@ class ValorantTaglineInputField
         BoxInputField(
           controller: text,
           inputFormatters: [
-            FilteringTextInputFormatter.allow(RegExp(r'^\d{0,4}$')),
-            LengthLimitingTextInputFormatter(4),
+            LengthLimitingTextInputFormatter(5),
           ],
           placeholder: '9999',
           onChanged: (tagline) {

@@ -97,16 +97,19 @@ class ValorantHenrikdevAPI extends ValorantDatabase {
             FirestoreCollections.valorantMatchResult);
         return teamAId;
       }
-
-      //select either player from both of this team
+      //get team information
       TournamentParticipant teamA = TournamentParticipant.fromJson(
           await _database.get(
               teamAId, FirestoreCollections.tournamentParticipant));
       TournamentParticipant teamB = TournamentParticipant.fromJson(
           await _database.get(
               teamBId, FirestoreCollections.tournamentParticipant));
+
+      // add all team information into one list
       List<dynamic> usernameList = [...teamA.usernameList];
       usernameList.addAll(teamB.usernameList);
+
+      //get all players puuid
       List<String> teamAPuuidList = teamA.usernameList
           .map((username) => username['usernameId'].toString())
           .toList();
@@ -117,7 +120,9 @@ class ValorantHenrikdevAPI extends ValorantDatabase {
           .map((username) => username['usernameId'].toString())
           .toList();
 
-      //all players username information
+      //Make a loop to get all the match summary based on the puuid
+      // Retry if status is not 200
+      // Retry if status is 200 but the match summary is not found
       for (int puuidIndex = 0; puuidIndex < puuidList.length; puuidIndex++) {
         String PPUID = puuidList[puuidIndex];
         //Make post request to our cloud function
@@ -139,24 +144,26 @@ class ValorantHenrikdevAPI extends ValorantDatabase {
           //When there is an error in the response status, we try to query again using other PPUID
           continue;
         } else {
-          if (_response['status'].length == 0) {
+          if (_response['data'].length == 0) {
             //When there is an error in the response status, we try to query again using other PPUID
             continue;
           } else {
             bool isCorrectMatchSummary = true;
-            int index = 0;
+            int correctMatchDataindex = 0;
             // If received data only we check if it the correct match summary
             for (int totalMatchFromTheQueryIndex = 0;
                 totalMatchFromTheQueryIndex < _response['data'].length;
                 totalMatchFromTheQueryIndex++) {
-              if (_response['data'][totalMatchFromTheQueryIndex]['metadata']
-                      ['mode'] !=
-                  'Custom Game') {
+              String gameMode = _response['data'][totalMatchFromTheQueryIndex]
+                  ['metadata']['mode'];
+
+              if (gameMode != 'Custom Game') {
                 continue;
               } else {
                 int totalPlayer = _response['data'][totalMatchFromTheQueryIndex]
                         ['players']['all_players']
                     .length;
+                //loop through all the player in the match summary to compare the puuID
                 for (int playerInData = 0;
                     playerInData < totalPlayer;
                     playerInData++) {
@@ -169,7 +176,7 @@ class ValorantHenrikdevAPI extends ValorantDatabase {
                     break;
                   }
                 }
-                index = totalMatchFromTheQueryIndex;
+                correctMatchDataindex = totalMatchFromTheQueryIndex;
               }
             }
 
@@ -177,79 +184,58 @@ class ValorantHenrikdevAPI extends ValorantDatabase {
               continue;
             } else {
               // if this is the correct match summary, we update the leaderboard
-              // Identify the red and blue team
+              // But first need to identify the red and blue team
+
+              //get one player data in red team
               Map<String, dynamic> playerInRedTeam =
-                  _response['data'][index]['players']['red'][0];
-              // Map<String, dynamic> blueTeam =
-              //     _response['data']['players']['blue'][0];
+                  _response['data'][correctMatchDataindex]['players']['red'][0];
 
-              for (int i = 0; i < teamAPuuidList.length; i++) {
-                if (playerInRedTeam['puuid'] == teamAPuuidList[i]) {
-                  //meaning teamA is a red team
-                  // teamB is a blue team
-                  Map<String, dynamic> redTeamResult =
-                      _response['data'][index]['teams']['red'];
-                  bool hasWon = redTeamResult['has_won'];
-                  int roundWon = redTeamResult['rounds_won'];
-                  int roundLost = redTeamResult['rounds_lost'];
+              // Check if player puuid is in teamA or teamB
+              if (teamAPuuidList.contains(playerInRedTeam['puuid'])) {
+                //meaning teamA is a red team
+                Map<String, dynamic> redTeamResult =
+                    _response['data'][correctMatchDataindex]['teams']['red'];
+                bool hasWon = redTeamResult['has_won'];
+                int roundWon = redTeamResult['rounds_won'];
+                int roundLost = redTeamResult['rounds_lost'];
 
-                  // Update the leaderboard
-                  await _database.update(
-                      result.resultId,
-                      {
-                        'teamAScore':
-                            hasWon ? roundWon.toString() : roundLost.toString(),
-                        'teamBScore':
-                            hasWon ? roundLost.toString() : roundWon.toString(),
-                        'winner': hasWon ? result.teamA : result.teamB,
-                        'loser': hasWon ? result.teamB : result.teamA,
-                        'isCompleted': true,
-                      },
-                      FirestoreCollections.valorantMatchResult);
-                  // //update the match score
-                  // if (hasWon) {
-                  //   await _database.update(
-                  //       match.matchId,
-                  //       {
-                  //         'teamAScore':
-                  //             (int.parse(match.teamAScore) + 1).toString(),
-                  //       },
-                  //       FirestoreCollections.valorantMatch);
-                  // } else {
-                  //   await _database.update(
-                  //       match.matchId,
-                  //       {
-                  //         'teamBScore':
-                  //             (int.parse(match.teamBScore) + 1).toString(),
-                  //       },
-                  //       FirestoreCollections.valorantMatch);
-                  // }
-                  return hasWon ? result.teamA : result.teamB;
-                }
+                // Update the leaderboard
+                await _database.update(
+                    result.resultId,
+                    {
+                      'teamAScore':
+                          hasWon ? roundWon.toString() : roundLost.toString(),
+                      'teamBScore':
+                          hasWon ? roundLost.toString() : roundWon.toString(),
+                      'winner': hasWon ? result.teamA : result.teamB,
+                      'loser': hasWon ? result.teamB : result.teamA,
+                      'isCompleted': true,
+                    },
+                    FirestoreCollections.valorantMatchResult);
+                return hasWon ? result.teamA : result.teamB;
+              } else {
+                //meaning teamA is a blue team
+                Map<String, dynamic> redTeamResult =
+                    _response['data'][correctMatchDataindex]['teams']['red'];
+                bool hasWon = redTeamResult['has_won'];
+                int roundWon = redTeamResult['rounds_won'];
+                int roundLost = redTeamResult['rounds_lost'];
+
+                // Update the leaderboard
+                await _database.update(
+                    result.resultId,
+                    {
+                      'teamAScore':
+                          hasWon ? roundLost.toString() : roundWon.toString(),
+                      'teamBScore':
+                          hasWon ? roundWon.toString() : roundLost.toString(),
+                      'winner': hasWon ? result.teamB : result.teamA,
+                      'loser': hasWon ? result.teamA : result.teamB,
+                      'isCompleted': true,
+                    },
+                    FirestoreCollections.valorantMatchResult);
+                return hasWon ? result.teamB : result.teamA;
               }
-              // Else if safe to assumme that teamB is a red team
-              // teamA is a blue team
-              // Update the leaderboard
-              Map<String, dynamic> redTeamResult =
-                  _response['data'][index]['teams']['red'];
-              bool hasWon = redTeamResult['has_won'];
-              int roundWon = redTeamResult['rounds_won'];
-              int roundLost = redTeamResult['rounds_lost'];
-
-              // Update the leaderboard
-              await _database.update(
-                  result.resultId,
-                  {
-                    'teamAScore':
-                        hasWon ? roundLost.toString() : roundWon.toString(),
-                    'teamBScore':
-                        hasWon ? roundWon.toString() : roundLost.toString(),
-                    'winner': hasWon ? result.teamB : result.teamA,
-                    'loser': hasWon ? result.teamA : result.teamB,
-                    'isCompleted': true,
-                  },
-                  FirestoreCollections.valorantMatchResult);
-              return hasWon ? result.teamB : result.teamA;
             }
           }
         }
