@@ -135,7 +135,7 @@ class TournamentDetailView extends StatelessWidget {
                                 FadeInUp(
                                   from: 60,
                                   child: BoxText.headingThree(
-                                    '${tournament.prizePool}000',
+                                    '${tournament.prizePool}',
                                   ),
                                 ),
                               ],
