@@ -197,7 +197,7 @@ class OrganizerNameInputField extends StackedHookView<SignUpViewModel> {
           controller: text,
           readOnly: false,
           placeholder: 'Company/Club Name',
-          onChanged: model.updateLastName,
+          onChanged: model.updateOrganization,
         ),
       ],
     );
