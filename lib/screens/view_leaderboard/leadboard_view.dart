@@ -375,10 +375,10 @@ class ApexResultCardListBuilder extends StackedHookView<LeaderboardViewModel> {
                                           'Result Game ${item.gameNumber}'),
                                     ),
                                     UIHelper.verticalSpaceSmall(),
-                                    Center(
-                                      child: BoxText.headingFive(
-                                          'result : ${item.resultId}'),
-                                    ),
+                                    // Center(
+                                    //   child: BoxText.headingFive(
+                                    //       'result : ${item.resultId}'),
+                                    // ),
                                     const Center(
                                       child: SizedBox(
                                         width: 220,
