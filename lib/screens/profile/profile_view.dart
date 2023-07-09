@@ -75,7 +75,7 @@ class ProfileView extends StatelessWidget {
           ),
         ),
         body: LiquidPullToRefresh(
-          onRefresh: model.refreshProfile,
+          onRefresh: model.getUserProfile,
           // showChildOpacityTransition: false,
           color: kcPrimaryColor,
           animSpeedFactor: 2,
