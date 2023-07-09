@@ -177,6 +177,7 @@ class ValorantHenrikdevAPI extends ValorantDatabase {
                   }
                 }
                 correctMatchDataindex = totalMatchFromTheQueryIndex;
+                break;
               }
             }
 
