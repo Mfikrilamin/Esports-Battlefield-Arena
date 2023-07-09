@@ -21,7 +21,6 @@ class MainHomeView extends StatelessWidget {
     return ViewModelBuilder<MainHomeViewModel>.reactive(
       viewModelBuilder: () => MainHomeViewModel(),
       builder: (context, model, child) {
-        model.setContext(context);
         return Scaffold(
           appBar: AppBar(
             automaticallyImplyLeading: false,
@@ -119,7 +118,6 @@ class TournamentCard extends StackedHookView<MainHomeViewModel> {
 
   @override
   Widget builder(BuildContext context, MainHomeViewModel model) {
-    print('Building tournament card ${index + 1}');
     return GestureDetector(
       onTap: () {
         // _toggleExpand();

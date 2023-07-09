@@ -3,26 +3,17 @@ import 'package:esports_battlefield_arena/app/router.gr.dart';
 import 'package:esports_battlefield_arena/app/service_locator.dart';
 import 'package:esports_battlefield_arena/models/organizer.dart';
 import 'package:esports_battlefield_arena/models/tournament.dart';
-import 'package:esports_battlefield_arena/services/firebase/authentication/auth.dart';
 import 'package:esports_battlefield_arena/services/firebase/database/database.dart';
 import 'package:esports_battlefield_arena/services/firebase/firestore_config.dart';
 import 'package:esports_battlefield_arena/services/log/log_services.dart';
 import 'package:esports_battlefield_arena/utils/enum.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:stacked/stacked.dart';
 
 class MainHomeViewModel extends FutureViewModel<void> {
   final AppRouter _router = locator<AppRouter>();
   final Database _database = locator<Database>();
   final log = locator<LogService>();
-  final Auth _auth = locator<Auth>();
   final LogService _log = locator<LogService>();
-
-  late BuildContext _context;
-
-  void setContext(BuildContext context) {
-    _context = context;
-  }
 
   //Tournament card
   int _selectedIndex = 0;

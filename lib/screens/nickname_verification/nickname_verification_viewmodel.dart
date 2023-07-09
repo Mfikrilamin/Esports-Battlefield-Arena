@@ -1,18 +1,11 @@
 import 'package:esports_battlefield_arena/app/router.dart';
-import 'package:esports_battlefield_arena/app/router.gr.dart';
 import 'package:esports_battlefield_arena/app/service_locator.dart';
-import 'package:esports_battlefield_arena/models/tournament.dart';
-import 'package:esports_battlefield_arena/services/firebase/firestore_config.dart';
 import 'package:esports_battlefield_arena/services/service.dart';
 import 'package:esports_battlefield_arena/utils/enum.dart';
 import 'package:stacked/stacked.dart';
 
 class NicknameVerificationViewModel extends BaseViewModel {
-  final AppRouter _router = locator<AppRouter>();
-  final Database _database = locator<Database>();
   final log = locator<LogService>();
-  final Auth _auth = locator<Auth>();
-  final LogService _log = locator<LogService>();
 
   //State of the view
   String _username = '';

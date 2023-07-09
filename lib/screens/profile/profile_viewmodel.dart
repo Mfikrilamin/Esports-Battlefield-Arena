@@ -10,10 +10,9 @@ import 'package:esports_battlefield_arena/services/firebase/firestore_config.dar
 import 'package:esports_battlefield_arena/services/log/log_services.dart';
 import 'package:esports_battlefield_arena/services/payment/stripe.dart';
 import 'package:esports_battlefield_arena/utils/enum.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:stacked/stacked.dart';
 
-class ProfileViewModel extends FutureViewModel<void> {
+class ProfileViewModel extends BaseViewModel {
   final AppRouter _router = locator<AppRouter>();
   Payment _StripeService = locator<Payment>();
   final _log = locator<LogService>();
@@ -124,8 +123,7 @@ class ProfileViewModel extends FutureViewModel<void> {
     }
   }
 
-  @override
-  Future<void> futureToRun() async {
+  Future<void> getUserProfile() async {
     try {
       //to decide whether to show player or organizer profile
       String userId = _auth.currentUser()!;
@@ -153,7 +151,6 @@ class ProfileViewModel extends FutureViewModel<void> {
     } catch (e) {
       _log.debug(e.toString());
     }
-    return Future.value();
   }
 
   void logout() async {

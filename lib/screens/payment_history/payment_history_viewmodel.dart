@@ -1,25 +1,18 @@
 import 'package:esports_battlefield_arena/app/failures.dart';
-import 'package:esports_battlefield_arena/app/router.dart';
-import 'package:esports_battlefield_arena/app/router.gr.dart';
 import 'package:esports_battlefield_arena/app/service_locator.dart';
 import 'package:esports_battlefield_arena/models/invoice.dart';
 import 'package:esports_battlefield_arena/models/player.dart';
-import 'package:esports_battlefield_arena/models/team.dart';
 import 'package:esports_battlefield_arena/models/tournament.dart';
-import 'package:esports_battlefield_arena/models/tournament_participant.dart';
-import 'package:esports_battlefield_arena/models/user.dart';
 import 'package:esports_battlefield_arena/services/firebase/authentication/auth.dart';
 import 'package:esports_battlefield_arena/services/firebase/database/database.dart';
 import 'package:esports_battlefield_arena/services/firebase/firestore_config.dart';
 import 'package:esports_battlefield_arena/services/log/log_services.dart';
 import 'package:esports_battlefield_arena/services/payment/stripe.dart';
-import 'package:esports_battlefield_arena/services/payment/stripe_service.dart';
 import 'package:esports_battlefield_arena/utils/date.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 
 class PaymentHistoryViewModel extends FutureViewModel<void> {
-  final AppRouter _router = locator<AppRouter>();
   final Payment _stripePaymentService = locator<Payment>();
   final Auth _auth = locator<Auth>();
   final Database _database = locator<Database>();

@@ -11,7 +11,6 @@ import 'package:esports_battlefield_arena/shared/box_input_field.dart';
 import 'package:esports_battlefield_arena/shared/box_text.dart';
 import 'package:esports_battlefield_arena/shared/ui_helper.dart';
 import 'package:esports_battlefield_arena/utils/enum.dart';
-import 'package:esports_battlefield_arena/utils/regex_validation_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -314,7 +313,6 @@ class TeamNameInputField
   const TeamNameInputField({Key? key}) : super(key: key, reactive: false);
   @override
   Widget builder(BuildContext context, TournamentRegistrationViewModel model) {
-    print('TeamNameInputField is being built');
     var text = useTextEditingController();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -337,7 +335,6 @@ class CountryInputField
   const CountryInputField({Key? key}) : super(key: key, reactive: false);
   @override
   Widget builder(BuildContext context, TournamentRegistrationViewModel model) {
-    print('CountryInputField is being built');
     var text = useTextEditingController();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

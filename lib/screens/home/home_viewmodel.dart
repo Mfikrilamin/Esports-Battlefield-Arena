@@ -9,11 +9,10 @@ import 'package:esports_battlefield_arena/services/log/log_services.dart';
 import 'package:esports_battlefield_arena/utils/enum.dart';
 import 'package:stacked/stacked.dart';
 
-class HomeViewModel extends FutureViewModel<void> {
+class HomeViewModel extends BaseViewModel {
   final AppRouter _router = locator<AppRouter>();
   final log = locator<LogService>();
   int _selectedIndex = 0;
-  AppRouter _appRouter = locator<AppRouter>();
   Auth _auth = locator<Auth>();
   Database _database = locator<Database>();
   LogService _log = locator<LogService>();
@@ -27,13 +26,13 @@ class HomeViewModel extends FutureViewModel<void> {
   }
 
   Future<void> currentUserIsPlayer() async {
-    String? userId = await _auth.currentUser()!;
+    String? userId = _auth.currentUser();
     if (userId == null) {
       //redirect to sign in
       _router.popUntil((route) => route.settings.name == SignInRoute.name);
     }
     User user =
-        User.fromJson(await _database.get(userId, FirestoreCollections.users));
+        User.fromJson(await _database.get(userId!, FirestoreCollections.users));
     if (user.role == UserRole.player.name) {
       isPlayer = true;
     } else {
@@ -43,7 +42,4 @@ class HomeViewModel extends FutureViewModel<void> {
     _log.debug('isPlayer : $isPlayer');
     notifyListeners();
   }
-
-  @override
-  Future<void> futureToRun() => currentUserIsPlayer();
 }

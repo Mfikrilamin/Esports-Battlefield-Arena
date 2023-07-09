@@ -8,8 +8,7 @@ import 'package:esports_battlefield_arena/services/firebase/database/database.da
 import 'package:esports_battlefield_arena/services/firebase/firestore_config.dart';
 import 'package:esports_battlefield_arena/services/log/log_services.dart';
 import 'package:esports_battlefield_arena/services/viewmodel_shared_data/tournament_service.dart';
-import 'package:esports_battlefield_arena/utils/enum.dart';
-import 'package:flutter/material.dart';
+
 import 'package:stacked/stacked.dart';
 
 class PlayerRegisterTournamentViewModel extends ReactiveViewModel {

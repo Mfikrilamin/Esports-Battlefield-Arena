@@ -1,18 +1,10 @@
 import 'dart:developer';
-import 'dart:ffi';
-
 import 'package:auto_route/auto_route.dart';
-import 'package:esports_battlefield_arena/models/invoice.dart';
-import 'package:esports_battlefield_arena/models/tournament.dart';
 import 'package:esports_battlefield_arena/screens/payment_history/payment_history_viewmodel.dart';
-import 'package:esports_battlefield_arena/services/payment/stripe_service.dart';
 import 'package:esports_battlefield_arena/shared/app_colors.dart';
-import 'package:esports_battlefield_arena/shared/box_button.dart';
 import 'package:esports_battlefield_arena/shared/box_text.dart';
 import 'package:esports_battlefield_arena/shared/ui_helper.dart';
-import 'package:esports_battlefield_arena/utils/enum.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_hooks/stacked_hooks.dart';
@@ -23,7 +15,6 @@ class PaymentHistoryView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("PaymentHistoryView page is being built");
     return ViewModelBuilder<PaymentHistoryViewModel>.reactive(
       viewModelBuilder: () => PaymentHistoryViewModel(),
       builder: (context, model, child) => Scaffold(

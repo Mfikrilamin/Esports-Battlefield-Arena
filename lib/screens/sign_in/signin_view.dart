@@ -19,7 +19,6 @@ class SignInView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("SignInView page is being built");
     return ViewModelBuilder<SignInViewModel>.reactive(
       viewModelBuilder: () => SignInViewModel(),
       builder: (context, model, child) => Scaffold(
@@ -129,7 +128,6 @@ class EmailInputField extends StackedHookView<SignInViewModel> {
   @override
   Widget builder(BuildContext context, SignInViewModel model) {
     var text = useTextEditingController();
-    print('EmailInputField is being built');
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -153,7 +151,6 @@ class PasswordInputField extends StackedHookView<SignInViewModel> {
   @override
   Widget builder(BuildContext context, SignInViewModel model) {
     var text = useTextEditingController();
-    print('PasswordInputField is being built');
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

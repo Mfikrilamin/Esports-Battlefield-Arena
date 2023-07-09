@@ -17,7 +17,6 @@ class SignUpView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("SignUpView page is being built");
     return ViewModelBuilder<SignUpViewModel>.reactive(
       viewModelBuilder: () => SignUpViewModel(),
       builder: (context, model, child) => Scaffold(
@@ -82,7 +81,6 @@ class EmailInputField extends StackedHookView<SignUpViewModel> {
 
   @override
   Widget builder(BuildContext context, SignUpViewModel model) {
-    print('EmailInputField is being built');
     var text = useTextEditingController();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,7 +104,6 @@ class PasswordInputField extends StackedHookView<SignUpViewModel> {
 
   @override
   Widget builder(BuildContext context, SignUpViewModel model) {
-    print('PasswordInputField is being built');
     var text = useTextEditingController();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -129,7 +126,6 @@ class AddressInputField extends StackedHookView<SignUpViewModel> {
   const AddressInputField({Key? key}) : super(key: key, reactive: false);
   @override
   Widget builder(BuildContext context, SignUpViewModel model) {
-    print('AddressInputField is being built');
     var text = useTextEditingController();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -151,7 +147,6 @@ class CountryInputField extends StackedHookView<SignUpViewModel> {
   const CountryInputField({Key? key}) : super(key: key, reactive: false);
   @override
   Widget builder(BuildContext context, SignUpViewModel model) {
-    print('CountryInputField is being built');
     var text = useTextEditingController(text: model.country);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,7 +184,6 @@ class UserTypeInputField extends StackedHookView<SignUpViewModel> {
   const UserTypeInputField({Key? key}) : super(key: key, reactive: true);
   @override
   Widget builder(BuildContext context, SignUpViewModel model) {
-    print('UserTypeInputField is being built');
     // var text = useTextEditingController();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

@@ -5,7 +5,6 @@ import 'package:esports_battlefield_arena/app/router.gr.dart';
 import 'package:esports_battlefield_arena/app/service_locator.dart';
 import 'package:esports_battlefield_arena/models/apex_match.dart';
 import 'package:esports_battlefield_arena/models/apex_match_result.dart';
-import 'package:esports_battlefield_arena/models/organizer.dart';
 import 'package:esports_battlefield_arena/models/user.dart';
 import 'package:esports_battlefield_arena/models/valorant_match.dart';
 import 'package:esports_battlefield_arena/models/valorant_match_result.dart';

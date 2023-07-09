@@ -1,5 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:country_picker/country_picker.dart';
 import 'package:esports_battlefield_arena/screens/sign_up/signup_viewmodel.dart';
 import 'package:esports_battlefield_arena/shared/app_colors.dart';
 import 'package:esports_battlefield_arena/shared/box_button.dart';
@@ -18,7 +17,6 @@ class SignUpNextView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("SignUpNextView page is being built");
     return ViewModelBuilder<SignUpViewModel>.reactive(
       viewModelBuilder: () => SignUpViewModel(),
       builder: (context, model, child) => Scaffold(

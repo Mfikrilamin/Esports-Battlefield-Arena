@@ -11,7 +11,6 @@ class MyOrganizedTournamentViewModel extends FutureViewModel<void> {
   final Database _database = locator<Database>();
   final log = locator<LogService>();
   final Auth _auth = locator<Auth>();
-  final LogService _log = locator<LogService>();
 
   //State of the view
   List<Tournament> _organizedTournamentList = [];
