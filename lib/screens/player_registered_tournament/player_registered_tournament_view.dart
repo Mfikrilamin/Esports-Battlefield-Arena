@@ -46,7 +46,32 @@ class PlayerRegisteredTournamentView extends StatelessWidget {
                           itemBuilder: (context, index) {
                             return ListTile(
                               onTap: () {
-                                model.navigateToLeaderboard(index);
+                                if (model.registeredTournamentList[index]
+                                        .status ==
+                                    GameStatus.pending.name) {
+                                  showDialog(
+                                    context: context,
+                                    builder: (_) => AlertDialog(
+                                      content: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Row(
+                                            children: const [
+                                              Icon(
+                                                Icons.error,
+                                                color: Colors.red,
+                                              ),
+                                              Text(
+                                                  "Tournament haven't started yet"),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                } else {
+                                  model.navigateToLeaderboard(index);
+                                }
                               },
                               visualDensity: const VisualDensity(vertical: 3),
                               leading: CircleAvatar(
