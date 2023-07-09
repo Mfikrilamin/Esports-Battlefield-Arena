@@ -201,10 +201,10 @@ class TournamentService with ReactiveServiceMixin {
     _endDate.value = DateHelper.formatString(tournament.endDate);
     switch (tournament.game == GameType.ApexLegend.name) {
       case true:
-        _gameSelectedIndex.value = 1;
+        _gameSelectedIndex.value = 0;
         break;
       case false:
-        _gameSelectedIndex.value = 0;
+        _gameSelectedIndex.value = 1;
         break;
     }
     switch (tournament.isSolo) {
