@@ -1,7 +1,6 @@
 import 'package:esports_battlefield_arena/app/app.dart';
 import 'package:esports_battlefield_arena/app/router.dart';
 import 'package:esports_battlefield_arena/app/router.gr.dart';
-import 'package:esports_battlefield_arena/app/service_locator.dart';
 import 'package:esports_battlefield_arena/services/firebase/authentication/auth.dart';
 import 'package:esports_battlefield_arena/services/log/log_services.dart';
 import 'package:esports_battlefield_arena/utils/regex_validation_helper.dart';

@@ -148,6 +148,7 @@ class ProfileViewModel extends BaseViewModel {
         _log.info('Organizer: $organizer');
         _organization = organizer.organizerName;
       }
+      notifyListeners();
     } catch (e) {
       _log.debug(e.toString());
     }
