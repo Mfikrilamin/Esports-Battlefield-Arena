@@ -312,7 +312,7 @@ class SeedingAlgorithm extends Seeding {
       totalTeams = (totalTeams / 2).ceil();
     }
 
-    _database.update(tournament.tournamentId,
+    await _database.update(tournament.tournamentId,
         {'matchList': tournament.matchList}, FirestoreCollections.tournament);
   }
 
