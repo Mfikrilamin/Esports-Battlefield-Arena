@@ -161,12 +161,4 @@ class ProfileViewModel extends BaseViewModel {
     //pop all the screens and navigate to sign in screen
     _router.popUntil((route) => route.settings.name == SignInRoute.name);
   }
-
-  Future<void> refreshProfile() {
-    // if (isPlayer) {
-    //   player = Player.fromJson(await _database.get(, collection));
-    // } else {}
-    // notifyListeners();
-    return Future.value();
-  }
 }
