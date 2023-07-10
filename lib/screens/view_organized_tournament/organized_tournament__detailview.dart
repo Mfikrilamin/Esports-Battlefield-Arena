@@ -232,7 +232,7 @@ class OrganizedTournamentDetailView extends StatelessWidget {
                                           SizedBox(
                                             width: 200,
                                             child: Text(
-                                                'There is an error creating seeding'),
+                                                'No particpant registered for this tournament yet'),
                                           ),
                                         ],
                                       ),
