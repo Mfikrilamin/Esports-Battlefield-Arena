@@ -50,3 +50,6 @@ ios/Runner/GoogleService-Info.plist
 
 #stripe
 .env
+
+#Google cloud platform key
+/android/app/google-services.json
