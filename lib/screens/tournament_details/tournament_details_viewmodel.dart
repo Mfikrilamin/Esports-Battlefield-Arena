@@ -11,15 +11,19 @@ import 'package:stacked/stacked.dart';
 class TournamentDetailViewModel extends BaseViewModel {
   final AppRouter _router = locator<AppRouter>();
   final Database _database = locator<Database>();
-  bool _isOrganizer = false;
 
-  // getter
-  bool get isOrganizer => _isOrganizer;
+  //State of the view
+  String _organizerName = '';
 
-  Future<String> getOrganizerName(String id) async {
-    Organizer _organizer = Organizer.fromJson(
+  // Getters
+  String get organizerName => _organizerName;
+
+  // Setters
+  void getOrganizerName(String id) async {
+    Organizer organizer = Organizer.fromJson(
         await _database.get(id, FirestoreCollections.organizer));
-    return _organizer.organizerName;
+    _organizerName = organizer.organizerName;
+    notifyListeners();
   }
 
   Future<void> registerTournament(Tournament tournament) async {

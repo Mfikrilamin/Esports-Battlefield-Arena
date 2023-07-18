@@ -169,39 +169,10 @@ class PaymentHistoryViewModel extends FutureViewModel<void> {
         dataInvoices.add(dataInvoice);
       }
 
-      // // Search for all invoice that is paid user - START
-      // List<Map<String, dynamic>> userParticipantsData = await _database
-      //     .getAllByQuery(['participatedBy'], [_auth.currentUser()!],
-      //         FirestoreCollections.tournamentParticipant);
-
-      // for (int i = 0; i < userParticipantsData.length; i++) {
-      //   Map<String, dynamic>? dataInvoice = await _database.getByQuery(
-      //       ['paidBy'],
-      //       [userParticipantsData[i]['participantId']],
-      //       FirestoreCollections.invoice);
-      //   dataInvoices.add(dataInvoice);
-      // }
-      // // Search for all invoice that is paid user - END
-
-      // // Search for all invoice that is paid by the team that the user joined - START
-      // List<Map<String, dynamic>> teamDataJoinedByUser =
-      //     await _database.getAllByQueryList(
-      //         'memberList', _auth.currentUser()!, FirestoreCollections.team);
-
-      // for (int i = 0; i < teamDataJoinedByUser.length; i++) {
-      //   Map<String, dynamic>? dataInvoicesTeam = await _database.getByQuery(
-      //       ['paidBy'],
-      //       [teamDataJoinedByUser[i]['teamId']],
-      //       FirestoreCollections.invoice);
-      //   dataInvoices.add(dataInvoicesTeam);
-      // }
-      // // Search for all invoice that is paid by the team that the user joined - END
-
       _log.info('Invoice List: $dataInvoices');
       _log.debug('list length: ${dataInvoices.length}');
       _log.debug('first invoice ${dataInvoices[0]}');
 
-      // dataInvoices.map((invoice) => Invoice.fromJson(invoice)).toList();
       List<Invoice> tempPaidInvoiceList = [];
       List<Invoice> tempUnpaidInvoiceList = [];
       for (int i = 0; i < dataInvoices.length; i++) {
@@ -221,8 +192,6 @@ class PaymentHistoryViewModel extends FutureViewModel<void> {
         _log.debug('Invoice: ${newInvoice.toJson()}');
         if (newInvoice.isPaid == false) {
           tempUnpaidInvoiceList.add(newInvoice);
-          // _invoiceList.add(newInvoice);
-          // _tempInvoiceList.add(newInvoice);
         } else {
           tempPaidInvoiceList.add(newInvoice);
         }

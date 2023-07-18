@@ -14,15 +14,17 @@ import 'package:stacked/stacked.dart';
 
 class ProfileViewModel extends BaseViewModel {
   final AppRouter _router = locator<AppRouter>();
-  Payment _StripeService = locator<Payment>();
+  final Payment _stripeService = locator<Payment>();
   final _log = locator<LogService>();
   final Database _database = locator<Database>();
   final Auth _auth = locator<Auth>();
 
+  // Model of the view
   User user = User();
   Player player = Player();
   Organizer organizer = Organizer();
 
+  // Data of the view
   String _email = '';
   String _password = '';
   String _address = '';
@@ -30,6 +32,8 @@ class ProfileViewModel extends BaseViewModel {
   String _firstName = '';
   String _lastName = '';
   String _organization = '';
+
+  // State of the view
   bool _isPlayer = true;
   bool _isUpdateSucess = false;
 
@@ -42,9 +46,9 @@ class ProfileViewModel extends BaseViewModel {
   String get firstName => _firstName;
   String get lastName => _lastName;
   String get organization => _organization;
-
   bool get isUpdateSuccess => _isUpdateSucess;
 
+  // Setters
   void updateEmail(String email) {
     _email = email;
     notifyListeners();
@@ -52,34 +56,29 @@ class ProfileViewModel extends BaseViewModel {
 
   void updatePassword(String password) {
     _password = password;
-    // notifyListeners();q
   }
 
   void updateAddress(String address) {
     _address = address;
-    // notifyListeners();
   }
 
   void updateCountry(String name, String countryCode) {
     _country = name;
-    // notifyListeners();
   }
 
   void updateFirstName(String firstName) {
     _firstName = firstName;
-    // notifyListeners();
   }
 
   void updateLastName(String lastName) {
     _lastName = lastName;
-    // notifyListeners();
   }
 
   void updateOrganization(String organization) {
     _organization = organization;
-    // notifyListeners();
   }
 
+  // Business Logic
   Future<void> updateProfileInformation() async {
     try {
       setBusy(true);
@@ -156,7 +155,7 @@ class ProfileViewModel extends BaseViewModel {
 
   void logout() async {
     //Sign out user
-    await _StripeService.clearAllPaymentSheet();
+    await _stripeService.clearAllPaymentSheet();
     await _auth.signOut();
     //pop all the screens and navigate to sign in screen
     _router.popUntil((route) => route.settings.name == SignInRoute.name);

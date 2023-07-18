@@ -15,10 +15,11 @@ class OrganizedTournamentDetailViewModel extends ReactiveViewModel {
   final Seeding _seedingAlgorithm = locator<Seeding>();
   final _tournamentService = locator<TournamentService>();
 
-  // State
+  // State if the view
   bool isParticipantButtonBusy = false;
   bool isLeaderboardButtonBusy = false;
 
+  // Setters
   void updateTournament(Tournament tournament) {
     _tournamentService.updateTournament(tournament);
     notifyListeners();
@@ -29,6 +30,7 @@ class OrganizedTournamentDetailViewModel extends ReactiveViewModel {
     _router.push(const CreateTournamentRoute());
   }
 
+  // business logic
   Future<void> viewAllParticipants(Tournament tournament) async {
     isParticipantButtonBusy = true;
     notifyListeners();
@@ -38,26 +40,15 @@ class OrganizedTournamentDetailViewModel extends ReactiveViewModel {
     notifyListeners();
   }
 
-  @override
-  List<ReactiveServiceMixin> get reactiveServices => [_tournamentService];
-
   Future<bool> createSeeding(Tournament tournament) async {
-    // await _database.update(tournament.tournamentId, {'matchList': []},
-    //     FirestoreCollections.tournament);
     try {
       setBusy(true);
       bool sucess = false;
       if (tournament.game == GameType.ApexLegend.name) {
-        // _seedingAlgorithm.generateMatchForApex(tournament);
         sucess = await _seedingAlgorithm.seedTeamsForApex(tournament);
       } else {
-        // _seedingAlgorithm.generateMatchForSingleElimination(tournament, 3);
         sucess =
             await _seedingAlgorithm.seedTeamsForSingleElimination(tournament);
-        // for (int i = 0; i < tournament.matchList.length; i++) {
-        //   await _database.delete(
-        //       tournament.matchList[i], FirestoreCollections.valorantMatch);
-        // }
       }
 
       setBusy(false);
@@ -83,4 +74,7 @@ class OrganizedTournamentDetailViewModel extends ReactiveViewModel {
     isLeaderboardButtonBusy = false;
     notifyListeners();
   }
+
+  @override
+  List<ReactiveServiceMixin> get reactiveServices => [_tournamentService];
 }

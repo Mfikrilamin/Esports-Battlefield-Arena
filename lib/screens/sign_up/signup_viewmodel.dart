@@ -19,8 +19,10 @@ class SignUpViewModel extends ReactiveViewModel {
   final Auth _auth = locator<Auth>();
   final log = locator<LogService>();
 
-  //State of the viewmodel
+  // Data of the view
   final _signUpViewModelService = locator<SignUpViewModelService>();
+
+  //State of the view
   bool _emailValid = false;
   bool _isSignUp = false;
 
@@ -32,6 +34,7 @@ class SignUpViewModel extends ReactiveViewModel {
   bool get isEmailValid => _emailValid;
   bool get isSignUpSucess => _isSignUp;
 
+  //Setters
   void updateEmail(String email) {
     _emailValid = RegexValidation.validateEmail(email);
     _signUpViewModelService.updateEmail(email);
@@ -61,32 +64,12 @@ class SignUpViewModel extends ReactiveViewModel {
     _signUpViewModelService.updateOrganization(organization);
   }
 
-  void navigateToSignInPage() {
-    //reset the state of viewmodel
-    _signUpViewModelService.reset();
-    _router.popUntilRoot();
-    _router.push(const SignInRoute());
-  }
-
-  void navigateToSignInNextPage() {
-    if (_emailValid) {
-      _router.push(const SignUpNextRoute());
-    }
-  }
-
-  void navigatetoPreviousPage() {
-    //need to reset the firstname,lastname and organization
-    _signUpViewModelService.updateFirstName('');
-    _signUpViewModelService.updateLastName('');
-    _signUpViewModelService.updateOrganization('');
-    _router.pop();
-  }
-
   void updateIsPlayer(bool bool) {
     _signUpViewModelService.updateIsPlayer(bool);
     notifyListeners();
   }
 
+  // Business Logic
   Future processSignUp() async {
     try {
       final currentPath = _router.current.path;
@@ -101,6 +84,7 @@ class SignUpViewModel extends ReactiveViewModel {
               'organization: ${_signUpViewModelService.organization} \n' +
               'isPlayer: ${_signUpViewModelService.isPlayer}}');
       setBusy(true);
+
       //register player or organization
       String? currentUserId = await _auth.createAccount(
           _signUpViewModelService.email, _signUpViewModelService.password);
@@ -118,7 +102,7 @@ class SignUpViewModel extends ReactiveViewModel {
           password: _signUpViewModelService.password,
           role: isPlayer ? UserRole.player.name : UserRole.organizer.name,
         );
-        _database.add(newUser.toJson(), FirestoreCollections.users);
+        await _database.add(newUser.toJson(), FirestoreCollections.users);
         if (isPlayer) {
           //createPlayer
           Player newPlayer = Player(
@@ -126,13 +110,14 @@ class SignUpViewModel extends ReactiveViewModel {
               firstName: _signUpViewModelService.firstName,
               lastName: _signUpViewModelService.lastName);
 
-          _database.add(newPlayer.toJson(), FirestoreCollections.player);
+          await _database.add(newPlayer.toJson(), FirestoreCollections.player);
         } else {
           //createOrganization
           Organizer newOrganizer = Organizer(
               userId: currentUserId,
               organizerName: _signUpViewModelService.organization);
-          _database.add(newOrganizer.toJson(), FirestoreCollections.organizer);
+          await _database.add(
+              newOrganizer.toJson(), FirestoreCollections.organizer);
         }
       }
       setBusy(false);
@@ -160,4 +145,26 @@ class SignUpViewModel extends ReactiveViewModel {
 
   @override
   List<ReactiveServiceMixin> get reactiveServices => [_signUpViewModelService];
+
+  // Navigation
+  void navigateToSignInPage() {
+    //reset the state of viewmodel
+    _signUpViewModelService.reset();
+    _router.popUntilRoot();
+    _router.push(const SignInRoute());
+  }
+
+  void navigateToSignInNextPage() {
+    if (_emailValid) {
+      _router.push(const SignUpNextRoute());
+    }
+  }
+
+  void navigatetoPreviousPage() {
+    //need to reset the firstname,lastname and organization
+    _signUpViewModelService.updateFirstName('');
+    _signUpViewModelService.updateLastName('');
+    _signUpViewModelService.updateOrganization('');
+    _router.pop();
+  }
 }

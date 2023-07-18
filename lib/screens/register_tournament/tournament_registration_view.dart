@@ -62,152 +62,23 @@ class TournamentRegistrationView extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Flexible(
-                              flex: 6,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  FadeInRight(
-                                    from: 60,
-                                    child: BoxText.headingTwo(tournament.title),
-                                  ),
-                                  UIHelper.verticalSpaceSmall(),
-                                  FadeInRight(
-                                    from: 70,
-                                    delay: const Duration(milliseconds: 200),
-                                    child: BoxText.body(tournament.game),
-                                  ),
-                                ],
-                              ),
-                            ),
+                            TournamentTitleAndGame(tournament: tournament),
                             UIHelper.horizontalSpaceSmall(),
-                            Flexible(
-                              flex: 3,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  FadeInRight(
-                                    from: 60,
-                                    child: const BoxText.headingThree(
-                                      'MYR',
-                                    ),
-                                  ),
-                                  FadeInRight(
-                                    from: 60,
-                                    child: BoxText.headingThree(
-                                      '${tournament.prizePool}000',
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                            PrizePool(tournament: tournament),
                           ],
                         ),
                         UIHelper.verticalSpaceMedium(),
-                        FadeInRight(
-                          delay: const Duration(milliseconds: 200),
-                          from: 60,
-                          child: BoxText.caption(tournament.description),
-                        ),
+                        TournamentDescription(tournament: tournament),
                         UIHelper.verticalSpaceMedium(),
-                        FadeInRight(
-                          delay: const Duration(milliseconds: 200),
-                          from: 60,
-                          child: Row(
-                            children: [
-                              const BoxText.headingFour('Fee: RM '),
-                              BoxText.headingFour(
-                                  tournament.entryFee.toString()),
-                            ],
-                          ),
-                        ),
+                        TournamentFees(tournament: tournament),
                         UIHelper.verticalSpaceMediumLarge(),
                         const TeamInformation(),
                         UIHelper.verticalSpaceMediumLarge(),
+                        const TournamentParticipants(),
                         FadeInRight(
-                          from: 70,
-                          delay: const Duration(milliseconds: 200),
-                          child: const BoxText.headingThree('Participant(s)'),
-                        ),
-                        // UIHelper.verticalSpaceSmall(),
-                        FadeInRight(
-                          delay: const Duration(milliseconds: 500),
-                          from: 60,
-                          child: !model.isBusy
-                              ? ListView.builder(
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  shrinkWrap: true,
-                                  itemCount: (tournament.game ==
-                                          GameType.Valorant.name)
-                                      ? 5
-                                      : tournament.isSolo
-                                          ? 1
-                                          : 3,
-                                  itemBuilder: (context, index) {
-                                    return Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        UIHelper.verticalSpaceMedium(),
-                                        FadeInRight(
-                                          from: 60,
-                                          delay:
-                                              const Duration(milliseconds: 500),
-                                          child: BoxText.subheading(
-                                              'Participant ${index + 1}'),
-                                        ),
-                                        UIHelper.verticalSpaceSmall(),
-                                        EmailInputField(
-                                          index,
-                                          model.getEmailController[index],
-                                          key: UniqueKey(),
-                                        ),
-                                        UIHelper.verticalSpaceSmall(),
-                                        UsernameInputField(
-                                          index,
-                                          key: UniqueKey(),
-                                        ),
-                                        UIHelper.verticalSpaceSmall(),
-                                        tournament.game ==
-                                                GameType.Valorant.name
-                                            ? ValorantTaglineInputField(
-                                                index,
-                                                key: UniqueKey(),
-                                              )
-                                            : tournament.game ==
-                                                    GameType.ApexLegend.name
-                                                ? ApexPlatformTypeInputField(
-                                                    index,
-                                                    key: UniqueKey(),
-                                                  )
-                                                : Container(),
-                                        UIHelper.verticalSpaceSmall(),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          children: [
-                                            BoxButton(
-                                              textSize: 12,
-                                              height: 30,
-                                              width: 60,
-                                              title: 'Verify',
-                                              onTap: () {
-                                                model.verifyPlayerUsername(
-                                                    tournament.game,
-                                                    index,
-                                                    context);
-                                              },
-                                            )
-                                          ],
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                )
-                              : const Center(
-                                  child: CircularProgressIndicator(),
-                                ),
-                        ),
+                            delay: const Duration(milliseconds: 500),
+                            from: 60,
+                            child: TournamentForms(tournament: tournament)),
                       ],
                     ),
                   ),
@@ -220,18 +91,63 @@ class TournamentRegistrationView extends StatelessWidget {
                     color: kcWhiteColor,
                     child: BoxButton(
                       title: 'Pay Now',
-                      onTap: () => {
-                        model.registerTournament(
-                            tournament.tournamentId,
-                            context,
-                            isSolo: tournament.isSolo,
-                            (tournament.game == GameType.Valorant.name)
-                                ? 5
-                                : tournament.isSolo
-                                    ? 1
-                                    : 3),
+                      onTap: () {
+                        model
+                            .registerTournament(
+                                tournament.tournamentId,
+                                context,
+                                isSolo: tournament.isSolo,
+                                (tournament.game == GameType.Valorant.name)
+                                    ? 5
+                                    : tournament.isSolo
+                                        ? 1
+                                        : 3)
+                            .then((msg) {
+                          if (msg == 'Register Successfull') {
+                            showDialog(
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Row(
+                                      children: const [
+                                        Icon(
+                                          Icons.check_circle,
+                                          color: Colors.green,
+                                        ),
+                                        Text("Register Successfull"),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ).then((value) =>
+                                model.navigateToAfterTournamentRegistration());
+                          } else {
+                            showDialog(
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.check_circle,
+                                          color: Colors.red,
+                                        ),
+                                        Text(msg),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }
+                        });
                       },
-                      busy: model.isBusy,
+                      busy: model.isRegisterButtonBusy,
                     ),
                   ),
                 ),
@@ -239,6 +155,201 @@ class TournamentRegistrationView extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class TournamentForms extends StackedHookView<TournamentRegistrationViewModel> {
+  const TournamentForms({
+    super.key,
+    required this.tournament,
+  });
+
+  final Tournament tournament;
+
+  @override
+  Widget builder(BuildContext context, TournamentRegistrationViewModel model) {
+    return ListView.builder(
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      itemCount: (tournament.game == GameType.Valorant.name)
+          ? 5
+          : tournament.isSolo
+              ? 1
+              : 3,
+      itemBuilder: (context, index) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            UIHelper.verticalSpaceMedium(),
+            FadeInRight(
+              from: 60,
+              delay: const Duration(milliseconds: 500),
+              child: BoxText.subheading('Participant ${index + 1}'),
+            ),
+            UIHelper.verticalSpaceSmall(),
+            !model.isBusy
+                ? EmailInputField(
+                    index,
+                    model.getEmailController[index],
+                    key: UniqueKey(),
+                  )
+                : const CircularProgressIndicator(),
+            UIHelper.verticalSpaceSmall(),
+            UsernameInputField(
+              index,
+              key: UniqueKey(),
+            ),
+            UIHelper.verticalSpaceSmall(),
+            tournament.game == GameType.Valorant.name
+                ? ValorantTaglineInputField(
+                    index,
+                    key: UniqueKey(),
+                  )
+                : tournament.game == GameType.ApexLegend.name
+                    ? ApexPlatformTypeInputField(
+                        index,
+                        key: UniqueKey(),
+                      )
+                    : Container(),
+            UIHelper.verticalSpaceSmall(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                BoxButton(
+                  textSize: 12,
+                  height: 30,
+                  width: 60,
+                  title: 'Verify',
+                  onTap: () {
+                    model.verifyPlayerUsername(tournament.game, index, context);
+                  },
+                )
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class TournamentParticipants extends StatelessWidget {
+  const TournamentParticipants({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeInRight(
+      from: 70,
+      delay: const Duration(milliseconds: 200),
+      child: const BoxText.headingThree('Participant(s)'),
+    );
+  }
+}
+
+class TournamentFees extends StatelessWidget {
+  const TournamentFees({
+    super.key,
+    required this.tournament,
+  });
+
+  final Tournament tournament;
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeInRight(
+      delay: const Duration(milliseconds: 200),
+      from: 60,
+      child: Row(
+        children: [
+          const BoxText.headingFour('Fee: RM '),
+          BoxText.headingFour(tournament.entryFee.toString()),
+        ],
+      ),
+    );
+  }
+}
+
+class TournamentDescription extends StatelessWidget {
+  const TournamentDescription({
+    super.key,
+    required this.tournament,
+  });
+
+  final Tournament tournament;
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeInRight(
+      delay: const Duration(milliseconds: 200),
+      from: 60,
+      child: BoxText.caption(tournament.description),
+    );
+  }
+}
+
+class PrizePool extends StatelessWidget {
+  const PrizePool({
+    super.key,
+    required this.tournament,
+  });
+
+  final Tournament tournament;
+
+  @override
+  Widget build(BuildContext context) {
+    return Flexible(
+      flex: 3,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          FadeInRight(
+            from: 60,
+            child: const BoxText.headingThree(
+              'MYR',
+            ),
+          ),
+          FadeInRight(
+            from: 60,
+            child: BoxText.headingThree(
+              '${tournament.prizePool}000',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class TournamentTitleAndGame extends StatelessWidget {
+  const TournamentTitleAndGame({
+    super.key,
+    required this.tournament,
+  });
+
+  final Tournament tournament;
+
+  @override
+  Widget build(BuildContext context) {
+    return Flexible(
+      flex: 6,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          FadeInRight(
+            from: 60,
+            child: BoxText.headingTwo(tournament.title),
+          ),
+          UIHelper.verticalSpaceSmall(),
+          FadeInRight(
+            from: 70,
+            delay: const Duration(milliseconds: 200),
+            child: BoxText.body(tournament.game),
+          ),
+        ],
       ),
     );
   }

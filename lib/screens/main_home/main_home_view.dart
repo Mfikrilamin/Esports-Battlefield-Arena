@@ -30,7 +30,6 @@ class MainHomeView extends StatelessWidget {
           ),
           body: LiquidPullToRefresh(
             onRefresh: model.refreshTournaments,
-            // showChildOpacityTransition: false,
             color: kcPrimaryColor,
             animSpeedFactor: 2,
             backgroundColor: kcPrimaryLightColor,
@@ -73,6 +72,7 @@ class MainHomeView extends StatelessWidget {
                   ),
                 ),
                 model.tournamentList.isNotEmpty
+                    // If tournament is not empty, we build the list of tournaments card
                     ? Expanded(
                         child: ListView.builder(
                           itemCount: model.tournamentList.length,
@@ -84,7 +84,9 @@ class MainHomeView extends StatelessWidget {
                           },
                         ),
                       )
-                    : ListView(
+                    :
+                    // If tournament empty we show a message
+                    ListView(
                         shrinkWrap: true,
                         children: const [
                           SizedBox(
@@ -105,7 +107,6 @@ class MainHomeView extends StatelessWidget {
   }
 }
 
-//Solution to fix the whole list getting rebuild try #!1
 class TournamentCard extends StackedHookView<MainHomeViewModel> {
   final int index;
   final double _ACTIVEHEIGHT = 250;
@@ -120,7 +121,6 @@ class TournamentCard extends StackedHookView<MainHomeViewModel> {
   Widget builder(BuildContext context, MainHomeViewModel model) {
     return GestureDetector(
       onTap: () {
-        // _toggleExpand();
         if (model.selectedIndex != index) {
           model.updateSelectedIndex(index);
         } else {
@@ -189,7 +189,6 @@ class TournamentCardSt extends StatelessWidget {
     return SizedBox(
       height: 250,
       width: double.infinity,
-      // decoration: const BoxDecoration(color: kcPrimaryColor),
       child: Stack(
         children: [
           AnimatedPositioned(
@@ -203,7 +202,6 @@ class TournamentCardSt extends StatelessWidget {
                 duration: const Duration(milliseconds: 400),
                 child: BoxText.body(
                   (index + 1).toString(),
-                  // index.toString(),
                   color: kcVeryDarkGreyTextColor,
                 ),
               ),
@@ -238,7 +236,6 @@ class TournamentCardSt extends StatelessWidget {
               width: 70,
               child: BoxText.caption(
                 tournament.startDate,
-                // color: kcVeryDarkGreyTextColor,
               ),
             ),
           ),
@@ -250,7 +247,6 @@ class TournamentCardSt extends StatelessWidget {
               width: 70,
               child: BoxText.caption(
                 tournament.endDate,
-                // color: kcVeryDarkGreyTextColor,
               ),
             ),
           ),
@@ -358,211 +354,9 @@ class TournamentCardSt extends StatelessWidget {
                     ],
                   ),
                 )
-              : Container(),
+              : const SizedBox.shrink(),
         ],
       ),
     );
   }
-}
-
-class BuildExpandedTournament extends StatelessWidget {
-  const BuildExpandedTournament({
-    Key? key,
-    required this.tournament,
-  }) : super(key: key);
-
-  final Tournament tournament;
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          BoxText.headingFour(tournament.title),
-          UIHelper.verticalSpaceSmall(),
-          Container(
-            height: 3,
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              color: kcPrimaryDarkerColor,
-              borderRadius: BorderRadius.all(
-                Radius.circular(20),
-              ),
-            ),
-          ),
-          UIHelper.verticalSpaceSmall(),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  BoxText.body(
-                    'Prize pool',
-                  ),
-                  BoxText.headingFour('RM ${tournament.prizePool}'),
-                  UIHelper.verticalSpaceMedium(),
-                  Row(
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          BoxText.body('Start Date'),
-                          BoxText.caption(tournament.startDate),
-                        ],
-                      ),
-                      UIHelper.horizontalSpaceMedium(),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          BoxText.body('End Date'),
-                          BoxText.caption(tournament.endDate),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              // buildGameLogo(tournament.game),
-            ],
-          ),
-          UIHelper.verticalSpaceMedium(),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  BoxText.body('Organized by'),
-                  BoxText.caption(tournament.organizerId),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  BoxText.body('Mode'),
-                  BoxText.caption(tournament.isSolo ? 'Solo' : 'Team'),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  BoxText.body('Total Participants'),
-                  BoxText.caption('${tournament.maxParticipants}'),
-                ],
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class BuildCollapsedTournament extends StatelessWidget {
-  const BuildCollapsedTournament({
-    Key? key,
-    required this.tournament,
-    required this.index,
-  }) : super(key: key);
-
-  final Tournament tournament;
-  final int index;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        SizedBox(
-          width: 20,
-          child: BoxText.body(
-            '${index + 1}',
-            color: kcVeryDarkGreyTextColor,
-          ),
-        ),
-        SizedBox(
-          width: 120,
-          child: BoxText.ellipsis(
-            tournament.title,
-            color: kcVeryDarkGreyTextColor,
-          ),
-        ),
-        SizedBox(
-          width: 70,
-          child: BoxText.caption(
-            tournament.startDate,
-            // color: kcVeryDarkGreyTextColor,
-          ),
-        ),
-        SizedBox(
-          width: 70,
-          child: BoxText.caption(
-            tournament.endDate,
-            // color: kcVeryDarkGreyTextColor,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class TournamentHeaderDelegate extends SliverPersistentHeaderDelegate {
-  final double height;
-
-  TournamentHeaderDelegate([this.height = 50]);
-
-  @override
-  Widget build(context, double shrinkOffset, bool overlapsContent) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 10),
-      padding: const EdgeInsets.all(10.0),
-      decoration: BoxDecoration(
-        color: kcBackgroundColor,
-      ),
-      // height: 50,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Container(
-              alignment: Alignment.center,
-              width: 25,
-              child: const BoxText.headingFive(
-                'No',
-              )),
-          Container(
-            alignment: Alignment.center,
-            width: 120,
-            child: const BoxText.headingFive(
-              'Tournament',
-            ),
-          ),
-          Container(
-              alignment: Alignment.center,
-              width: 75,
-              child: const BoxText.headingFive(
-                'Start date',
-              )),
-          Container(
-            alignment: Alignment.center,
-            width: 75,
-            child: const BoxText.headingFive(
-              'End date',
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  double get maxExtent => height;
-
-  @override
-  double get minExtent => height;
-
-  @override
-  bool shouldRebuild(SliverPersistentHeaderDelegate oldDelegate) => false;
 }

@@ -15,7 +15,7 @@ class MainHomeViewModel extends FutureViewModel<void> {
   final log = locator<LogService>();
   final LogService _log = locator<LogService>();
 
-  //Tournament card
+  //Tournament card state
   int _selectedIndex = 0;
   bool _isExpanded = false;
   List<Tournament> _tournamentListState = [];
@@ -33,12 +33,7 @@ class MainHomeViewModel extends FutureViewModel<void> {
     notifyListeners();
   }
 
-  void navigateToTournamentDetail(int index) {
-    _router.push(TournamentDetailRoute(
-      tournament: _tournamentListState[index],
-    ));
-  }
-
+  // Business logic
   Future<void> refreshTournaments() async {
     await getTournamentList();
   }
@@ -56,7 +51,7 @@ class MainHomeViewModel extends FutureViewModel<void> {
 
   Future<void> getTournamentList() async {
     try {
-      List<Map<String, dynamic>>? tournamentDataList = await _database
+      List<Map<String, dynamic>> tournamentDataList = await _database
           .getAllByQuery(['status'], [GameStatus.pending.name],
               FirestoreCollections.tournament);
       _log.debug('Tournament data list $tournamentDataList');
@@ -65,6 +60,7 @@ class MainHomeViewModel extends FutureViewModel<void> {
             .map((tournamentData) => Tournament.fromJson(tournamentData))
             .toList();
         _log.debug(_tournamentListState.toString());
+
         // get the organizer name by their id and add to the state
         for (int i = 0; i < _tournamentListState.length; i++) {
           String organizerId = _tournamentListState[i].organizerId;
@@ -72,6 +68,7 @@ class MainHomeViewModel extends FutureViewModel<void> {
 
           Map<String, dynamic>? data = await _database.getByQuery(
               ['userId'], [organizerId], FirestoreCollections.organizer);
+
           if (data != null) {
             organizerName = Organizer.fromJson(data).organizerName;
           } else {
@@ -83,5 +80,12 @@ class MainHomeViewModel extends FutureViewModel<void> {
     } catch (e) {
       _log.debug(e.toString());
     }
+  }
+
+  // Navigation
+  void navigateToTournamentDetail(int index) {
+    _router.push(TournamentDetailRoute(
+      tournament: _tournamentListState[index],
+    ));
   }
 }

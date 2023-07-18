@@ -100,195 +100,13 @@ class MatchInformation extends StackedHookView<LeaderboardViewModel> {
                     ? (model.game == GameType.Valorant.name)
                         ? !model.valorantMatches[roundIndex][matchIndex]
                                 .hasCompleted
-                            ? IconButton(
-                                onPressed: () async => {
-                                  await showDialog(
-                                    context: context,
-                                    builder: (_) => AlertDialog(
-                                      content: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Center(
-                                            child: BoxText.headingThree(!model
-                                                    .showDialogErrorMessage
-                                                ? 'Match finish?'
-                                                : 'Something wrong happen!'),
-                                          ),
-                                          UIHelper.verticalSpaceMedium(),
-                                          Center(
-                                            child: BoxText.body(!model
-                                                    .showDialogErrorMessage
-                                                ? 'This action is irreversible, once finished you cannot edit the match result.'
-                                                : 'Cannot finish match, no team found'),
-                                          ),
-                                          UIHelper.verticalSpaceMedium(),
-                                          !model.showDialogErrorMessage
-                                              ? Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceEvenly,
-                                                  children: [
-                                                    Center(
-                                                      child: BoxButton(
-                                                        width: 100,
-                                                        title: 'Yes',
-                                                        height: 36,
-                                                        // width: 150,
-                                                        onTap: () {
-                                                          model.matchFinish(
-                                                            roundIndex,
-                                                            matchIndex,
-                                                          );
-                                                        },
-                                                      ),
-                                                    ),
-                                                    Center(
-                                                      child: BoxButton(
-                                                        outline: true,
-                                                        title: 'No',
-                                                        width: 100,
-                                                        height: 36,
-                                                        // width: 150,
-                                                        onTap: () {
-                                                          Navigator.pop(
-                                                              context);
-                                                        },
-                                                      ),
-                                                    ),
-                                                  ],
-                                                )
-                                              : Center(
-                                                  child: BoxButton(
-                                                    title: 'Okay',
-                                                    width: 100,
-                                                    height: 36,
-                                                    // width: 150,
-                                                    onTap: () {
-                                                      model
-                                                          .updateShowDialogErrorMessageState(
-                                                              false);
-                                                      Navigator.pop(context);
-                                                    },
-                                                  ),
-                                                ),
-                                          UIHelper.verticalSpaceSmall(),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  model.showDialogErrorMessage
-                                      ? await showDialog(
-                                          context: context,
-                                          builder: (_) => AlertDialog(
-                                            content: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                const Center(
-                                                  child: BoxText.headingThree(
-                                                      'Something wrong happen!'),
-                                                ),
-                                                UIHelper.verticalSpaceMedium(),
-                                                Center(
-                                                  child: BoxText.body(
-                                                      'Cannot finish match, no team found'),
-                                                ),
-                                                UIHelper.verticalSpaceMedium(),
-                                                Center(
-                                                  child: BoxButton(
-                                                    title: 'Okay',
-                                                    width: 100,
-                                                    height: 36,
-                                                    // width: 150,
-                                                    onTap: () {
-                                                      model
-                                                          .updateShowDialogErrorMessageState(
-                                                              false);
-                                                      Navigator.pop(context);
-                                                    },
-                                                  ),
-                                                ),
-                                                UIHelper.verticalSpaceSmall(),
-                                              ],
-                                            ),
-                                          ),
-                                        )
-                                      : const SizedBox.shrink(),
-                                },
-                                icon: const Icon(
-                                  Icons.ads_click_rounded,
-                                  color: kcDarkGreyColor,
-                                ),
-                              )
+                            ? ValorantMatchPopUpAlert(
+                                roundIndex: roundIndex, matchIndex: matchIndex)
                             : const SizedBox.shrink()
                         : !model.apexMatches[roundIndex][matchIndex]
                                 .hasCompleted
-                            ? IconButton(
-                                onPressed: () => {
-                                  showDialog(
-                                    context: context,
-                                    builder: (_) => AlertDialog(
-                                      content: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          const Center(
-                                            child: BoxText.headingThree(
-                                                'Match finish?'),
-                                          ),
-                                          UIHelper.verticalSpaceMedium(),
-                                          Center(
-                                            child: BoxText.body(
-                                                'This action is irreversible, once finished you cannot edit the match result.'),
-                                          ),
-                                          UIHelper.verticalSpaceMedium(),
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceEvenly,
-                                            children: [
-                                              Center(
-                                                child: BoxButton(
-                                                  width: 100,
-                                                  title: 'Yes',
-                                                  height: 36,
-                                                  // width: 150,
-                                                  onTap: () {
-                                                    model.matchFinish(
-                                                      roundIndex,
-                                                      matchIndex,
-                                                    );
-                                                  },
-                                                ),
-                                              ),
-                                              Center(
-                                                child: BoxButton(
-                                                  outline: true,
-                                                  title: 'No',
-                                                  width: 100,
-                                                  height: 36,
-                                                  // width: 150,
-                                                  onTap: () {
-                                                    Navigator.pop(context);
-                                                  },
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          UIHelper.verticalSpaceSmall(),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                },
-                                icon: const Icon(
-                                  Icons.ads_click_rounded,
-                                  color: kcDarkGreyColor,
-                                ),
-                              )
+                            ? ApexMatchPopUpAlert(
+                                roundIndex: roundIndex, matchIndex: matchIndex)
                             : const SizedBox.shrink()
                     : const SizedBox.shrink(),
                 title: (model.game == GameType.Valorant.name)
@@ -297,12 +115,6 @@ class MatchInformation extends StackedHookView<LeaderboardViewModel> {
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // (model.game == GameType.Valorant.name)
-                    //     ? BoxText.body(
-                    //         // '${model.valorantMatches[roundIndex][matchIndex].matchId}  ||  [${model.valorantMatches[roundIndex][matchIndex].teamAScore}]-[${model.valorantMatches[roundIndex][matchIndex].teamBScore}]')
-                    //         '[${model.valorantMatches[roundIndex][matchIndex].teamAScore}]-[${model.valorantMatches[roundIndex][matchIndex].teamBScore}]')
-                    //     : BoxText.body(
-                    //         model.apexMatches[roundIndex][matchIndex].matchId),
                     BoxText.caption(
                         'Winner to : ${model.getNextRoundMatch(roundIndex, matchIndex)}'),
                   ],
@@ -330,6 +142,207 @@ class MatchInformation extends StackedHookView<LeaderboardViewModel> {
   }
 }
 
+class ValorantMatchPopUpAlert extends StackedHookView<LeaderboardViewModel> {
+  const ValorantMatchPopUpAlert({
+    super.key,
+    required this.roundIndex,
+    required this.matchIndex,
+  });
+
+  final int roundIndex;
+  final int matchIndex;
+
+  @override
+  Widget builder(BuildContext context, LeaderboardViewModel model) {
+    return IconButton(
+      onPressed: () async => {
+        await showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Center(
+                  child: BoxText.headingThree(!model.showDialogErrorMessage
+                      ? 'Match finish?'
+                      : 'Something wrong happen!'),
+                ),
+                UIHelper.verticalSpaceMedium(),
+                Center(
+                  child: BoxText.body(!model.showDialogErrorMessage
+                      ? 'This action is irreversible, once finished you cannot edit the match result.'
+                      : 'Cannot finish match, no team found'),
+                ),
+                UIHelper.verticalSpaceMedium(),
+                !model.showDialogErrorMessage
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Center(
+                            child: BoxButton(
+                              width: 100,
+                              title: 'Yes',
+                              height: 36,
+                              // width: 150,
+                              onTap: () {
+                                model.matchFinish(
+                                  roundIndex,
+                                  matchIndex,
+                                );
+                              },
+                            ),
+                          ),
+                          Center(
+                            child: BoxButton(
+                              outline: true,
+                              title: 'No',
+                              width: 100,
+                              height: 36,
+                              // width: 150,
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ),
+                        ],
+                      )
+                    : Center(
+                        child: BoxButton(
+                          title: 'Okay',
+                          width: 100,
+                          height: 36,
+                          // width: 150,
+                          onTap: () {
+                            model.updateShowDialogErrorMessageState(false);
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ),
+                UIHelper.verticalSpaceSmall(),
+              ],
+            ),
+          ),
+        ),
+        model.showDialogErrorMessage
+            ? await showDialog(
+                context: context,
+                builder: (_) => AlertDialog(
+                  content: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Center(
+                        child: BoxText.headingThree('Something wrong happen!'),
+                      ),
+                      UIHelper.verticalSpaceMedium(),
+                      Center(
+                        child:
+                            BoxText.body('Cannot finish match, no team found'),
+                      ),
+                      UIHelper.verticalSpaceMedium(),
+                      Center(
+                        child: BoxButton(
+                          title: 'Okay',
+                          width: 100,
+                          height: 36,
+                          // width: 150,
+                          onTap: () {
+                            model.updateShowDialogErrorMessageState(false);
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ),
+                      UIHelper.verticalSpaceSmall(),
+                    ],
+                  ),
+                ),
+              )
+            : const SizedBox.shrink(),
+      },
+      icon: const Icon(
+        Icons.ads_click_rounded,
+        color: kcDarkGreyColor,
+      ),
+    );
+  }
+}
+
+class ApexMatchPopUpAlert extends StackedHookView<LeaderboardViewModel> {
+  const ApexMatchPopUpAlert({
+    super.key,
+    required this.roundIndex,
+    required this.matchIndex,
+  });
+
+  final int roundIndex;
+  final int matchIndex;
+
+  @override
+  Widget builder(BuildContext context, LeaderboardViewModel model) {
+    return IconButton(
+      onPressed: () => {
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Center(
+                  child: BoxText.headingThree('Match finish?'),
+                ),
+                UIHelper.verticalSpaceMedium(),
+                Center(
+                  child: BoxText.body(
+                      'This action is irreversible, once finished you cannot edit the match result.'),
+                ),
+                UIHelper.verticalSpaceMedium(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Center(
+                      child: BoxButton(
+                        width: 100,
+                        title: 'Yes',
+                        height: 36,
+                        // width: 150,
+                        onTap: () {
+                          model.matchFinish(
+                            roundIndex,
+                            matchIndex,
+                          );
+                        },
+                      ),
+                    ),
+                    Center(
+                      child: BoxButton(
+                        outline: true,
+                        title: 'No',
+                        width: 100,
+                        height: 36,
+                        // width: 150,
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                UIHelper.verticalSpaceSmall(),
+              ],
+            ),
+          ),
+        ),
+      },
+      icon: const Icon(
+        Icons.ads_click_rounded,
+        color: kcDarkGreyColor,
+      ),
+    );
+  }
+}
+
 class ApexResultCardListBuilder extends StackedHookView<LeaderboardViewModel> {
   final int roundIndex;
   final int matchIndex;
@@ -346,7 +359,6 @@ class ApexResultCardListBuilder extends StackedHookView<LeaderboardViewModel> {
     final List<Widget> resultSliders =
         model.apexMatchResult[roundIndex][matchIndex.toString()]!.map(
       (item) {
-        final textController = useTextEditingController();
         return Container(
           width: double.infinity,
           margin: const EdgeInsets.all(5),
@@ -407,15 +419,6 @@ class ApexResultCardListBuilder extends StackedHookView<LeaderboardViewModel> {
                                         },
                                       ),
                                     ),
-                                    // Row(
-                                    //   children: const [
-                                    //     Icon(
-                                    //       Icons.error,
-                                    //       color: Colors.red,
-                                    //     ),
-                                    //     Text("Payment Failed"),
-                                    //   ],
-                                    // ),
                                   ],
                                 ),
                               ),
@@ -588,8 +591,6 @@ class LobbyIdInputField extends StackedHookView<LeaderboardViewModel> {
       readOnly: model.isBusy,
       controller: text,
       placeholder: 'Enter Email',
-      // errorText: model.emailValid ? null : 'Invalid Email',
-      // onChanged: model.updateEmail,
     );
   }
 }
@@ -606,21 +607,14 @@ class ValorantResultCardListBuilder
 
   @override
   Widget builder(BuildContext context, LeaderboardViewModel model) {
-    final textController = List.generate(
-        model.valorantMatchResult[roundIndex][matchIndex.toString()]!.length,
-        (_) => useTextEditingController());
     return ListView.builder(
       itemCount:
           model.valorantMatchResult[roundIndex][matchIndex.toString()]!.length,
-      // : model.apexMatchResult[roundIndex][matchIndex.toString()]!
-      // .length, // Replace with the actual item count
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemBuilder: (BuildContext context, int resultIndex) {
         return ListTile(
-          title: BoxText.subheading2(
-              // 'Game : ${model.valorantMatches[roundIndex][matchIndex].resultList[resultIndex]}'),
-              'Game'),
+          title: BoxText.subheading2('Game'),
           subtitle: ListTile(
             contentPadding: const EdgeInsets.all(0),
             minLeadingWidth: 0,
@@ -704,7 +698,6 @@ class ValorantResultCardListBuilder
                                   Center(
                                     child: BoxText.headingFive(
                                         'Result Game ${(resultIndex + 1).toString()}'),
-                                    //  'Result Game ${(resultIndex + 1).toString()} | result : ${model.valorantMatchResult[roundIndex][matchIndex.toString()]![resultIndex].resultId}'),
                                   ),
                                   UIHelper.verticalSpaceSmall(),
                                   const Center(

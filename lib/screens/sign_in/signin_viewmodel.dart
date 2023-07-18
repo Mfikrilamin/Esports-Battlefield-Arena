@@ -11,18 +11,23 @@ class SignInViewModel extends FutureViewModel<void> {
   final AppRouter _router = locator<AppRouter>();
   final Auth _auth = locator<Auth>();
 
+  //Data of the view
   String _email = '';
   String _password = '';
+
+  //State of the view
   bool emailValid = false;
   bool _isSignIn = false;
   bool _hasError = false;
 
+  //Getters
   String get email => _email;
   String get password => _password;
   bool get isSignInSucess => _isSignIn;
   @override
   bool get hasError => _hasError;
 
+  //Setters
   void updateEmail(String email) {
     emailValid = RegexValidation.validateEmail(email);
     _email = email;
@@ -33,6 +38,7 @@ class SignInViewModel extends FutureViewModel<void> {
     _password = password;
   }
 
+  // Business Logic
   Future processSignIn() async {
     try {
       final currentPath = _router.current.path;
@@ -45,13 +51,12 @@ class SignInViewModel extends FutureViewModel<void> {
         if (userId == null) {
           setError('Invalid email or password');
           _hasError = true;
-          setBusy(false);
           notifyListeners();
           return;
         }
         _isSignIn = true;
         if (_router.current.path == currentPath && isBusy == false) {
-          log.debug('Loggin sucessful');
+          log.debug('Login sucessful');
           _isSignIn = false;
           notifyListeners();
           _router.popUntilRoot();
@@ -63,10 +68,6 @@ class SignInViewModel extends FutureViewModel<void> {
       _hasError = true;
       notifyListeners();
     }
-  }
-
-  void navigateToSignUpPage() {
-    _router.push(const SignUpRoute());
   }
 
   resetViewModelState() {
@@ -90,5 +91,12 @@ class SignInViewModel extends FutureViewModel<void> {
       _router.push(const HomeRoute());
     }
     return Future.value();
+  }
+
+  // Navigation
+  void navigateToSignUpPage() {
+    //Clear all the state
+    resetViewModelState();
+    _router.push(const SignUpRoute());
   }
 }

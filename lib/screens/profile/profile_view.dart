@@ -57,16 +57,17 @@ class ProfileView extends StatelessWidget {
                 color: kcPrimaryColor,
               ),
               child: Column(
-                // mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const BoxText.headingOne('Welcome Back,'),
                   UIHelper.verticalSpaceSmall(),
                   model.isPlayer
+                      // If player then show player name
                       ? BoxText.body(
                           '${model.player.firstName} ${model.player.lastName}',
                           color: kcDarkGreyColor,
                         )
+                      //If organizer then show organizer name
                       : BoxText.body(model.organizer.organizerName,
                           color: kcDarkGreyColor),
                 ],
@@ -76,7 +77,6 @@ class ProfileView extends StatelessWidget {
         ),
         body: LiquidPullToRefresh(
           onRefresh: model.getUserProfile,
-          // showChildOpacityTransition: false,
           color: kcPrimaryColor,
           animSpeedFactor: 2,
           backgroundColor: kcPrimaryLightColor,
@@ -131,6 +131,7 @@ class ProfileView extends StatelessWidget {
                   ],
                 ),
                 model.isUpdateSuccess
+                    // If update success then show success animation
                     ? Positioned.fill(
                         child: Column(
                           children: const [
@@ -144,7 +145,8 @@ class ProfileView extends StatelessWidget {
                           ],
                         ),
                       )
-                    : Container(),
+                    // Otherwise, do nothing
+                    : const SizedBox.shrink(),
               ],
             ),
           ),
@@ -159,7 +161,6 @@ class EmailInputField extends StackedHookView<ProfileViewModel> {
 
   @override
   Widget builder(BuildContext context, ProfileViewModel model) {
-    print('EmailInputField is being built');
     var controller = useTextEditingController(text: model.user.email);
     controller.text = model.user.email;
     return Container(
@@ -187,7 +188,6 @@ class PasswordInputField extends StackedHookView<ProfileViewModel> {
 
   @override
   Widget builder(BuildContext context, ProfileViewModel model) {
-    print('PasswordInputField is being built');
     var controller = useTextEditingController(text: model.user.password);
     controller.text = model.user.password;
     return Container(
@@ -214,7 +214,6 @@ class AddressInputField extends StackedHookView<ProfileViewModel> {
   const AddressInputField({Key? key}) : super(key: key, reactive: true);
   @override
   Widget builder(BuildContext context, ProfileViewModel model) {
-    print('AddressInputField is being built');
     var controller = useTextEditingController(text: model.user.address);
     controller.text = model.user.address;
     return Container(
@@ -240,7 +239,6 @@ class CountryInputField extends StackedHookView<ProfileViewModel> {
   const CountryInputField({Key? key}) : super(key: key, reactive: true);
   @override
   Widget builder(BuildContext context, ProfileViewModel model) {
-    print('CountryInputField is being built');
     var controller = useTextEditingController(text: model.user.country);
     controller.text = model.user.country;
     return Container(
@@ -256,14 +254,10 @@ class CountryInputField extends StackedHookView<ProfileViewModel> {
               showCountryPicker(
                   context: context,
                   onSelect: (Country country) {
-                    // text.text = value.name;
                     model.updateCountry(country.name, country.countryCode);
                     controller.text = model.country;
                   });
             },
-            // traillingTapped: () {
-            //   showCountryPicker(context: context, onSelect: (Country value) {});
-            // },
             trailing: const Icon(
               Icons.location_on,
               color: kcMediumGreyColor,

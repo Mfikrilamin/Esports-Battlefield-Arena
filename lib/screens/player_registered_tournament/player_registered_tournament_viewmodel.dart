@@ -12,15 +12,19 @@ import 'package:esports_battlefield_arena/services/viewmodel_shared_data/tournam
 import 'package:stacked/stacked.dart';
 
 class PlayerRegisterTournamentViewModel extends ReactiveViewModel {
-  Database _database = locator<Database>();
-  Auth _auth = locator<Auth>();
-  LogService _log = locator<LogService>();
+  final Database _database = locator<Database>();
+  final Auth _auth = locator<Auth>();
+  final LogService _log = locator<LogService>();
   final AppRouter _router = locator<AppRouter>();
   final _tournamentService = locator<TournamentService>();
+
+  //state of the view
   List<Tournament> _registeredTournamentList = [];
 
+  //getters
   List<Tournament> get registeredTournamentList => _registeredTournamentList;
 
+  // business logic
   Future<void> refreshRegisteredTournament() async {
     try {
       if (_auth.currentUser() == null) {
@@ -54,6 +58,7 @@ class PlayerRegisterTournamentViewModel extends ReactiveViewModel {
     }
   }
 
+  //navigation
   Future<void> navigateToLeaderboard(int index) async {
     await _tournamentService
         .getLeaderboardResult(_registeredTournamentList[index]);

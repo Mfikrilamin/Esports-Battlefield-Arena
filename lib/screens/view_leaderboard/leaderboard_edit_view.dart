@@ -101,9 +101,6 @@ class TeamRowField extends StackedHookView<LeaderboardViewModel> {
   Widget builder(BuildContext context, LeaderboardViewModel model) {
     final _killController = useTextEditingController();
     final _placementController = useTextEditingController();
-    print(model
-        .apexMatchResult[roundIndex][matchIndex.toString()]![matchResultIndex]
-        .resultId);
     return Row(
       children: [
         Text((index + 1).toString()),

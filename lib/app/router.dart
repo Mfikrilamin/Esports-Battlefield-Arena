@@ -1,8 +1,6 @@
 import 'package:animations/animations.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:esports_battlefield_arena/app/router.gr.dart';
-import 'package:esports_battlefield_arena/screens/view_leaderboard/leaderboard_edit_view.dart';
-import 'package:esports_battlefield_arena/screens/view_organized_tournament/organized_tournament__detailview.dart';
 import 'package:flutter/material.dart';
 
 @AutoRouterConfig(replaceInRouteName: 'View,Route')

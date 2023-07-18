@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:esports_battlefield_arena/app/app.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:esports_battlefield_arena/services/payment/stripe.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
@@ -29,7 +28,6 @@ class StripePaymentService extends Payment {
             message: response.body.toString(),
             location: 'StripePaymentService.createPaymentIntent');
       }
-      print('Response is:---> ${response.body}');
       return json.decode(response.body);
     } catch (err) {
       throw Failure('Failed create payment intent',
@@ -49,7 +47,6 @@ class StripePaymentService extends Payment {
               customerEphemeralKeySecret: paymentIntent['ephemeralKey'],
               style: ThemeMode.light,
               merchantDisplayName: 'Esports Battlefield Arena'));
-      print("Sucessfully create init payment sheet");
     } catch (err) {
       throw Failure('Failed to init payment sheet',
           message: err.toString(),
@@ -64,7 +61,6 @@ class StripePaymentService extends Payment {
       await Stripe.instance.presentPaymentSheet().then((value) {
         //Need to double check back whether this is working or not
         paymentSucess = true;
-        print('Payment Successfull');
       });
       return paymentSucess;
     } on StripeException catch (error) {
@@ -102,7 +98,6 @@ class StripePaymentService extends Payment {
             message: response.body.toString(),
             location: 'StripePaymentService.createPaymentIntent');
       }
-      print('Response is:---> ${response.body}');
       return json.decode(response.body);
     } on Failure {
       rethrow;

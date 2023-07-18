@@ -14,7 +14,6 @@ import 'package:esports_battlefield_arena/services/log/log_services.dart';
 import 'package:esports_battlefield_arena/services/seeding/seeding.dart';
 import 'package:esports_battlefield_arena/utils/enum.dart';
 import 'package:esports_battlefield_arena/utils/mock_data_generator/mock_data_generator.dart';
-import 'package:logger/logger.dart';
 
 class SeedingAlgorithm extends Seeding {
   final Database _database = locator<Database>();
@@ -28,12 +27,6 @@ class SeedingAlgorithm extends Seeding {
       if (tournament.game != GameType.Valorant.name) {
         return false;
       }
-
-      // MockDataGenerator mockDataGenerator = MockDataGenerator();
-      // List<TournamentParticipant> fakeTeams = [];
-      // for (int i = 0; i < 19; i++) {
-      //   fakeTeams.add(mockDataGenerator.generateFakeParticipant());
-      // }
 
       List<TournamentParticipant> teams = [];
 
@@ -73,21 +66,6 @@ class SeedingAlgorithm extends Seeding {
         }
       }
       for (int match = 0; match < matchList.length; match++) {
-        //only assign the team at round 1
-        //1 match consist of two team
-        //if thre is not enough team, one team would need bye
-        //check if there is enough team
-        // List<ValorantMatchResult> matchResultList = [];
-        // for (int gameResult = 0;
-        //     gameResult < matchList[match].resultList.length;
-        //     gameResult++) {
-        //   ValorantMatchResult result = ValorantMatchResult.fromJson(
-        //       await _database.get(matchList[match].resultList[gameResult],
-        //           FirestoreCollections.valorantMatchResult));
-        //   matchResultList.add(result);
-        // }
-        // matchResultList.sort((a, b) => a.gameNumber.compareTo(b.ga));
-
         if (teams.length >= 2) {
           TournamentParticipant teamA = teams.removeLast();
           TournamentParticipant teamB = teams.removeLast();
@@ -149,16 +127,7 @@ class SeedingAlgorithm extends Seeding {
         return false;
       }
 
-      // MockDataGenerator mockDataGenerator = MockDataGenerator();
-      // List<TournamentParticipant> fakeTeams = [];
-      // for (int i = 0; i < tournament.maxParticipants; i++) {
-      //   fakeTeams.add(mockDataGenerator.generateFakeParticipant(tournament));
-      // }
-
       List<String> teamsId = [...tournament.currentParticipant];
-      // fakeTeams.map((participant) => participant.participantId).toList();
-
-      // List<String> teamsId = tournament.currentParticipant;
       List<Map<String, dynamic>> matchData = await _database.getAllByQuery(
           ['tournamentId', 'round'],
           [tournament.tournamentId, 1],
@@ -219,7 +188,6 @@ class SeedingAlgorithm extends Seeding {
       Tournament tournament, int gamePerMatch) async {
     final int numberOfGameForNormalMatch;
     final int numberOfGameForFinalMatch;
-    MockDataGenerator mockDataGenerator = MockDataGenerator();
 
     switch (gamePerMatch) {
       case 1:
@@ -235,10 +203,6 @@ class SeedingAlgorithm extends Seeding {
             message: 'Invalid gamePerMatch value',
             location: "SeedingAlgorithm.seedTeamsForSingleElimination");
     }
-    // List<TournamentParticipant> fakeTeams = [];
-    // for (int i = 0; i < 20; i++) {
-    //   fakeTeams.add(mockDataGenerator.generateFakeParticipant());
-    // }
 
     // List<TournamentParticipant> teams = fakeTeams;
     int teams = tournament.maxParticipants;
@@ -293,9 +257,6 @@ class SeedingAlgorithm extends Seeding {
           currentMatchIndex++) {
         for (int i = 0; i < 2; i++) {
           if ((i + currentMatchIndex + j) < initialRoundMatchList.length) {
-            print('inititalRound ${[
-              i + currentMatchIndex + j
-            ]} : next match Id ${currentMatchIndex}');
             await _database.update(
                 initialRoundMatchList[i + currentMatchIndex + j].matchId,
                 {'nextMatchId': currentRoundmatch[currentMatchIndex].matchId},
@@ -318,7 +279,7 @@ class SeedingAlgorithm extends Seeding {
 
   @override
   Future<void> generateMatchForApex(Tournament tournament) async {
-    final int maximumTeamPerMatch = 20;
+    const int maximumTeamPerMatch = 20;
     int numberOfGroups = tournament.maxParticipants ~/ maximumTeamPerMatch;
 
     int round = 1;

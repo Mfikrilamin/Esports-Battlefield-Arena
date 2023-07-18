@@ -45,7 +45,7 @@ class SignInView extends StatelessWidget {
                       UIHelper.verticalSpaceMedium(),
                       const PasswordInputField(),
                       UIHelper.verticalSpaceMediumLarge(),
-                      !model.isBusy
+                      !model.isBusy //If model is not busy, then we show the button
                           ? BoxButton(
                               title: 'SIGN IN',
                               onTap: () {
@@ -53,6 +53,7 @@ class SignInView extends StatelessWidget {
                               },
                             )
                           : const BoxButton(
+                              //If model is busy, then we add progress animation to the button
                               title: 'SIGN IN',
                               busy: true,
                             ),
@@ -68,6 +69,7 @@ class SignInView extends StatelessWidget {
                   ),
                 ),
                 model.isSignInSucess
+                    //If sign in sucess, we pop up an checker animation
                     ? Positioned.fill(
                         child: Column(
                           children: const [
@@ -81,8 +83,10 @@ class SignInView extends StatelessWidget {
                           ],
                         ),
                       )
-                    : Container(),
-                model.hasError
+                    : const SizedBox
+                        .shrink(), //Otherwise, we just show an empty container
+                model
+                        .hasError //If there is error, then we show the error message
                     ? Positioned.fill(
                         child: Column(
                           children: [
@@ -112,7 +116,8 @@ class SignInView extends StatelessWidget {
                           ],
                         ),
                       )
-                    : Container(),
+                    : const SizedBox
+                        .shrink(), //Otherwise, we just show an empty container
               ],
             ),
           ],

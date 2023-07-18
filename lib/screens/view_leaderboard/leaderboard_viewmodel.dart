@@ -22,10 +22,11 @@ class LeaderboardViewModel extends ReactiveViewModel {
   final AppRouter _router = locator<AppRouter>();
   final Database _database = locator<Database>();
   final Auth _auth = locator<Auth>();
-  bool _isOrganizer = false;
-  final _tournamentService = locator<TournamentService>();
   final ValorantDatabase _valorantDatabase = locator<ValorantDatabase>();
+  final _tournamentService = locator<TournamentService>();
 
+  // State of the view
+  bool _isOrganizer = false;
   bool _showDialogErrorMessage = false;
 
   // getter
@@ -48,6 +49,30 @@ class LeaderboardViewModel extends ReactiveViewModel {
   List<Map<String, List<ValorantMatchResult>>> get valorantMatchResult =>
       _tournamentService.valorantResults;
 
+  // setters
+  void updateShowDialogErrorMessageState(bool value) {
+    _showDialogErrorMessage = value;
+    notifyListeners();
+  }
+
+  void updateCarousellSelectedIndex(int round, int match, int index) {
+    _tournamentService.updateCarousellSelectedIndex(round, match, index);
+    notifyListeners();
+  }
+
+  void updateRoundPanel(int roundIndex, bool isExpanded) {
+    log('roundIndex: ${roundIndex + 1}, isExpanded: $isExpanded');
+    _tournamentService.roundExpanded[roundIndex] = !isExpanded;
+    notifyListeners();
+  }
+
+  void updateMatchPanel(int roundIndex, int matchIndex, bool isExpanded) {
+    log('roundIndex: ${roundIndex + 1}  Match index:${matchIndex + 1} , isExpanded: $isExpanded');
+    _tournamentService.matchExpanded[roundIndex][matchIndex] = !isExpanded;
+    notifyListeners();
+  }
+
+  // business logic
   checkCurrentUserRole() async {
     String? id = _auth.currentUser();
 
@@ -63,18 +88,8 @@ class LeaderboardViewModel extends ReactiveViewModel {
     notifyListeners();
   }
 
-  void updateShowDialogErrorMessageState(bool value) {
-    _showDialogErrorMessage = value;
-    notifyListeners();
-  }
-
   Future<void> refreshLeadboard() {
     return Future.value();
-  }
-
-  void updateCarousellSelectedIndex(int round, int match, int index) {
-    _tournamentService.updateCarousellSelectedIndex(round, match, index);
-    notifyListeners();
   }
 
   String getNextRoundMatch(int roundIndex, int matchIndex) {
@@ -100,18 +115,6 @@ class LeaderboardViewModel extends ReactiveViewModel {
     return '';
   }
 
-  void updateRoundPanel(int roundIndex, bool isExpanded) {
-    log('roundIndex: ${roundIndex + 1}, isExpanded: $isExpanded');
-    _tournamentService.roundExpanded[roundIndex] = !isExpanded;
-    notifyListeners();
-  }
-
-  void updateMatchPanel(int roundIndex, int matchIndex, bool isExpanded) {
-    log('roundIndex: ${roundIndex + 1}  Match index:${matchIndex + 1} , isExpanded: $isExpanded');
-    _tournamentService.matchExpanded[roundIndex][matchIndex] = !isExpanded;
-    notifyListeners();
-  }
-
   bool isResultAvailable(int roundIndex, int matchIndex) {
     if (_tournamentService.leaderboardGame == GameType.ApexLegend.name) {
       return _tournamentService
@@ -127,161 +130,6 @@ class LeaderboardViewModel extends ReactiveViewModel {
 
   @override
   List<ReactiveServiceMixin> get reactiveServices => [_tournamentService];
-
-  navigateBack() {
-    _tournamentService.disposeMatchAndResultInformation();
-    _router.pop();
-  }
-
-  navigateBackOnEditPage(int roundIndex, int matchIndex, int gameIndex) {
-    //reset back the point, kill and placement
-    _tournamentService.resetPointKillAndPlacement(
-        roundIndex, matchIndex, gameIndex - 1);
-    _router.pop();
-  }
-
-  updateResultLobbyId(
-      int roundIndex, int matchIndex, int gameIndex, String lobbyId) {
-    String matchIndexStr = matchIndex.toString();
-    if (game == GameType.ApexLegend.name) {
-      gameIndex = gameIndex - 1;
-      log(lobbyId);
-      log('round : $roundIndex, match : $matchIndex, game : $gameIndex');
-      apexMatchResult[roundIndex][matchIndexStr]![gameIndex] = ApexMatchResult(
-        resultId:
-            apexMatchResult[roundIndex][matchIndexStr]![gameIndex].resultId,
-        lobbyId: lobbyId,
-        matchId: apexMatchResult[roundIndex][matchIndexStr]![gameIndex].matchId,
-        gameNumber:
-            apexMatchResult[roundIndex][matchIndexStr]![gameIndex].gameNumber,
-        completed:
-            apexMatchResult[roundIndex][matchIndexStr]![gameIndex].completed,
-        results: apexMatchResult[roundIndex][matchIndexStr]![gameIndex].results,
-      );
-    } else {
-      log(lobbyId);
-      log('round : $roundIndex, match : $matchIndex, game : $gameIndex');
-      valorantMatchResult[roundIndex][matchIndexStr]![gameIndex] =
-          ValorantMatchResult(
-        resultId:
-            valorantMatchResult[roundIndex][matchIndexStr]![gameIndex].resultId,
-        lobbyId: lobbyId,
-        matchId:
-            valorantMatchResult[roundIndex][matchIndexStr]![gameIndex].matchId,
-        gameNumber: valorantMatchResult[roundIndex][matchIndexStr]![gameIndex]
-            .gameNumber,
-        teamA: valorantMatchResult[roundIndex][matchIndexStr]![gameIndex].teamA,
-        teamB: valorantMatchResult[roundIndex][matchIndexStr]![gameIndex].teamB,
-        winner:
-            valorantMatchResult[roundIndex][matchIndexStr]![gameIndex].winner,
-        loser: valorantMatchResult[roundIndex][matchIndexStr]![gameIndex].loser,
-        teamAScore: valorantMatchResult[roundIndex][matchIndexStr]![gameIndex]
-            .teamAScore,
-        teamBScore: valorantMatchResult[roundIndex][matchIndexStr]![gameIndex]
-            .teamBScore,
-        isCompleted: valorantMatchResult[roundIndex][matchIndexStr]![gameIndex]
-            .isCompleted,
-        playerStats: valorantMatchResult[roundIndex][matchIndexStr]![gameIndex]
-            .playerStats,
-      );
-    }
-  }
-
-  Future<void> submitLobbyId(
-      int roundIndex, int matchIndex, int gameIndex) async {
-    String matchIndexStr = matchIndex.toString();
-    log('round : $roundIndex, match : $matchIndex, game : ${gameIndex}');
-    if (game == GameType.ApexLegend.name) {
-      gameIndex = gameIndex - 1;
-      ApexMatchResult result =
-          apexMatchResult[roundIndex][matchIndexStr]![gameIndex];
-      await _database.update(
-          result.resultId,
-          {
-            'lobbyId': valorantMatchResult[roundIndex]
-                    [matchIndexStr]![gameIndex]
-                .lobbyId
-          },
-          FirestoreCollections.apexMatchResult);
-      // Fire backend fucntion to create a websocket or get the data from the external database and update in our database
-    } else {
-      ValorantMatchResult result =
-          valorantMatchResult[roundIndex][matchIndexStr]![gameIndex];
-      log('update lobby id in result: ${result.resultId}');
-      await _database.update(result.resultId, {'lobbyId': result.lobbyId},
-          FirestoreCollections.valorantMatchResult);
-      notifyListeners();
-      _router.pop();
-      // Fire backend fucntion to create a websocket or get the data from the external database and update in our database
-    }
-  }
-
-  bool isLobbyIdAvailable(int roundIndex, int matchIndex, int gameResultIndex) {
-    String matchIndexStr = matchIndex.toString();
-    if (game == GameType.ApexLegend.name) {
-      gameResultIndex = gameResultIndex - 1;
-      return apexMatchResult[roundIndex][matchIndexStr]![gameResultIndex]
-          .lobbyId
-          .isNotEmpty;
-    } else {
-      log("is lobbyId available : ${valorantMatchResult[roundIndex][matchIndexStr]![gameResultIndex].lobbyId.isNotEmpty}");
-      return valorantMatchResult[roundIndex][matchIndexStr]![gameResultIndex]
-          .lobbyId
-          .isNotEmpty;
-    }
-  }
-
-  Future<void> resetLobbyId(
-      int roundIndex, int matchIndex, int gameIndex) async {
-    String matchIndexStr = matchIndex.toString();
-    if (game == GameType.ApexLegend.name) {
-      gameIndex = gameIndex - 1;
-      apexMatchResult[roundIndex][matchIndexStr]![gameIndex] = ApexMatchResult(
-        resultId:
-            apexMatchResult[roundIndex][matchIndexStr]![gameIndex].resultId,
-        lobbyId: '',
-        matchId: apexMatchResult[roundIndex][matchIndexStr]![gameIndex].matchId,
-        gameNumber:
-            apexMatchResult[roundIndex][matchIndexStr]![gameIndex].gameNumber,
-        completed:
-            apexMatchResult[roundIndex][matchIndexStr]![gameIndex].completed,
-        results: apexMatchResult[roundIndex][matchIndexStr]![gameIndex].results,
-      );
-      ApexMatchResult result =
-          apexMatchResult[roundIndex][matchIndexStr]![gameIndex];
-      await _database.update(result.resultId, {'lobbyId': result.lobbyId},
-          FirestoreCollections.apexMatchResult);
-    } else {
-      valorantMatchResult[roundIndex][matchIndexStr]![gameIndex] =
-          ValorantMatchResult(
-        resultId:
-            valorantMatchResult[roundIndex][matchIndexStr]![gameIndex].resultId,
-        lobbyId: '',
-        matchId:
-            valorantMatchResult[roundIndex][matchIndexStr]![gameIndex].matchId,
-        gameNumber: valorantMatchResult[roundIndex][matchIndexStr]![gameIndex]
-            .gameNumber,
-        teamA: valorantMatchResult[roundIndex][matchIndexStr]![gameIndex].teamA,
-        teamB: valorantMatchResult[roundIndex][matchIndexStr]![gameIndex].teamB,
-        winner:
-            valorantMatchResult[roundIndex][matchIndexStr]![gameIndex].winner,
-        loser: valorantMatchResult[roundIndex][matchIndexStr]![gameIndex].loser,
-        teamAScore: valorantMatchResult[roundIndex][matchIndexStr]![gameIndex]
-            .teamAScore,
-        teamBScore: valorantMatchResult[roundIndex][matchIndexStr]![gameIndex]
-            .teamBScore,
-        isCompleted: valorantMatchResult[roundIndex][matchIndexStr]![gameIndex]
-            .isCompleted,
-        playerStats: valorantMatchResult[roundIndex][matchIndexStr]![gameIndex]
-            .playerStats,
-      );
-      ValorantMatchResult result =
-          valorantMatchResult[roundIndex][matchIndexStr]![gameIndex];
-      await _database.update(result.resultId, {'lobbyId': result.lobbyId},
-          FirestoreCollections.valorantMatchResult);
-      // Fire backend fucntion to create a websocket or get the data from the external database and update in our database
-    }
-  }
 
   Future<void> finishLobby(
       int roundIndex, int matchIndex, int resultIndex) async {
@@ -361,14 +209,6 @@ class LeaderboardViewModel extends ReactiveViewModel {
             FirestoreCollections.valorantMatch);
       }
     }
-  }
-
-  void navigateToEditLeaderboardPage(
-      int roundIndex, int matchIndex, int gameNumber) {
-    _router.popAndPush(EditLeaderboardRoute(
-        roundIndex: roundIndex,
-        matchIndex: matchIndex,
-        matchResultIndex: gameNumber));
   }
 
   // Function used in upateApexLeaderboard
@@ -642,17 +482,6 @@ class LeaderboardViewModel extends ReactiveViewModel {
       }
     }
 
-    // Map<String, dynamic> fakeData = {
-    //   'participantId': '',
-    //   'points': 0,
-    //   'placement': 0,
-    //   'seed': 0,
-    //   'kills': 0,
-    //   'teamName': 'No team'
-    // };
-
-    // log('nextMatchResult : ${nextMatchResult.results}');
-
     //update the next match result
     for (int result = 0; result < nextMatchResults.length; result++) {
       await _database.update(
@@ -833,5 +662,26 @@ class LeaderboardViewModel extends ReactiveViewModel {
     }
     notifyListeners();
     _router.pop();
+  }
+
+  // Navigation
+  navigateBack() {
+    _tournamentService.disposeMatchAndResultInformation();
+    _router.pop();
+  }
+
+  navigateBackOnEditPage(int roundIndex, int matchIndex, int gameIndex) {
+    //reset back the point, kill and placement
+    _tournamentService.resetPointKillAndPlacement(
+        roundIndex, matchIndex, gameIndex - 1);
+    _router.pop();
+  }
+
+  void navigateToEditLeaderboardPage(
+      int roundIndex, int matchIndex, int gameNumber) {
+    _router.popAndPush(EditLeaderboardRoute(
+        roundIndex: roundIndex,
+        matchIndex: matchIndex,
+        matchResultIndex: gameNumber));
   }
 }

@@ -22,6 +22,9 @@ class TournamentDetailView extends StatelessWidget {
   Widget build(BuildContext context) {
     return ViewModelBuilder<TournamentDetailViewModel>.reactive(
       viewModelBuilder: () => TournamentDetailViewModel(),
+      onModelReady: (model) {
+        model.getOrganizerName(tournament.organizerId);
+      },
       builder: (context, model, child) => Scaffold(
         body: CustomScrollView(
           slivers: [
@@ -31,19 +34,6 @@ class TournamentDetailView extends StatelessWidget {
               snap: true,
               floating: true,
               stretch: true,
-              // actions: [
-              //   isOrganizer
-              //       ? IconButton(
-              //           onPressed: () {
-              //             model.navigateToEditTournament(tournament, context);
-              //           },
-              //           icon: const Icon(
-              //             Icons.edit,
-              //             size: 20,
-              //           ),
-              //         )
-              //       : Container(),
-              // ],
               backgroundColor: (tournament.game == GameType.ApexLegend.name)
                   ? kcTertiaryColor
                   : kcDarkBackgroundColor,
@@ -164,17 +154,18 @@ class TournamentDetailView extends StatelessWidget {
                           children: [
                             const BoxText.headingFour('Organized by'),
                             UIHelper.verticalSpaceSmall(),
-                            FutureBuilder(
-                              future: model
-                                  .getOrganizerName(tournament.organizerId),
-                              builder: (context, snapshot) {
-                                if (snapshot.hasData) {
-                                  return BoxText.body(snapshot.data.toString());
-                                } else {
-                                  return BoxText.body(tournament.organizerId);
-                                }
-                              },
-                            ),
+                            BoxText.body(model.organizerName),
+                            // FutureBuilder(
+                            //   future: model
+                            //       .getOrganizerName(tournament.organizerId),
+                            //   builder: (context, snapshot) {
+                            //     if (snapshot.hasData) {
+                            //       return BoxText.body(snapshot.data.toString());
+                            //     } else {
+                            //       return BoxText.body(tournament.organizerId);
+                            //     }
+                            //   },
+                            // ),
                           ],
                         ),
                       ),
@@ -203,9 +194,6 @@ class TournamentDetailView extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         BoxText.body('${index + 1}. '),
-                        // Padding(
-                        //   // padding: const EdgeInsets.only(top: 2),
-                        // ),
                         SizedBox(
                           width: MediaQuery.of(context).size.width * 0.80,
                           child: BoxText.body(
@@ -280,7 +268,7 @@ class TournamentDate extends StatelessWidget {
             ),
             UIHelper.verticalSpaceSmall(),
             FadeInUp(
-              delay: Duration(milliseconds: 400),
+              delay: const Duration(milliseconds: 400),
               from: 60,
               child: BoxText.body(tournament.startDate),
             ),
@@ -312,7 +300,7 @@ class TournamentDate extends StatelessWidget {
             ),
             UIHelper.verticalSpaceSmall(),
             FadeInUp(
-              delay: Duration(milliseconds: 400),
+              delay: const Duration(milliseconds: 400),
               from: 60,
               child: BoxText.body(tournament.endDate),
             ),
@@ -344,9 +332,9 @@ class TournamentParticipantInformation extends StatelessWidget {
               children: [
                 // UIHelper.verticalSpaceMedium(),
                 FadeInUp(
-                  delay: Duration(milliseconds: 400),
+                  delay: const Duration(milliseconds: 400),
                   from: 60,
-                  child: BoxText.headingFive('Mode'),
+                  child: const BoxText.headingFive('Mode'),
                 ),
               ],
             ),

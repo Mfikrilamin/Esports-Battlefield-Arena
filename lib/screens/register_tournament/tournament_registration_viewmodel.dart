@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:esports_battlefield_arena/app/app.dart';
 import 'package:esports_battlefield_arena/app/router.dart';
 import 'package:esports_battlefield_arena/app/router.gr.dart';
@@ -40,16 +42,19 @@ class TournamentRegistrationViewModel extends FutureViewModel<void> {
   List<bool> _isUsernameValid = [];
   List<User> _userListState = [];
 
-  //Verification purposes
+  //Verification state
   List<String> _usernameList = [];
   List<String> _usernameId = [];
   List<String> _tagline = [];
   List<int> _selectedPlatformIndex = [];
 
-  //state
+  //data of the view
   String _teamName = '';
   String _teamCountry = '';
+
+  //state of the view
   List<bool> _isBusyVerifying = [];
+  bool _registerButtonBusy = false;
 
   //getter
   String get getTeamName => _teamName;
@@ -61,7 +66,9 @@ class TournamentRegistrationViewModel extends FutureViewModel<void> {
   List<bool> get getIsUsernameValid => _isUsernameValid;
   List<int> get getSelectedPlatformIndex => _selectedPlatformIndex;
   List<bool> get isBusyVerifying => _isBusyVerifying;
+  bool get isRegisterButtonBusy => _registerButtonBusy;
 
+  //setter
   void updateTeamName(String teamName) {
     _teamName = teamName;
   }
@@ -88,6 +95,7 @@ class TournamentRegistrationViewModel extends FutureViewModel<void> {
     _log.debug('index $index: ${_emailController[index]}');
   }
 
+  // business logic
   Future<bool> checkPlayerExistByEmail(String email) async {
     try {
       _log.debug(email);
@@ -117,55 +125,19 @@ class TournamentRegistrationViewModel extends FutureViewModel<void> {
     return true;
   }
 
-  registerTournament(String tournamentId, context, int totalEmailCount,
+  Future<String> registerTournament(
+      String tournamentId, context, int totalEmailCount,
       {bool isSolo = false}) async {
     try {
       if (_userListState.length != totalEmailCount ||
           _teamName.isEmpty ||
           _teamCountry.isEmpty) {
-        showDialog(
-          context: context,
-          builder: (_) => AlertDialog(
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: const [
-                    Icon(
-                      Icons.check_circle,
-                      color: Colors.red,
-                    ),
-                    Text("Please fill in all input"),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-        return;
+        return "Please fill in all input";
       } else if (!checkIfAllUsernameIsVerified()) {
-        showDialog(
-          context: context,
-          builder: (_) => AlertDialog(
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: const [
-                    Icon(
-                      Icons.check_circle,
-                      color: Colors.red,
-                    ),
-                    Text("Please verify username"),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-        return;
+        return "Please verify username";
       }
-      setBusy(true);
+      _registerButtonBusy = true;
+      notifyListeners();
       Tournament tournament = Tournament.fromJson(
           await _database.get(tournamentId, FirestoreCollections.tournament));
 
@@ -216,74 +188,26 @@ class TournamentRegistrationViewModel extends FutureViewModel<void> {
 
         bool hasPay =
             await makePayment(tournament.entryFee, participant, context);
+        _registerButtonBusy = false;
+        notifyListeners();
         if (hasPay) {
-          showDialog(
-            context: context,
-            builder: (_) => AlertDialog(
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    children: const [
-                      Icon(
-                        Icons.check_circle,
-                        color: Colors.green,
-                      ),
-                      Text("Register Successfull"),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          );
+          return "Register Successfull";
+        } else {
+          return "Payment Failed";
         }
-        // _router.pop
-        _router.popUntilRouteWithName(HomeRoute.name);
       } else if (tournament.currentParticipant.length >=
           tournament.maxParticipants) {
-        showDialog(
-          context: context,
-          builder: (_) => AlertDialog(
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: const [
-                    Icon(
-                      Icons.check_circle,
-                      color: Colors.red,
-                    ),
-                    Text("Tournament is full"),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
+        _registerButtonBusy = false;
+        notifyListeners();
+        return "Tournament is full";
       } else {
-        showDialog(
-          context: context,
-          builder: (_) => AlertDialog(
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: const [
-                    Icon(
-                      Icons.check_circle,
-                      color: Colors.red,
-                    ),
-                    Text("You already registered"),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
+        _registerButtonBusy = false;
+        notifyListeners();
+        return "You already registered";
       }
-      setBusy(false);
     } on Failure catch (e) {
       _log.debug(e.toString());
+      return 'e.toString()';
     }
   }
 
@@ -562,5 +486,11 @@ class TournamentRegistrationViewModel extends FutureViewModel<void> {
     } catch (e) {
       _log.debug(e.toString());
     }
+  }
+
+  // Navigation
+  void navigateToAfterTournamentRegistration() {
+    _router.popUntilRoot();
+    _router.push(const HomeRoute());
   }
 }
